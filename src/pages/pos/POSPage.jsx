@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { formatCurrency, getInitials } from '../../utils/helpers';
+import { formatCurrency, getInitials, calculateNetFromGross } from '../../utils/helpers';
 import { PERMISSIONS } from '../../utils/rbac';
+import { useBarcodeScannerInput } from '../../hooks/useBarcodeScannerInput';
 import toast from 'react-hot-toast';
 import {
   FiSearch, FiX, FiPlus, FiMinus, FiTrash2, FiPause,
   FiCreditCard, FiDollarSign, FiPercent, FiUser,
-  FiGrid, FiTag, FiShoppingBag, FiArrowRight, FiPackage
+  FiGrid, FiTag, FiShoppingBag, FiArrowRight, FiPackage, FiVideo
 } from 'react-icons/fi';
+import BarcodeScanner from '../../components/BarcodeScanner/BarcodeScanner';
 
 const QUICK_TILES = [
   { id: 'bag-s', name: 'Reklamówka mała', price: 0.15, icon: '🛍️' },
@@ -20,45 +22,28 @@ const QUICK_TILES = [
 ];
 
 export default function POSPage() {
-  const { products, findProduct, findProductByBarcode, getCrossSellProducts, customers, getCustomerDiscount, addTransaction, updateProductStock } = useStore();
+  const { products, findProduct, findProductByBarcode, getCrossSellProducts, customers, getCustomerDiscount, addTransaction, updateProductStock, saveDocument, addPosLog, posSession } = useStore();
   const { profile, can } = useAuth();
 
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [discount, setDiscount] = useState(0);
   const [showPayment, setShowPayment] = useState(false);
   const [crossSellProducts, setCrossSellProducts] = useState([]);
   const [showTiles, setShowTiles] = useState(true);
+  const [showScanner, setShowScanner] = useState(false);
+  const [nip, setNip] = useState('');
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerAddress, setBuyerAddress] = useState('');
+  const [isSearchingNip, setIsSearchingNip] = useState(false);
   const searchRef = useRef(null);
-  const barcodeRef = useRef(null);
 
-  // Barcode scanning simulation
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (showPayment) return;
-      if (e.target.tagName === 'INPUT') return;
-      // Simulate barcode scanner
-    };
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [showPayment]);
-
-  const handleSearch = useCallback((query) => {
-    setSearchQuery(query);
-    if (query.length >= 2) {
-      const results = findProduct(query).slice(0, 8);
-      setSearchResults(results);
-      setShowSearch(true);
-    } else {
-      setSearchResults([]);
-      setShowSearch(false);
-    }
-  }, [findProduct]);
-
+  // ── addToCart musi być zdefiniowany JAKO PIERWSZY ─────────────────────────
+  // bo handleSearchKeyDown, handleCameraScan i useBarcodeScannerInput go używają
   const addToCart = useCallback((product, qty = 1) => {
+    if (!product) return;
     setCart(prev => {
       const existing = prev.find(item => item.product_id === product.id);
       if (existing) {
@@ -71,7 +56,7 @@ export default function POSPage() {
       return [...prev, {
         product_id: product.id,
         name: product.name,
-        sku: product.sku,
+        sku: product.sku || '',
         price: product.sell_price,
         qty,
         unit: product.unit || 'szt',
@@ -80,7 +65,7 @@ export default function POSPage() {
     });
 
     const crossSell = getCrossSellProducts(product.id);
-    if (crossSell.length > 0) {
+    if (crossSell && crossSell.length > 0) {
       setCrossSellProducts(crossSell);
     }
 
@@ -88,6 +73,48 @@ export default function POSPage() {
     setShowSearch(false);
     toast.success(`Dodano: ${product.name}`, { duration: 1500 });
   }, [getCrossSellProducts]);
+
+  // ── Obsługa fizycznego skanera USB/Bluetooth (Keyboard Wedge) ─────────────
+  // Hook nasłuchuje globalnie na szybkie wpisywanie zakończone Enter-em
+  useBarcodeScannerInput(useCallback((scannedCode) => {
+    if (!scannedCode) return;
+    const found = findProductByBarcode(scannedCode) || findProduct(scannedCode)[0];
+    if (found) {
+      addToCart(found);
+      toast.success(`📷 Zeskanowano: ${found.name}`, { duration: 2000 });
+    } else {
+      toast.error(`Nieznany kod: ${scannedCode}`, { duration: 2000 });
+    }
+  }, [findProductByBarcode, findProduct, addToCart]), { disabled: showPayment });
+
+  const handleSearch = useCallback((query) => {
+    setSearchQuery(query);
+    if (query && query.trim().length >= 2) {
+      const results = findProduct(query).slice(0, 8);
+      setSearchResults(results || []);
+      setShowSearch(true);
+    } else {
+      setSearchResults([]);
+      setShowSearch(false);
+    }
+  }, [findProduct]);
+
+  const handleSearchKeyDown = useCallback((e) => {
+    if (e.key === 'Enter' && searchResults && searchResults.length > 0) {
+      if (searchResults[0]) addToCart(searchResults[0]);
+    }
+  }, [searchResults, addToCart]);
+
+  const handleCameraScan = useCallback((code) => {
+    setShowScanner(false);
+    const product = findProductByBarcode(code) || findProduct(code)[0];
+    if (product) {
+      addToCart(product);
+      toast.success(`📷 Zeskanowano: ${product.name}`);
+    } else {
+      toast.error(`Nie znaleziono produktu: ${code}`);
+    }
+  }, [findProductByBarcode, findProduct, addToCart]);
 
   const addQuickTile = useCallback((tile) => {
     setCart(prev => {
@@ -127,14 +154,12 @@ export default function POSPage() {
 
   const clearCart = useCallback(() => {
     setCart([]);
-    setSelectedCustomer(null);
     setDiscount(0);
     setCrossSellProducts([]);
   }, []);
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty * (1 - item.discount / 100), 0);
-  const customerDiscount = selectedCustomer ? getCustomerDiscount(selectedCustomer.id) : 0;
-  const totalDiscount = Math.max(discount, customerDiscount);
+  const totalDiscount = discount;
   const discountAmount = subtotal * (totalDiscount / 100);
   const total = subtotal - discountAmount;
   const vat = total * 0.23 / 1.23; // Assuming 23% VAT included
@@ -143,36 +168,145 @@ export default function POSPage() {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [cashGiven, setCashGiven] = useState('');
 
+  const handleNipLookup = async () => {
+    const cleanNip = nip.replace(/[^0-9]/g, '');
+    if (cleanNip.length !== 10) {
+      toast.error('NIP musi mieć 10 cyfr');
+      return;
+    }
+
+    setIsSearchingNip(true);
+    const statusToast = toast.loading('Pobieram dane z Ministerstwa Finansów...');
+
+    // 1. Szukaj w lokalnej bazie klientów
+    const local = customers.find(c => c.nip?.replace(/[^0-9]/g, '') === cleanNip);
+    if (local) {
+      setBuyerName(local.company_name || local.name);
+      setBuyerAddress(local.address || '');
+      toast.dismiss(statusToast);
+      toast.success('Znaleziono klienta w bazie');
+      setIsSearchingNip(false);
+      return;
+    }
+
+    // 2. Szukaj w oficjalnym rejestrze Ministerstwa Finansów (Biała Lista)
+    // Omijamy CORS używając lokalnego proxy skonfigurowanego w vite.config.js
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const response = await fetch(`/api-proxy/mf/${cleanNip}?date=${today}`, {
+        signal: AbortSignal.timeout(8000)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const subject = data.result?.subject;
+        if (subject && subject.name) {
+          setBuyerName(subject.name);
+          setBuyerAddress(subject.workingAddress || subject.residenceAddress || '');
+          toast.dismiss(statusToast);
+          toast.success('Dane firmy pobrane z rejestru MF!');
+          setIsSearchingNip(false);
+          return;
+        }
+      } else {
+        // Ministerstwo Finansów zwraca kod WL-115 dla NIP-ów, które matematycznie lub fizycznie nie istnieją
+        if (data.code === 'WL-115') {
+          toast.dismiss(statusToast);
+          toast.error(`NIP ${cleanNip} jest nieprawidłowy lub nie istnieje w rejestrze MF.`);
+          setIsSearchingNip(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('MF API Error:', error);
+    }
+
+    toast.dismiss(statusToast);
+    toast.error('Nie udało się pobrać danych. Sprawdź NIP lub wpisz dane ręcznie.');
+    setIsSearchingNip(false);
+  };
+
   function openPayment() {
     if (cart.length === 0) return;
     setShowPayment(true);
     setPaymentMethods([{ method: 'cash', amount: total }]);
     setCashGiven('');
+    // Resetuj dane nabywcy
+    setNip('');
+    setBuyerName('');
+    setBuyerAddress('');
   }
 
-  function processPayment() {
-    const txn = {
-      id: String(Date.now()),
-      type: 'sale',
-      status: 'completed',
-      customer_id: selectedCustomer?.id || null,
-      seller_id: profile?.id,
-      total,
-      items: cart.map(i => ({ product_id: i.product_id, name: i.name, qty: i.qty, price: i.price })),
-      payments: paymentMethods,
-      created_at: new Date().toISOString(),
-    };
+  async function processPayment() {
+    try {
+      const txnId = String(Date.now());
+      const txn = {
+        id: txnId,
+        type: 'sale',
+        status: 'completed',
+        customer_id: null,
+        seller_id: profile?.id,
+        total,
+        items: cart.map(i => ({ product_id: i.product_id, name: i.name, qty: i.qty, price: i.price })),
+        payments: paymentMethods,
+        created_at: new Date().toISOString(),
+      };
 
-    addTransaction(txn);
-    cart.forEach(item => {
-      if (!item.product_id.startsWith('tile-')) {
-        updateProductStock(item.product_id, -item.qty);
+      // 1. Zapisz transakcję (rejestr finansowy)
+      await addTransaction(txn);
+
+      // 2. Zapisz dokument (paragon do ewidencji)
+      const docData = {
+        id: `PAR/${new Date().getFullYear()}/${txnId.slice(-6)}`,
+        type: 'receipt', // Typ: Paragon
+        customer: buyerName || 'Klient detaliczny',
+        total: total,
+        items: cart.map(i => ({
+          product_id: i.product_id,
+          name: i.name,
+          qty: i.qty,
+          price: i.price, // cena brutto
+          price_net: calculateNetFromGross(i.price, 23), // zakladamy 23% VAT dla paragonu
+          unit: i.unit || 'szt'
+        })),
+        date: txn.created_at,
+        issued_by: profile?.id, // Kto wystawił
+        seller: profile?.full_name || 'System',
+        payment_method: paymentMethods.map(m => `${m.method === 'cash' ? 'Gotówka' : m.method === 'card' ? 'Karta' : 'Przelew'}`).join(', '),
+        buyer: {
+          name: buyerName || 'Klient detaliczny',
+          nip: nip || '------',
+          address: buyerAddress || ''
+        }
+      };
+      await saveDocument(docData);
+
+      // Zapisz zdarzenie sprzedaży w historii działań POS
+      if (addPosLog) {
+        addPosLog(
+          'sale',
+          profile?.full_name || posSession?.posUser?.name || posSession?.posUser?.full_name || 'System',
+          posSession?.selectedRegister || 'Kasa',
+          `Paragon ${docData.id}`,
+          total
+        );
       }
-    });
 
-    toast.success('Transakcja zakończona!', { icon: '✅', duration: 3000 });
-    setShowPayment(false);
-    clearCart();
+      // 3. Aktualizuj stany magazynowe
+      for (const item of cart) {
+        if (!item.product_id.startsWith('tile-')) {
+          await updateProductStock(item.product_id, -item.qty);
+        }
+      }
+
+      toast.success('Transakcja zakończona i zapisana!', { icon: '✅', duration: 3000 });
+      setShowPayment(false);
+      clearCart();
+    } catch (error) {
+      console.error('Błąd podczas finalizacji płatności:', error);
+      toast.error('Wystąpił błąd podczas zapisywania transakcji. Spróbuj ponownie.');
+    }
   }
 
   // Parked receipts
@@ -205,21 +339,30 @@ export default function POSPage() {
                 ref={searchRef}
                 type="text"
                 className="input"
-                placeholder="Skanuj kod kreskowy lub wpisz nazwę produktu..."
+                placeholder="Skanuj kod lub wpisz nazwę produktu..."
                 style={{ paddingLeft: 40, fontSize: '1rem' }}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 autoFocus
               />
-              {searchQuery && (
+              <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: 4 }}>
+                {searchQuery && (
+                  <button
+                    className="btn btn-ghost btn-icon btn-sm"
+                    onClick={() => { setSearchQuery(''); setShowSearch(false); }}
+                  >
+                    <FiX size={16} />
+                  </button>
+                )}
                 <button
-                  className="btn btn-ghost btn-icon"
-                  style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)' }}
-                  onClick={() => { setSearchQuery(''); setShowSearch(false); }}
+                  className="btn btn-ghost btn-icon btn-sm"
+                  onClick={() => setShowScanner(true)}
+                  title="Skanuj kamerą"
                 >
-                  <FiX size={16} />
+                  <FiVideo size={18} />
                 </button>
-              )}
+              </div>
             </div>
             <button
               className={`btn ${showTiles ? 'btn-primary' : 'btn-secondary'}`}
@@ -353,38 +496,6 @@ export default function POSPage() {
           </div>
         </div>
 
-        {/* Customer */}
-        <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-light)' }}>
-          {selectedCustomer ? (
-            <div className="flex-between" style={{ padding: '4px 0' }}>
-              <div className="flex gap-8" style={{ alignItems: 'center' }}>
-                <FiUser size={14} style={{ color: 'var(--accent-light)' }} />
-                <span style={{ fontSize: '0.8rem' }}>{selectedCustomer.name}</span>
-                {customerDiscount > 0 && (
-                  <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>-{customerDiscount}%</span>
-                )}
-              </div>
-              <button className="btn btn-ghost btn-sm" onClick={() => setSelectedCustomer(null)}>
-                <FiX size={12} />
-              </button>
-            </div>
-          ) : (
-            <select
-              className="select"
-              style={{ fontSize: '0.8rem', padding: '6px 8px' }}
-              value=""
-              onChange={(e) => {
-                const c = customers.find(c => c.id === e.target.value);
-                setSelectedCustomer(c);
-              }}
-            >
-              <option value="">+ Dodaj klienta (opcjonalnie)</option>
-              {customers.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          )}
-        </div>
 
         {/* Cart items */}
         <div className="pos-cart-items">
@@ -545,6 +656,43 @@ export default function POSPage() {
                 </div>
               )}
 
+              <div style={{ marginTop: 24, padding: 16, background: 'var(--bg-subtle, #f1f5f9)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 12 }}>Dane nabywcy / NIP</div>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Wpisz NIP (opcjonalnie)..."
+                    value={nip}
+                    onChange={e => setNip(e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleNipLookup}
+                    disabled={isSearchingNip || !nip}
+                  >
+                    {isSearchingNip ? '...' : 'Szukaj'}
+                  </button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <input
+                    type="text"
+                    className="input input-sm"
+                    placeholder="Nazwa nabywcy"
+                    value={buyerName}
+                    onChange={e => setBuyerName(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    className="input input-sm"
+                    placeholder="Adres (opcjonalnie)"
+                    value={buyerAddress}
+                    onChange={e => setBuyerAddress(e.target.value)}
+                  />
+                </div>
+              </div>
+
               <div style={{ marginTop: 24 }}>
                 <label className="text-xs text-muted" style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Typ dokumentu
@@ -568,6 +716,15 @@ export default function POSPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Camera Scanner Modal */}
+      {showScanner && (
+        <BarcodeScanner
+          onConfirm={handleCameraScan}
+          onClose={() => setShowScanner(false)}
+          title="Kasowanie towaru (Kamera)"
+        />
       )}
     </div>
   );

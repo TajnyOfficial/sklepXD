@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { StoreProvider } from './contexts/StoreContext';
+import toast from 'react-hot-toast';
 import { ROLE_LABELS } from './utils/rbac';
 import { getInitials } from './utils/helpers';
 import {
@@ -9,26 +10,17 @@ import {
   FiFileText, FiPackage, FiTruck, FiCheckSquare, FiDollarSign,
   FiClock, FiMessageSquare, FiSettings, FiSearch, FiBell,
   FiChevronDown, FiChevronRight, FiLogOut, FiMenu, FiAlertTriangle, FiX,
-  FiGrid
+  FiGrid, FiVideo
 } from 'react-icons/fi';
 
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 
 // === POS Module ===
-import POSPage from './pages/pos/POSPage';
-import ParkedReceiptsPage from './pages/pos/ParkedReceiptsPage';
-import CashDrawerPage from './pages/pos/CashDrawerPage';
-
-// === Orders Module ===
-import OrdersPage from './pages/orders/OrdersPage';
-import ReservationsPage from './pages/orders/ReservationsPage';
+import POSHistoryPage from './pages/pos/POSHistoryPage';
 
 // === Returns Module ===
 import ReturnsPage from './pages/returns/ReturnsPage';
-
-// === Customers Module ===
-import CustomersPage from './pages/customers/CustomersPage';
 
 // === Documents Module ===
 import DocumentsPage from './pages/documents/DocumentsPage';
@@ -60,7 +52,6 @@ import TimeTrackingPage from './pages/hr/TimeTrackingPage';
 import SchedulePage from './pages/hr/SchedulePage';
 import AbsencesPage from './pages/hr/AbsencesPage';
 import EmployeesPage from './pages/hr/EmployeesPage';
-import CommissionsPage from './pages/hr/CommissionsPage';
 
 // === Communication Module ===
 import AnnouncementsPage from './pages/communication/AnnouncementsPage';
@@ -72,10 +63,15 @@ import StoreSettingsPage from './pages/admin/StoreSettingsPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import SecurityPage from './pages/admin/SecurityPage';
 
+
+// === Kiosk i Mobile — teraz osobne aplikacje pod /kiosk/ i /mobile/ ===
+// Dostępne pod URL-ami: /kiosk/  /pos/  /mobile/
+// (wbudowane multi-entry w vite.config.js)
+
 const ICON_MAP = {
   FiHome, FiShoppingCart, FiClipboard, FiRotateCcw, FiUsers,
   FiFileText, FiPackage, FiTruck, FiCheckSquare, FiDollarSign,
-  FiClock, FiMessageSquare, FiSettings, FiGrid
+  FiClock, FiMessageSquare, FiSettings, FiGrid, FiVideo
 };
 
 function Sidebar({ navItems, collapsed, onToggle }) {
@@ -148,13 +144,34 @@ function Sidebar({ navItems, collapsed, onToggle }) {
         })}
       </nav>
 
+      {/* ── Linki do zewnętrznych aplikacji ───────────────────────── */}
+      {!collapsed && (
+        <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)', marginTop: 4 }}>
+          <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 600 }}>Aplikacje</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {[
+              { label: '🖥️ Kiosk', href: '/kiosk/' },
+              { label: '🛒 Kasa', href: '/pos/' },
+              { label: '📱 Mobile', href: '/mobile/' },
+            ].map(({ label, href }) => (
+              <a key={href} href={href} target="_blank" rel="noopener noreferrer" style={{
+                fontSize: '0.7rem', padding: '3px 8px', borderRadius: 6,
+                background: 'var(--bg-alt)', color: 'var(--text-muted)',
+                border: '1px solid var(--border)', textDecoration: 'none',
+                cursor: 'pointer', fontWeight: 500,
+              }}>{label}</a>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="sidebar-footer">
         <div className="sidebar-user" onClick={logout} title="Wyloguj się">
           <div className="sidebar-avatar">{getInitials(profile?.full_name)}</div>
-          {!collapsed && (
+          {profile && !collapsed && (
             <div className="sidebar-user-info" style={{ flex: 1 }}>
-              <div className="sidebar-user-name">{profile?.full_name}</div>
-              <div className="sidebar-user-role">{ROLE_LABELS[profile?.role]}</div>
+              <div className="sidebar-user-name">{profile?.full_name || 'Użytkownik'}</div>
+              <div className="sidebar-user-role">{ROLE_LABELS[profile?.role] || 'Pracownik'}</div>
             </div>
           )}
           {!collapsed && <FiLogOut size={16} style={{ color: 'var(--text-muted)' }} />}
@@ -194,87 +211,75 @@ function TopBar({ onMenuToggle }) {
 function AppLayout() {
   const { navItems } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const navigate = useNavigate();
 
   return (
-    <StoreProvider>
-      <div className="app-layout">
-        <Sidebar
-          navItems={navItems}
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(p => !p)}
-        />
-        <main className="app-main" style={{
-          marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)'
-        }}>
-          <TopBar onMenuToggle={() => setSidebarCollapsed(p => !p)} />
-          <div className="app-content">
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
+    <div className="app-layout">
+      <Sidebar
+        navItems={navItems}
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(p => !p)}
+      />
+      <main className="app-main" style={{
+        marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)'
+      }}>
+        <TopBar onMenuToggle={() => setSidebarCollapsed(p => !p)} />
+        <div className="app-content">
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/pos" element={<Navigate to="/pos/history" replace />} />
+            <Route path="/pos/history" element={<POSHistoryPage />} />
 
-              {/* POS */}
-              <Route path="/pos/register" element={<POSPage />} />
-              <Route path="/pos/parked" element={<ParkedReceiptsPage />} />
-              <Route path="/pos/cash-drawer" element={<CashDrawerPage />} />
+            {/* Returns */}
+            <Route path="/returns" element={<ReturnsPage />} />
 
-              {/* Orders */}
-              <Route path="/orders" element={<OrdersPage />} />
-              <Route path="/orders/reservations" element={<ReservationsPage />} />
+            {/* Documents */}
+            <Route path="/documents" element={<DocumentsPage />} />
 
-              {/* Returns */}
-              <Route path="/returns" element={<ReturnsPage />} />
+            {/* Warehouse */}
+            <Route path="/warehouse/products" element={<ProductCatalogPage />} />
+            <Route path="/warehouse/stock" element={<StockOverviewPage />} />
+            <Route path="/warehouse/locations" element={<LocationsPage />} />
+            <Route path="/warehouse/alerts" element={<AlertsPage />} />
+            <Route path="/warehouse/transfers" element={<TransfersPage />} />
 
-              {/* Customers */}
-              <Route path="/customers" element={<CustomersPage />} />
+            {/* Deliveries */}
+            <Route path="/deliveries" element={<DeliveriesPage />} />
+            <Route path="/deliveries/suppliers" element={<SuppliersPage />} />
+            <Route path="/deliveries/schedule" element={<DeliverySchedulePage />} />
 
-              {/* Documents */}
-              <Route path="/documents" element={<DocumentsPage />} />
+            {/* Inventory */}
+            <Route path="/inventory" element={<InventoryPage />} />
 
-              {/* Warehouse */}
-              <Route path="/warehouse/products" element={<ProductCatalogPage />} />
-              <Route path="/warehouse/stock" element={<StockOverviewPage />} />
-              <Route path="/warehouse/locations" element={<LocationsPage />} />
-              <Route path="/warehouse/alerts" element={<AlertsPage />} />
-              <Route path="/warehouse/transfers" element={<TransfersPage />} />
+            {/* Finance */}
+            <Route path="/finance/invoices" element={<InvoicesPage />} />
+            <Route path="/finance/expenses" element={<ExpensesPage />} />
+            <Route path="/finance/payments" element={<PaymentsPage />} />
+            <Route path="/finance/cash" element={<CashReportPage />} />
+            <Route path="/finance/analytics" element={<AnalyticsPage />} />
 
-              {/* Deliveries */}
-              <Route path="/deliveries" element={<DeliveriesPage />} />
-              <Route path="/deliveries/suppliers" element={<SuppliersPage />} />
-              <Route path="/deliveries/schedule" element={<DeliverySchedulePage />} />
+            {/* HR */}
+            <Route path="/hr/time" element={<TimeTrackingPage />} />
+            <Route path="/hr/schedule" element={<SchedulePage />} />
+            <Route path="/hr/absences" element={<AbsencesPage />} />
+            <Route path="/hr/employees" element={<EmployeesPage />} />
 
-              {/* Inventory */}
-              <Route path="/inventory" element={<InventoryPage />} />
+            {/* Communication */}
+            <Route path="/communication/announcements" element={<AnnouncementsPage />} />
+            <Route path="/communication/tasks" element={<TasksPage />} />
 
-              {/* Finance */}
-              <Route path="/finance/invoices" element={<InvoicesPage />} />
-              <Route path="/finance/expenses" element={<ExpensesPage />} />
-              <Route path="/finance/payments" element={<PaymentsPage />} />
-              <Route path="/finance/cash" element={<CashReportPage />} />
-              <Route path="/finance/analytics" element={<AnalyticsPage />} />
+            {/* Admin */}
+            <Route path="/admin/roles" element={<RolesPage />} />
+            <Route path="/admin/settings" element={<StoreSettingsPage />} />
+            <Route path="/admin/audit" element={<AuditLogPage />} />
+            <Route path="/admin/security" element={<SecurityPage />} />
 
-              {/* HR */}
-              <Route path="/hr/time" element={<TimeTrackingPage />} />
-              <Route path="/hr/schedule" element={<SchedulePage />} />
-              <Route path="/hr/absences" element={<AbsencesPage />} />
-              <Route path="/hr/employees" element={<EmployeesPage />} />
-              <Route path="/hr/commissions" element={<CommissionsPage />} />
-
-              {/* Communication */}
-              <Route path="/communication/announcements" element={<AnnouncementsPage />} />
-              <Route path="/communication/tasks" element={<TasksPage />} />
-
-              {/* Admin */}
-              <Route path="/admin/roles" element={<RolesPage />} />
-              <Route path="/admin/settings" element={<StoreSettingsPage />} />
-              <Route path="/admin/audit" element={<AuditLogPage />} />
-              <Route path="/admin/security" element={<SecurityPage />} />
-
-              {/* Catch-all redirect */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-        </main>
-      </div>
-    </StoreProvider>
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -289,9 +294,17 @@ export default function App() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
-
-  return <AppLayout />;
+  // StoreProvider owija wszystkie trasy głównej aplikacji
+  // Kiosk/POS/Mobile mają własne StoreProvider w swoich entry points
+  return (
+    <StoreProvider>
+      <Routes>
+        {/* Główna aplikacja z autentykacją */}
+        <Route
+          path="/*"
+          element={!isAuthenticated ? <LoginPage /> : <AppLayout />}
+        />
+      </Routes>
+    </StoreProvider>
+  );
 }

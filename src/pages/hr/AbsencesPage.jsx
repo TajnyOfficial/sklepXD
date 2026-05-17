@@ -3,12 +3,7 @@ import { FiCalendar, FiPlus, FiCheck, FiX } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const DEMO = [
-  { id: '1', name: 'Anna Nowak', type: 'vacation', from: '2026-03-18', to: '2026-03-22', days: 5, status: 'pending', note: 'Urlop wypoczynkowy' },
-  { id: '2', name: 'Tomasz Lewandowski', type: 'sick_leave', from: '2026-03-10', to: '2026-03-12', days: 3, status: 'approved', note: 'Zwolnienie lekarskie' },
-  { id: '3', name: 'Maria Zielińska', type: 'on_demand', from: '2026-03-14', to: '2026-03-14', days: 1, status: 'pending', note: 'Urlop na żądanie — sprawy urzędowe' },
-  { id: '4', name: 'Piotr Wiśniewski', type: 'vacation', from: '2026-04-01', to: '2026-04-14', days: 14, status: 'approved', note: 'Urlop wypoczynkowy — wyjazd' },
-];
+const DEMO = [];
 const TYPES = { vacation: 'Urlop wypocz.', sick_leave: 'L4', on_demand: 'Na żądanie', personal: 'Okolicznościowy', other: 'Inny' };
 const EMPTY = { name: '', type: 'vacation', from: '', to: '', note: '' };
 

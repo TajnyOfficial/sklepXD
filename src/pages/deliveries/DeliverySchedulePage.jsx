@@ -1,4 +1,4 @@
-import { FiCalendar, FiTruck } from 'react-icons/fi';
+import { FiTruck } from 'react-icons/fi';
 
 const DAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
 const SCHEDULE = [

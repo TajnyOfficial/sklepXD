@@ -95,9 +95,10 @@ export const PERMISSIONS = {
   TASKS_COMPLETE: 'tasks.complete',
   ANNOUNCEMENTS_VIEW: 'announcements.view',
   ANNOUNCEMENTS_CREATE: 'announcements.create',
+  KIOSK_ACCESS: 'kiosk.access',
 };
 
-const ROLE_PERMISSIONS = {
+export const ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: Object.values(PERMISSIONS), // all permissions
 
   [ROLES.SHIFT_MANAGER]: [
@@ -116,6 +117,7 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.ADMIN_AUDIT, PERMISSIONS.ADMIN_CRISIS,
     PERMISSIONS.TASKS_VIEW, PERMISSIONS.TASKS_CREATE, PERMISSIONS.TASKS_COMPLETE,
     PERMISSIONS.ANNOUNCEMENTS_VIEW, PERMISSIONS.ANNOUNCEMENTS_CREATE,
+    PERMISSIONS.KIOSK_ACCESS,
   ],
 
   [ROLES.SALES_MANAGER]: [
@@ -161,6 +163,7 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.HR_OWN_TIME,
     PERMISSIONS.TASKS_VIEW, PERMISSIONS.TASKS_COMPLETE,
     PERMISSIONS.ANNOUNCEMENTS_VIEW,
+    PERMISSIONS.KIOSK_ACCESS,
   ],
 
   [ROLES.WAREHOUSE_WORKER]: [
@@ -227,33 +230,16 @@ export function getNavItems(userRole) {
       icon: 'FiShoppingCart',
       path: '/pos',
       children: [
-        { id: 'pos-register', label: 'Kasa', path: '/pos/register' },
-        { id: 'pos-parked', label: 'Zaparkowane', path: '/pos/parked' },
-        { id: 'pos-cash-drawer', label: 'Szuflada', path: '/pos/cash-drawer' },
+        { id: 'pos-history', label: 'Historia działań', path: '/pos/history' },
       ],
     });
   }
 
-  if (hasAnyPermission(userRole, [PERMISSIONS.ORDERS_VIEW, PERMISSIONS.ORDERS_MANAGE])) {
-    items.push({
-      id: 'orders',
-      label: 'Zamówienia',
-      icon: 'FiClipboard',
-      path: '/orders',
-      children: [
-        { id: 'orders-list', label: 'Lista zamówień', path: '/orders' },
-        { id: 'orders-reservations', label: 'Rezerwacje', path: '/orders/reservations' },
-      ],
-    });
-  }
 
   if (hasAnyPermission(userRole, [PERMISSIONS.RETURNS_VIEW, PERMISSIONS.RETURNS_CREATE])) {
     items.push({ id: 'returns', label: 'Zwroty / RMA', icon: 'FiRotateCcw', path: '/returns' });
   }
 
-  if (hasAnyPermission(userRole, [PERMISSIONS.CUSTOMERS_VIEW])) {
-    items.push({ id: 'customers', label: 'Klienci', icon: 'FiUsers', path: '/customers' });
-  }
 
   if (hasAnyPermission(userRole, [PERMISSIONS.DOCS_VIEW])) {
     items.push({ id: 'documents', label: 'Dokumenty', icon: 'FiFileText', path: '/documents' });
@@ -322,7 +308,6 @@ export function getNavItems(userRole) {
         ...(hasPermission(userRole, PERMISSIONS.HR_VIEW)
           ? [
               { id: 'hr-employees', label: 'Pracownicy', path: '/hr/employees' },
-              { id: 'hr-commissions', label: 'Prowizje', path: '/hr/commissions' },
             ]
           : []),
       ],

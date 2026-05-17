@@ -9,15 +9,18 @@ import {
 } from 'react-icons/fi';
 
 export default function DashboardPage() {
-  const { products, transactions, customers, getLowStockProducts } = useStore();
+  const { products, transactions, documents, getLowStockProducts } = useStore();
   const { profile, can } = useAuth();
 
   const todayTransactions = transactions.filter(t => {
-    const today = new Date().toISOString().split('T')[0];
-    return t.created_at?.startsWith(today);
+    if (!t.created_at) return false;
+    const localTxDate = new Date(t.created_at).toLocaleDateString('en-CA');
+    const localToday = new Date().toLocaleDateString('en-CA');
+    return localTxDate === localToday;
   });
 
-  const todayRevenue = todayTransactions.reduce((sum, t) => sum + (t.total || 0), 0);
+  const todayRevenue = todayTransactions.reduce((sum, t) => sum + (parseFloat(t.total) || 0), 0);
+  const totalReturns = documents ? documents.filter(d => d.type === 'return').length : 0;
   const lowStock = getLowStockProducts();
 
   return (
@@ -43,7 +46,7 @@ export default function DashboardPage() {
             <span className="stat-label">Obrót dziś</span>
             <span className="stat-value">{formatCurrency(todayRevenue)}</span>
             <span className="stat-change positive">
-              <FiArrowUpRight size={14} /> +12.5% vs wczoraj
+              <FiArrowUpRight size={14} /> Dzisiejsza sprzedaż
             </span>
           </div>
 
@@ -52,16 +55,16 @@ export default function DashboardPage() {
             <span className="stat-label">Transakcje dziś</span>
             <span className="stat-value">{todayTransactions.length}</span>
             <span className="stat-change positive">
-              <FiArrowUpRight size={14} /> +3 vs wczoraj
+              <FiArrowUpRight size={14} /> Dzisiejsza sprzedaż
             </span>
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon blue"><FiUsers /></div>
-            <span className="stat-label">Klienci</span>
-            <span className="stat-value">{customers.length}</span>
-            <span className="stat-change positive">
-              <FiArrowUpRight size={14} /> +2 ten tydzień
+            <div className="stat-icon red"><FiArrowDownRight /></div>
+            <span className="stat-label">Ilość zwrotów</span>
+            <span className="stat-value">{totalReturns}</span>
+            <span className="stat-change text-muted">
+              Wszystkie zarejestrowane
             </span>
           </div>
 
@@ -95,14 +98,14 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.slice(0, 5).map((t, i) => (
+                  {transactions.slice(0, 4).map((t, i) => (
                     <tr key={t.id}>
                       <td style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>#{t.id}</td>
                       <td style={{ fontWeight: 600 }}>{formatCurrency(t.total)}</td>
                       <td>
                         <span className="badge badge-ghost">
                           {t.payments?.[0]?.method === 'cash' ? 'Gotówka' :
-                           t.payments?.[0]?.method === 'card' ? 'Karta' : 'Przelew'}
+                            t.payments?.[0]?.method === 'card' ? 'Karta' : 'Przelew'}
                         </span>
                       </td>
                       <td className="text-sm text-muted">{formatDateTime(t.created_at)}</td>
@@ -162,43 +165,6 @@ export default function DashboardPage() {
               <h3>Wszystko w normie</h3>
               <p>Brak produktów z niskim stanem magazynowym</p>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="card mt-24">
-        <h3 className="mb-16">Szybkie akcje</h3>
-        <div className="quick-tiles">
-          {can(PERMISSIONS.POS_ACCESS) && (
-            <a href="/pos/register" className="quick-tile" style={{ textDecoration: 'none' }}>
-              <FiShoppingCart />
-              Nowa sprzedaż
-            </a>
-          )}
-          {can(PERMISSIONS.DELIVERIES_VIEW) && (
-            <a href="/deliveries" className="quick-tile" style={{ textDecoration: 'none' }}>
-              <FiTruck />
-              Nowa dostawa
-            </a>
-          )}
-          {can(PERMISSIONS.CUSTOMERS_MANAGE) && (
-            <a href="/customers" className="quick-tile" style={{ textDecoration: 'none' }}>
-              <FiUsers />
-              Dodaj klienta
-            </a>
-          )}
-          {can(PERMISSIONS.PRODUCTS_MANAGE) && (
-            <a href="/warehouse/products" className="quick-tile" style={{ textDecoration: 'none' }}>
-              <FiPackage />
-              Dodaj produkt
-            </a>
-          )}
-          {can(PERMISSIONS.FINANCE_VIEW) && (
-            <a href="/finance/analytics" className="quick-tile" style={{ textDecoration: 'none' }}>
-              <FiDollarSign />
-              Raport finansowy
-            </a>
           )}
         </div>
       </div>

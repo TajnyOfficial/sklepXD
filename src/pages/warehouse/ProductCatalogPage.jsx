@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { formatCurrency } from '../../utils/helpers';
-import { FiPackage, FiSearch, FiPlus, FiEdit, FiEye, FiTag, FiTrash2, FiPrinter } from 'react-icons/fi';
+import { FiPackage, FiSearch, FiPlus, FiEdit, FiEye, FiTag, FiTrash2, FiPrinter, FiVideo } from 'react-icons/fi';
+import BarcodeScanner from '../../components/BarcodeScanner/BarcodeScanner';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const EMPTY_PRODUCT = { name: '', sku: '', category_id: '', unit: 'szt', purchase_price: '', sell_price: '', min_stock: '', stock_qty: '', barcodes: '' };
+const EMPTY_PRODUCT = { name: '', sku: '', category_id: '', location_id: '', unit: 'szt', purchase_price: '', sell_price: '', min_stock: '', stock_qty: '', barcodes: '' };
 
 export default function ProductCatalogPage() {
-  const { products, categories, setProducts } = useStore();
+  const { products, categories, warehouseLocations, saveProduct, deleteProduct } = useStore();
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
@@ -18,6 +19,8 @@ export default function ProductCatalogPage() {
   const [viewProduct, setViewProduct] = useState(null);
   const [form, setForm] = useState(EMPTY_PRODUCT);
   const [selectedForLabels, setSelectedForLabels] = useState([]);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannerMode, setScannerMode] = useState('form'); // 'form' | 'search'
 
   const filtered = products.filter(p => {
     if (catFilter !== 'all' && p.category_id !== catFilter) return false;
@@ -33,7 +36,15 @@ export default function ProductCatalogPage() {
 
   function openEdit(product) {
     setEditingProduct(product);
-    setForm({ ...product, barcodes: product.barcodes?.join(', ') || '', purchase_price: String(product.purchase_price), sell_price: String(product.sell_price), min_stock: String(product.min_stock), stock_qty: String(product.stock_qty) });
+    setForm({
+      ...product,
+      barcodes: product.barcodes?.join(', ') || '',
+      purchase_price: String(product.purchase_price),
+      sell_price: String(product.sell_price),
+      min_stock: String(product.min_stock),
+      stock_qty: String(product.stock_qty),
+      location_id: product.location_id || ''
+    });
     setShowModal(true);
   }
 
@@ -42,34 +53,28 @@ export default function ProductCatalogPage() {
     setShowViewModal(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.name || !form.sku || !form.sell_price) {
       toast.error('Wypełnij wymagane pola: Nazwa, SKU, Cena sprzedaży');
       return;
     }
-    const product = {
-      ...form,
-      id: editingProduct?.id || crypto.randomUUID(),
-      purchase_price: parseFloat(form.purchase_price) || 0,
-      sell_price: parseFloat(form.sell_price) || 0,
-      min_stock: parseInt(form.min_stock) || 0,
-      stock_qty: editingProduct ? parseFloat(form.stock_qty) || 0 : parseInt(form.stock_qty) || 0,
-      barcodes: form.barcodes ? form.barcodes.split(',').map(b => b.trim()).filter(Boolean) : [],
-    };
-    if (editingProduct) {
-      setProducts(prev => prev.map(p => p.id === editingProduct.id ? product : p));
-      toast.success('Produkt zaktualizowany');
-    } else {
-      setProducts(prev => [...prev, product]);
-      toast.success('Produkt dodany');
+    try {
+      await saveProduct(form, editingProduct?.id || null);
+      toast.success(editingProduct ? 'Produkt zaktualizowany' : 'Produkt dodany i zapisany w bazie');
+      setShowModal(false);
+    } catch (err) {
+      toast.error(`Błąd zapisu: ${err.message || 'Sprawdź połączenie'}`);
     }
-    setShowModal(false);
   }
 
-  function handleDelete(product) {
+  async function handleDelete(product) {
     if (!confirm(`Usunąć produkt "${product.name}"?`)) return;
-    setProducts(prev => prev.filter(p => p.id !== product.id));
-    toast.success('Produkt usunięty');
+    try {
+      await deleteProduct(product.id);
+      toast.success('Produkt usunięty');
+    } catch (err) {
+      toast.error(`Błąd usunięcia: ${err.message}`);
+    }
   }
 
   function toggleLabel(id) {
@@ -88,6 +93,28 @@ export default function ProductCatalogPage() {
     toast.success(`Drukowanie ${prods.length} etykiet`);
   }
 
+  function handleScan(code) {
+    setShowScanner(false);
+    if (scannerMode === 'search') {
+      setSearch(code);
+      toast.success(`Wyszukiwanie kodu: ${code}`);
+      return;
+    }
+    const currentBarcodes = form.barcodes ? form.barcodes.split(',').map(b => b.trim()).filter(Boolean) : [];
+    if (!currentBarcodes.includes(code)) {
+      const updated = [...currentBarcodes, code].join(', ');
+      setForm(prev => ({ ...prev, barcodes: updated }));
+      toast.success(`Dodano kod: ${code}`);
+    } else {
+      toast.error('Ten kod jest już na liście');
+    }
+  }
+
+  function openScanner(mode) {
+    setScannerMode(mode);
+    setShowScanner(true);
+  }
+
   const F = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
 
   return (
@@ -101,9 +128,18 @@ export default function ProductCatalogPage() {
       </div>
 
       <div className="flex gap-12 mb-16" style={{ alignItems: 'center' }}>
-        <div style={{ flex: 1, position: 'relative', maxWidth: 400 }}>
-          <FiSearch style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <input className="input" placeholder="Szukaj po nazwie lub SKU..." style={{ paddingLeft: 36 }} value={search} onChange={e => setSearch(e.target.value)} />
+        <div style={{ flex: 1, display: 'flex', gap: 8, maxWidth: 450 }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <FiSearch style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input className="input" placeholder="Szukaj po nazwie, SKU lub kodzie..." style={{ paddingLeft: 36 }} value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+          <button
+            className="btn btn-secondary btn-icon"
+            onClick={() => openScanner('search')}
+            title="Szukaj skanerem"
+          >
+            <FiVideo size={18} />
+          </button>
         </div>
         <select className="select" style={{ width: 200 }} value={catFilter} onChange={e => setCatFilter(e.target.value)}>
           <option value="all">Wszystkie kategorie</option>
@@ -118,11 +154,22 @@ export default function ProductCatalogPage() {
           <tbody>
             {filtered.map(p => {
               const cat = categories.find(c => c.id === p.category_id);
+              const loc = warehouseLocations.find(l => l.id === p.location_id);
               const margin = p.purchase_price > 0 ? ((p.sell_price - p.purchase_price) / p.sell_price * 100).toFixed(1) : '—';
               return (
                 <tr key={p.id}>
                   <td className="font-mono text-sm">{p.sku}</td>
-                  <td style={{ fontWeight: 500 }}>{p.name}{p.barcodes?.length > 0 && <div className="text-xs text-muted">EAN: {p.barcodes[0]}</div>}</td>
+                  <td style={{ fontWeight: 500 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <span>{p.name}</span>
+                      {loc && (
+                        <span className="badge badge-success text-xs" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
+                          Sektor {loc.sector}
+                        </span>
+                      )}
+                    </div>
+                    {p.barcodes?.length > 0 && <div className="text-xs text-muted">EAN: {p.barcodes[0]}</div>}
+                  </td>
                   <td><span className="badge badge-ghost">{cat?.name || '—'}</span></td>
                   <td>{p.unit}</td>
                   <td className="text-muted">{formatCurrency(p.purchase_price)}</td>
@@ -170,19 +217,71 @@ export default function ProductCatalogPage() {
           <div className="input-group"><label>Stan magazynowy</label><input className="input" type="number" value={form.stock_qty} onChange={F('stock_qty')} /></div>
           <div className="input-group"><label>Minimalny stan</label><input className="input" type="number" value={form.min_stock} onChange={F('min_stock')} /></div>
         </div>
-        <div className="input-group"><label>Kody kreskowe (oddzielone przecinkiem)</label><input className="input" value={form.barcodes} onChange={F('barcodes')} placeholder="5901234567890, 5901234567891" /></div>
+        <div className="input-row mb-16">
+          <div className="input-group"><label>Lokalizacja magazynowa</label>
+            <select className="select" value={form.location_id || ''} onChange={F('location_id')}>
+              <option value="">— Brak (Brak lokalizacji) —</option>
+              {warehouseLocations.map(l => {
+                const prodCount = products.filter(p => p.location_id === l.id && p.id !== editingProduct?.id).length;
+                const locText = `${l.sector} - ${l.description || 'Bez opisu strefy'} (Regał ${l.rack || '—'}, Półka ${l.shelf || '—'}) [${prodCount} prod.]`;
+                return <option key={l.id} value={l.id}>{locText}</option>;
+              })}
+            </select>
+          </div>
+          <div className="input-group" style={{ opacity: 0, pointerEvents: 'none' }}><label>Spacer</label><input className="input" /></div>
+        </div>
+        <div className="input-group">
+          <label>Kody kreskowe (oddzielone przecinkiem)</label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input className="input" value={form.barcodes} onChange={F('barcodes')} placeholder="5901234567890, 5901234567891" />
+            <button
+              type="button"
+              className="btn btn-secondary btn-icon"
+              onClick={() => openScanner('form')}
+              title="Skanuj kod kreskowy"
+              style={{ padding: '0 12px' }}
+            >
+              <FiVideo size={18} />
+            </button>
+          </div>
+        </div>
       </Modal>
+
+      {/* Skaner kodów */}
+      {showScanner && (
+        <BarcodeScanner
+          onConfirm={handleScan}
+          onClose={() => setShowScanner(false)}
+          title="Skanuj kod produktu"
+        />
+      )}
 
       {/* Modal: Podgląd produktu */}
       <Modal isOpen={showViewModal} onClose={() => setShowViewModal(false)} title="Szczegóły produktu" footer={<><button className="btn btn-secondary" onClick={() => { setShowViewModal(false); openEdit(viewProduct); }}>Edytuj</button><button className="btn btn-primary" onClick={() => setShowViewModal(false)}>Zamknij</button></>}>
         {viewProduct && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[['Nazwa', viewProduct.name], ['SKU', viewProduct.sku], ['Kategoria', categories.find(c => c.id === viewProduct.category_id)?.name || '—'], ['Jednostka', viewProduct.unit], ['Cena zakupu', formatCurrency(viewProduct.purchase_price)], ['Cena sprzedaży', formatCurrency(viewProduct.sell_price)], ['Marża', viewProduct.purchase_price > 0 ? `${((viewProduct.sell_price - viewProduct.purchase_price) / viewProduct.sell_price * 100).toFixed(1)}%` : '—'], ['Stan magazynowy', `${viewProduct.stock_qty} ${viewProduct.unit}`], ['Minimalny stan', viewProduct.min_stock], ['Kody kreskowe', viewProduct.barcodes?.join(', ') || 'Brak']].map(([label, value]) => (
-              <div key={label} className="flex-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-                <span className="text-sm text-muted">{label}</span>
-                <span style={{ fontWeight: 500 }}>{value}</span>
-              </div>
-            ))}
+            {(() => {
+              const loc = warehouseLocations.find(l => l.id === viewProduct.location_id);
+              const locString = loc ? `Sektor ${loc.sector} - ${loc.description || 'Bez opisu'} (Regał ${loc.rack || '—'}, Półka ${loc.shelf || '—'})` : 'Brak przypisanej lokalizacji';
+              return [
+                ['Nazwa', viewProduct.name],
+                ['SKU', viewProduct.sku],
+                ['Kategoria', categories.find(c => c.id === viewProduct.category_id)?.name || '—'],
+                ['Lokalizacja', locString],
+                ['Jednostka', viewProduct.unit],
+                ['Cena zakupu', formatCurrency(viewProduct.purchase_price)],
+                ['Cena sprzedaży', formatCurrency(viewProduct.sell_price)],
+                ['Marża', viewProduct.purchase_price > 0 ? `${((viewProduct.sell_price - viewProduct.purchase_price) / viewProduct.sell_price * 100).toFixed(1)}%` : '—'],
+                ['Stan magazynowy', `${viewProduct.stock_qty} ${viewProduct.unit}`],
+                ['Minimalny stan', viewProduct.min_stock],
+                ['Kody kreskowe', viewProduct.barcodes?.join(', ') || 'Brak']
+              ].map(([label, value]) => (
+                <div key={label} className="flex-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
+                  <span className="text-sm text-muted">{label}</span>
+                  <span style={{ fontWeight: 500 }}>{value}</span>
+                </div>
+              ));
+            })()}
           </div>
         )}
       </Modal>

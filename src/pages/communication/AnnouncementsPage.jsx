@@ -3,12 +3,7 @@ import { FiMessageSquare, FiPlus, FiEdit, FiTrash2, FiBookmark } from 'react-ico
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const DEMO = [
-  { id: '1', title: 'Zmiana godzin otwarcia od 15 marca', content: 'Od 15.03.2026 sklep czynny w soboty do 14:00 zamiast do 16:00. Proszę o dostosowanie grafików.', priority: 'high', pinned: true, author: 'Jan Kowalski', date: '2026-03-10' },
-  { id: '2', title: 'Nowa promocja na elektronarzędzia', content: 'W dniach 15-31.03 rabat 10% na wszystkie elektronarzędzia. Obowiązuje nowy cennik — zaktualizowane w systemie.', priority: 'normal', pinned: false, author: 'Anna Nowak', date: '2026-03-11' },
-  { id: '3', title: 'Szkolenie BHP — obowiązkowe', content: 'Przypominam o obowiązkowym szkoleniu BHP w piątek 21.03 o 8:00. Obecność obowiązkowa dla wszystkich pracowników.', priority: 'high', pinned: true, author: 'Jan Kowalski', date: '2026-03-12' },
-  { id: '4', title: 'Nowy system rejestracji czasu pracy', content: 'Od kwietnia wprowadzamy nowe czytniki RCP. Proszę odebrać karty w biurze.', priority: 'low', pinned: false, author: 'Maria Zielińska', date: '2026-03-08' },
-];
+const DEMO = [];
 const EMPTY = { title: '', content: '', priority: 'normal' };
 
 export default function AnnouncementsPage() {
