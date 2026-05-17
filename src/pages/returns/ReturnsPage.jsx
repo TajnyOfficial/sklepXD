@@ -4,11 +4,7 @@ import { FiRotateCcw, FiPlus, FiCheck, FiX, FiEye } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const DEMO = [
-  { id: '1', number: 'ZW/2026/03/001', customer: 'Marek Zieliński', receipt: 'PAR-2026-002', items: [{name: 'Pędzel płaski 75mm Hardy', qty: 1}], total: 16.90, quarantine: 'shelf', status: 'pending', reason: 'Wada produktu — pędzel się rozsypuje', date: '2026-03-12' },
-  { id: '2', number: 'ZW/2026/03/002', customer: 'Ewa Kamińska', receipt: 'PAR-2026-004', items: [{name: 'Panel podłogowy dąb naturalny', qty: 3}], total: 158.70, quarantine: 'shelf', status: 'completed', reason: 'Niezgodność wzoru z próbką', date: '2026-03-10' },
-  { id: '3', number: 'ZW/2026/03/003', customer: 'Budmax Sp. z o.o.', receipt: 'FV/2026/03/001', items: [{name: 'Wiertarka Bosch GSB 13RE', qty: 1}], total: 459.00, quarantine: 'service', status: 'pending', reason: 'Usterka — nie włącza się po tygodniu', date: '2026-03-11' },
-];
+const DEMO = [];
 const EMPTY = { customer: '', receipt: '', items: [{ name: '', qty: '1' }], reason: '', quarantine: 'shelf' };
 
 export default function ReturnsPage() {

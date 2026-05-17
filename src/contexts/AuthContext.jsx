@@ -6,13 +6,13 @@ const AuthContext = createContext(null);
 
 // Demo users for development (when Supabase isn't configured)
 const DEMO_USERS = [
-  { id: '1', full_name: 'Jan Kowalski', role: ROLES.ADMIN, pin: '1111', email: 'admin@sklep.pl', avatar_url: null },
-  { id: '2', full_name: 'Anna Nowak', role: ROLES.SHIFT_MANAGER, pin: '2222', email: 'kierownik@sklep.pl', avatar_url: null },
-  { id: '3', full_name: 'Piotr Wiśniewski', role: ROLES.CASHIER, pin: '3333', email: 'kasjer@sklep.pl', avatar_url: null },
-  { id: '4', full_name: 'Maria Zielińska', role: ROLES.WAREHOUSE_WORKER, pin: '4444', email: 'magazyn@sklep.pl', avatar_url: null },
-  { id: '5', full_name: 'Tomasz Lewandowski', role: ROLES.WAREHOUSE_MANAGER, pin: '5555', email: 'kier.magazyn@sklep.pl', avatar_url: null },
-  { id: '6', full_name: 'Katarzyna Dąbrowska', role: ROLES.SALES_MANAGER, pin: '6666', email: 'kier.sprzedaz@sklep.pl', avatar_url: null },
-  { id: '7', full_name: 'Andrzej Majewski', role: ROLES.CLEANER, pin: '7777', email: 'sprzatanie@sklep.pl', avatar_url: null },
+  { id: '1', full_name: 'Jan Kowalski', role: ROLES.ADMIN, pin: '11111111', email: 'admin@sklep.pl', avatar_url: null },
+  { id: '2', full_name: 'Anna Nowak', role: ROLES.SHIFT_MANAGER, pin: '22222222', email: 'kierownik@sklep.pl', avatar_url: null },
+  { id: '3', full_name: 'Piotr Wiśniewski', role: ROLES.CASHIER, pin: '33333333', email: 'kasjer@sklep.pl', avatar_url: null },
+  { id: '4', full_name: 'Maria Zielińska', role: ROLES.WAREHOUSE_WORKER, pin: '44444444', email: 'magazyn@sklep.pl', avatar_url: null },
+  { id: '5', full_name: 'Tomasz Lewandowski', role: ROLES.WAREHOUSE_MANAGER, pin: '55555555', email: 'kier.magazyn@sklep.pl', avatar_url: null },
+  { id: '6', full_name: 'Katarzyna Dąbrowska', role: ROLES.SALES_MANAGER, pin: '66666666', email: 'kier.sprzedaz@sklep.pl', avatar_url: null },
+  { id: '7', full_name: 'Andrzej Majewski', role: ROLES.CLEANER, pin: '77777777', email: 'sprzatanie@sklep.pl', avatar_url: null },
 ];
 
 export function AuthProvider({ children }) {

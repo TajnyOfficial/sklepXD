@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
-import { FiTruck, FiPlus, FiCheck, FiAlertTriangle, FiEye } from 'react-icons/fi';
+import { FiPlus, FiCheck, FiAlertTriangle, FiEye } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
-import { formatCurrency } from '../../utils/helpers';
 
 const DEMO = [
-  { id: '1', number: 'PZ/2026/03/001', supplier: 'Hurtownia Śrub Polskie', status: 'received', expected: '2026-03-11', received_date: '2026-03-11', items: [{name: 'Śruba M8x40', expected: 1000, received: 1000}, {name: 'Wkręt 4x50 (200szt)', expected: 50, received: 48}], has_discrepancy: true, note: 'Brak 2 opakowań wkrętów' },
-  { id: '2', number: 'PZ/2026/03/002', supplier: 'Dekoral Dystrybucja', status: 'expected', expected: '2026-03-14', received_date: null, items: [{name: 'Farba akrylowa biała 10L', expected: 30, received: null}, {name: 'Farba lateksowa szara 5L', expected: 20, received: null}], has_discrepancy: false },
-  { id: '3', number: 'PZ/2026/03/003', supplier: 'Bosch Professional', status: 'checking', expected: '2026-03-12', received_date: '2026-03-12', items: [{name: 'Wiertarka GSB 13RE', expected: 10, received: 10}, {name: 'Szlifierka GA5030', expected: 5, received: 5}], has_discrepancy: false },
+  { id: '1', number: 'PZ/2026/03/001', supplier: 'Hurtownia Śrub Polskie', status: 'received', expected: '2026-03-11', received_date: '2026-03-11', items: [{ name: 'Śruba M8x40', expected: 1000, received: 1000 }, { name: 'Wkręt 4x50 (200szt)', expected: 50, received: 48 }], has_discrepancy: true, note: 'Brak 2 opakowań wkrętów' },
+  { id: '2', number: 'PZ/2026/03/002', supplier: 'Dekoral Dystrybucja', status: 'expected', expected: '2026-03-14', received_date: null, items: [{ name: 'Farba akrylowa biała 10L', expected: 30, received: null }, { name: 'Farba lateksowa szara 5L', expected: 20, received: null }], has_discrepancy: false },
+  { id: '3', number: 'PZ/2026/03/003', supplier: 'Bosch Professional', status: 'checking', expected: '2026-03-12', received_date: '2026-03-12', items: [{ name: 'Wiertarka GSB 13RE', expected: 10, received: 10 }, { name: 'Szlifierka GA5030', expected: 5, received: 5 }], has_discrepancy: false },
 ];
 const EMPTY = { supplier: '', expected: '', items: [{ name: '', expected: '', received: '' }] };
 
@@ -93,7 +92,7 @@ export default function DeliveriesPage() {
           <div className="grid-2 mb-16">{[['Dostawca', viewDel.supplier], ['Status', viewDel.status], ['Data oczek.', viewDel.expected], ['Data przyjęcia', viewDel.received_date || '—']].map(([l, v]) => <div key={l} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }} className="flex-between"><span className="text-sm text-muted">{l}</span><span style={{ fontWeight: 500 }}>{v}</span></div>)}</div>
           <h4 className="mb-8">Pozycje:</h4>
           <table><thead><tr><th>Produkt</th><th>Oczekiwano</th><th>Przyjęto</th><th>Różnica</th></tr></thead>
-          <tbody>{viewDel.items.map((it, i) => <tr key={i}><td>{it.name}</td><td>{it.expected}</td><td>{it.received ?? '—'}</td><td style={{ color: it.received !== null && it.received !== it.expected ? 'var(--danger)' : 'var(--text-muted)' }}>{it.received !== null ? it.received - it.expected : '—'}</td></tr>)}</tbody>
+            <tbody>{viewDel.items.map((it, i) => <tr key={i}><td>{it.name}</td><td>{it.expected}</td><td>{it.received ?? '—'}</td><td style={{ color: it.received !== null && it.received !== it.expected ? 'var(--danger)' : 'var(--text-muted)' }}>{it.received !== null ? it.received - it.expected : '—'}</td></tr>)}</tbody>
           </table>
           {viewDel.note && <div className="mt-8"><h4>Uwagi:</h4><p className="text-sm">{viewDel.note}</p></div>}
         </div>)}

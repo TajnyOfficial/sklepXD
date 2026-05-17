@@ -3,12 +3,7 @@ import { FiCheckSquare, FiPlus, FiEdit, FiTrash2, FiCheck, FiCamera } from 'reac
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const DEMO = [
-  { id: '1', title: 'Uporządkować regał A-2', description: 'Produkty pomieszane po dostawie, potrzebne ułożenie wg SKU.', priority: 'high', status: 'in_progress', assigned: 'Tomasz Lewandowski', requires_photo: true, photo_url: null, due: '2026-03-12', created: '2026-03-11' },
-  { id: '2', title: 'Uzupełnić ekspozycję farb', description: 'Wystawka przy wejściu — dolne półki puste.', priority: 'normal', status: 'pending', assigned: 'Maria Zielińska', requires_photo: false, photo_url: null, due: '2026-03-13', created: '2026-03-12' },
-  { id: '3', title: 'Wymienić cenówki promocyjne', description: 'Stare promocje na elektronarzędzia — zmienić na nowe kwoty.', priority: 'urgent', status: 'pending', assigned: 'Anna Nowak', requires_photo: true, photo_url: null, due: '2026-03-12', created: '2026-03-12' },
-  { id: '4', title: 'Raport tygodniowy sprzedaży', description: 'Przygotować zestawienie sprzedaży wg kategorii za tydzień 10-16.03', priority: 'normal', status: 'completed', assigned: 'Anna Nowak', requires_photo: false, photo_url: null, due: '2026-03-16', created: '2026-03-10' },
-];
+const DEMO = [];
 const PRIORITIES = { urgent: '🔴 Pilne', high: '🟠 Wysokie', normal: '🔵 Normalne', low: '⚪ Niski' };
 const STATUSES = { pending: 'Oczekuje', in_progress: 'W trakcie', completed: 'Zakończone', cancelled: 'Anulowane' };
 const EMPTY = { title: '', description: '', priority: 'normal', assigned: '', requires_photo: false, due: '' };

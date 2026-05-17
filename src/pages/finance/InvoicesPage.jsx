@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useStore } from '../../contexts/StoreContext';
 import { formatCurrency } from '../../utils/helpers';
 import { FiFileText, FiPlus, FiDownload, FiEye, FiMail, FiTrash2, FiPrinter } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
+import { InvoiceDownloadBtn } from '../../components/Invoice/InvoiceDownloadBtn';
+
 
 const INIT_INVOICES = [
   { id: '1', number: 'FV/2026/03/001', customer: 'Budmax Sp. z o.o.', nip: '5213456789', net: 2349.59, vat: 540.41, gross: 2890.00, status: 'paid', date: '2026-03-12', due: '2026-03-26' },
@@ -13,6 +16,7 @@ const INIT_INVOICES = [
 const EMPTY = { customer: '', nip: '', net: '', vat_rate: '23', due_days: '14', items: [{ name: '', qty: '1', price: '' }] };
 
 export default function InvoicesPage() {
+  const { shopSettings } = useStore();
   const [invoices, setInvoices] = useState(INIT_INVOICES);
   const [showModal, setShowModal] = useState(false);
   const [showView, setShowView] = useState(false);
@@ -40,11 +44,29 @@ export default function InvoicesPage() {
 
   function markPaid(id) { setInvoices(prev => prev.map(i => i.id === id ? { ...i, status: 'paid' } : i)); toast.success('Oznaczono jako opłaconą'); }
   function sendEmail(inv) { toast.success(`E-mail wysłany do: ${inv.customer}`); }
-  function printInvoice(inv) {
-    const win = window.open('', '_blank');
-    win.document.write(`<html><head><title>${inv.number}</title><style>body{font-family:Arial;padding:40px}table{border-collapse:collapse;width:100%;margin:20px 0}th,td{border:1px solid #ccc;padding:8px}th{background:#f5f5f5}.text-right{text-align:right}</style></head><body><h1>FAKTURA VAT</h1><h2>${inv.number}</h2><p>Data: ${inv.date} | Termin: ${inv.due}</p><p><strong>Nabywca:</strong> ${inv.customer}${inv.nip ? ` | NIP: ${inv.nip}` : ''}</p><table><tr><td>Netto:</td><td class="text-right">${formatCurrency(inv.net)}</td></tr><tr><td>VAT:</td><td class="text-right">${formatCurrency(inv.vat)}</td></tr><tr><td><strong>Brutto:</strong></td><td class="text-right"><strong>${formatCurrency(inv.gross)}</strong></td></tr></table><p>Status: ${inv.status === 'paid' ? 'OPŁACONA' : 'DO ZAPŁATY'}</p></body></html>`);
-    win.document.close(); win.print();
-  }
+
+  // Mapowanie danych z tabeli do formatu faktury
+  const getInvoiceData = (inv) => ({
+    ...inv,
+    seller: {
+      name: shopSettings.name,
+      address: shopSettings.address,
+      nip: shopSettings.nip,
+      bankAccount: shopSettings.bankAccount
+    },
+    buyer: {
+      name: inv.customer,
+      nip: inv.nip || '',
+      address: inv.buyer?.address || '—'
+    },
+    dateIssue: new Date().toISOString().split('T')[0], // data wystawienia = dziś
+    dateSale: inv.date, // data sprzedaży = z dokumentu
+    dueDate: inv.date, // termin płatności = data sprzedaży (wg życzenia)
+    paymentMethod: inv.payment_method || 'Przelew',
+    items: inv.items || [
+      { name: 'Towar/Usługa (zestawienie)', qty: 1, unitPriceNet: inv.net, vatRate: 23, unit: 'usł.' }
+    ]
+  });
   function handleDelete(inv) { if (!confirm(`Usunąć fakturę ${inv.number}?`)) return; setInvoices(prev => prev.filter(i => i.id !== inv.id)); toast.success('Faktura usunięta'); }
   function exportCSV() {
     const csv = 'Nr;Kontrahent;NIP;Netto;VAT;Brutto;Status;Data;Termin\n' + invoices.map(i => `${i.number};${i.customer};${i.nip};${i.net};${i.vat};${i.gross};${i.status};${i.date};${i.due}`).join('\n');
@@ -84,7 +106,10 @@ export default function InvoicesPage() {
                 <td><span className={`badge ${inv.status === 'paid' ? 'badge-success' : inv.status === 'overdue' ? 'badge-danger' : 'badge-warning'}`}>{inv.status === 'paid' ? 'Opłacona' : inv.status === 'overdue' ? 'Po terminie' : 'Nieopłacona'}</span></td>
                 <td><div style={{ display: 'flex', gap: 4 }}>
                   <button className="btn btn-ghost btn-sm" onClick={() => { setViewInv(inv); setShowView(true); }}><FiEye size={14} /></button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => printInvoice(inv)}><FiPrinter size={14} /></button>
+                  <InvoiceDownloadBtn 
+                    invoiceData={getInvoiceData(inv)} 
+                    className="btn btn-ghost btn-sm"
+                  />
                   <button className="btn btn-ghost btn-sm" onClick={() => sendEmail(inv)}><FiMail size={14} /></button>
                   {inv.status !== 'paid' && <button className="btn btn-success btn-sm" onClick={() => markPaid(inv.id)}>Opłać</button>}
                   <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(inv)}><FiTrash2 size={14} /></button>
@@ -110,7 +135,7 @@ export default function InvoicesPage() {
         <button className="btn btn-ghost btn-sm" onClick={addItem}><FiPlus size={14} /> Dodaj pozycję</button>
       </Modal>
 
-      <Modal isOpen={showView} onClose={() => setShowView(false)} title={`Faktura ${viewInv?.number}`} footer={<><button className="btn btn-secondary" onClick={() => printInvoice(viewInv)}>Drukuj</button><button className="btn btn-primary" onClick={() => setShowView(false)}>Zamknij</button></>}>
+      <Modal isOpen={showView} onClose={() => setShowView(false)} title={`Faktura ${viewInv?.number}`} footer={<><InvoiceDownloadBtn invoiceData={viewInv ? getInvoiceData(viewInv) : null} /><button className="btn btn-secondary" onClick={() => setShowView(false)}>Zamknij</button></>}>
         {viewInv && <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[['Nr faktury', viewInv.number], ['Kontrahent', viewInv.customer], ['NIP', viewInv.nip], ['Netto', formatCurrency(viewInv.net)], ['VAT', formatCurrency(viewInv.vat)], ['Brutto', formatCurrency(viewInv.gross)], ['Data wystawienia', viewInv.date], ['Termin płatności', viewInv.due], ['Status', viewInv.status === 'paid' ? 'Opłacona ✅' : viewInv.status === 'overdue' ? 'Po terminie ⚠️' : 'Nieopłacona']].map(([l, v]) => (
             <div key={l} className="flex-between" style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}><span className="text-sm text-muted">{l}</span><span style={{ fontWeight: 500 }}>{v}</span></div>
