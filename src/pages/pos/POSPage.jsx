@@ -21,6 +21,18 @@ const QUICK_TILES = [
   { id: 'advice', name: 'Konsultacja fachowa', price: 0, icon: '💡' },
 ];
 
+/**
+ * Główny ekran interfejsu Punktu Sprzedaży (POS).
+ * 
+ * Stanowi rdzeń funkcjonalności kasowej całej aplikacji. Posiada wbudowaną:
+ * - Pełną obsługę skanerów sprzętowych (USB/BT) i wbudowanej kamery aparatu.
+ * - System dynamicznego koszyka z szybkimi obliczeniami cen, zniżek i podatku VAT.
+ * - Moduł płatności wielowalutowych (Gotówka wydająca resztę, Karty płatnicze, Przelewy).
+ * - Algorytm weryfikacji kontahentów po numerze NIP pobierający dane bezpośrednio z GUS/MF.
+ * - Mechanizm zaparkowanych rachunków (odroczone płatności w tle).
+ * 
+ * @returns {JSX.Element} Pełnoekranowy, odporny na błędy interfejs kasjera
+ */
 export default function POSPage() {
   const { products, findProduct, findProductByBarcode, getCrossSellProducts, customers, getCustomerDiscount, addTransaction, updateProductStock, saveDocument, addPosLog, posSession } = useStore();
   const { profile, can } = useAuth();

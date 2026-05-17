@@ -1,10 +1,9 @@
-// =============================================================================
-// BarcodeScanner — Komponent skanera kodów kreskowych (kamera + ręczny input)
-// Biblioteka: @zxing/browser (npm install @zxing/browser @zxing/library)
-// Stylowanie: Czyste CSS inline
-// Kamera: Domyślnie tylna (facingMode: "environment")
-// Formaty: EAN-13, EAN-8, UPC-A, UPC-E, QR Code, Code 128 i inne
-// =============================================================================
+/**
+ * Komponent skanera kodów kreskowych (Aparat + Klawiatura).
+ * Umożliwia wykorzystanie sprzętowej kamery (np. smartfona, tabletu) do ciągłego
+ * nasłuchiwania w poszukiwaniu kodów kreskowych 1D/2D przy użyciu biblioteki `@zxing/browser`.
+ * Wyposażony w system `Fallback` — pozwala ręcznie wpisać kod w sytuacji krytycznej (brak kamery).
+ */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
@@ -27,14 +26,18 @@ function injectScanAnimation() {
   document.head.appendChild(style);
 }
 
-// =============================================================================
-// GŁÓWNY KOMPONENT
-//
-// Props:
-//   onConfirm(code: string) — callback po zatwierdzeniu kodu
-//   title?: string          — tytuł sekcji (domyślnie "Skanuj kod")
-//   onClose?: () => void    — opcjonalny callback "zamknij"
-// =============================================================================
+/**
+ * Główny interfejs skanowania kodów (wizjer kamery).
+ * 
+ * Ostrzeżenie dotyczące cyklu życia (Lifecycle): Komponent MUSI wywołać `stopCamera()` 
+ * przy odmontowywaniu, w przeciwnym wypadku na telefonach z iOS wciąż będzie się 
+ * palić zielona kropka użycia aparatu w tle.
+ * 
+ * @param {Object} props - Właściwości komponentu
+ * @param {Function} props.onConfirm - Wywołanie zwrotne (Callback), otrzymuje string po poprawnym odczycie kodu
+ * @param {string} [props.title='Skanuj kod kreskowy'] - Etykieta górnego paska (TopBar)
+ * @param {Function} [props.onClose] - Opcjonalna funkcja zamykająca (np. skaner używany jako Modal)
+ */
 export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy', onClose }) {
   const [code, setCode]               = useState('');
   const [cameraError, setCameraError] = useState(null);  // null | 'permission' | 'not_found' | 'in_use' | 'not_supported' | 'unknown'

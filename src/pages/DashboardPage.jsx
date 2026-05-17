@@ -8,6 +8,17 @@ import {
   FiArrowUpRight, FiArrowDownRight
 } from 'react-icons/fi';
 
+/**
+ * Ekran powitalny panelu administracyjnego (Dashboard).
+ * 
+ * Prezentuje kluczowe statystyki z całego dnia roboczego:
+ * - Dzienny obrót, ilość zrealizowanych transakcji POS.
+ * - Alerty dotyczące niskich stanów magazynowych (z możliwością kliknięcia).
+ * - Ostatnie operacje sprzedażowe (podgląd na żywo).
+ * - Zależny od ról (widoczność sekcji kontrolowana przez RBAC).
+ * 
+ * @returns {JSX.Element} Widok ekranu głównego (Dashboard)
+ */
 export default function DashboardPage() {
   const { products, transactions, documents, getLowStockProducts } = useStore();
   const { profile, can } = useAuth();

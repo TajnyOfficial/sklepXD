@@ -4,6 +4,15 @@ import { formatCurrency } from '../../utils/helpers';
 import { FiAlertTriangle, FiShoppingCart, FiCheck, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
+/**
+ * Widok modułu AlertsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Alerts.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony AlertsPage
+ */
 export default function AlertsPage() {
   const { products, categories } = useStore();
   const lowStock = products.filter(p => p.stock_qty <= p.min_stock && p.min_stock > 0);

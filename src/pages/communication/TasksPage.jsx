@@ -8,6 +8,15 @@ const PRIORITIES = { urgent: '🔴 Pilne', high: '🟠 Wysokie', normal: '🔵 N
 const STATUSES = { pending: 'Oczekuje', in_progress: 'W trakcie', completed: 'Zakończone', cancelled: 'Anulowane' };
 const EMPTY = { title: '', description: '', priority: 'normal', assigned: '', requires_photo: false, due: '' };
 
+/**
+ * Widok modułu TasksPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Tasks.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony TasksPage
+ */
 export default function TasksPage() {
   const [tasks, setTasks] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);

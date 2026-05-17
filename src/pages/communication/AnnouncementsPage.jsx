@@ -6,6 +6,15 @@ import toast from 'react-hot-toast';
 const DEMO = [];
 const EMPTY = { title: '', content: '', priority: 'normal' };
 
+/**
+ * Widok modułu AnnouncementsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Announcements.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony AnnouncementsPage
+ */
 export default function AnnouncementsPage() {
   const [items, setItems] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);

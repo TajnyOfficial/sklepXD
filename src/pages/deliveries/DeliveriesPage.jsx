@@ -11,6 +11,15 @@ const DEMO = [
 ];
 const EMPTY = { supplier: '', expected: '', items: [{ name: '', expected: '', received: '' }] };
 
+/**
+ * Widok modułu DeliveriesPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Deliveries.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony DeliveriesPage
+ */
 export default function DeliveriesPage() {
   const { suppliers } = useStore();
   const [deliveries, setDeliveries] = useState(DEMO);

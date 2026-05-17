@@ -5,6 +5,11 @@ import { ROLES, ROLE_LABELS, ROLE_PERMISSIONS } from '../utils/rbac';
 
 const StoreContext = createContext(null);
 
+/**
+ * Słownik (konfiguracja) grup cenowych.
+ * Wykorzystywana do obliczania zniżek w module POS oraz panelu klienta.
+ * Każda grupa posiada nazwę i przypisaną zniżkę wyrażoną w procentach.
+ */
 const PRICE_GROUPS = {
   regular: { label: 'Klient detaliczny', discount: 0 },
   loyal: { label: 'Stały klient', discount: 5 },
@@ -12,8 +17,24 @@ const PRICE_GROUPS = {
   wholesale: { label: 'Cena hurtowa', discount: 15 },
 };
 
+/**
+ * Słownik produktów powiązanych (Cross-Selling).
+ * Pozwala zasugerować kasjerowi/klientowi produkty komplementarne podczas zakupów.
+ */
 const CROSS_SELL_MAP = {};
 
+/**
+ * Centralny magazyn stanu aplikacji (State Provider).
+ * 
+ * Odpowiada za:
+ * - Przechowywanie danych głównych (produkty, klienci, pracownicy, ustawienia sklepu).
+ * - Zarządzanie cyklem życia transakcji (POS), dokumentów kasowych i inwentaryzacji.
+ * - Komunikację dwustronną z bazą danych Supabase.
+ * - Obsługę logiki trybu offline/demo za pomocą localStorage.
+ * 
+ * @param {Object} props Właściwości
+ * @param {JSX.Element} props.children Komponenty potomne
+ */
 export function StoreProvider({ children }) {
   const { isAuthenticated, profile } = useAuth();
   const isSupabase = !!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co');
@@ -1469,6 +1490,12 @@ export function StoreProvider({ children }) {
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
+/**
+ * Niestandardowy Hook dostępowy do głównego magazynu (Store).
+ * 
+ * @returns {Object} Aktualny stan obiektów (produkty, pracownicy) oraz setery i metody akcji.
+ * @throws {Error} Jeśli użyty poza <StoreProvider>
+ */
 export function useStore() {
   const ctx = useContext(StoreContext);
   if (!ctx) throw new Error('useStore must be used within StoreProvider');

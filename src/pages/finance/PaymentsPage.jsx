@@ -13,6 +13,15 @@ const PAYABLES = [
   { id: 4, supplier: 'Urząd Skarbowy', invoice: 'VAT-7 02/2026', amount: 4500.00, due: '2026-03-25', daysLeft: 13 },
 ];
 
+/**
+ * Widok modułu PaymentsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Payments.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony PaymentsPage
+ */
 export default function PaymentsPage() {
   return (
     <div className="page animate-fadeIn">

@@ -1,15 +1,20 @@
-// =============================================================================
-// KioskApp — Standalone terminal rejestracji czasu pracy
-// URL: /kiosk/
-// Bez AuthProvider, bez logowania, bez sidebar
-// =============================================================================
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { StoreProvider } from '../contexts/StoreContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import KioskPage from '../pages/kiosk/KioskPage';
 
+/**
+ * Moduł (Aplikacja poboczna) Kiosku samoobsługowego (Terminala RCP).
+ * 
+ * Kontekst uruchomieniowy:
+ * Samodzielna, pełnoekranowa aplikacja (bez paska bocznego), zamontowana
+ * pod bazową ścieżką sieciową `/kiosk`. Przeznaczona do działania na terminalach
+ * wewnątrz firmy (np. tablety do rejestracji czasu wejścia/wyjścia z pracy).
+ * Zawiera własny, wydzielony router React, ale korzysta z globalnych kontekstów stanu.
+ * 
+ * @returns {JSX.Element} Drzewo komponentów aplikacji Kiosk
+ */
 export default function KioskApp() {
   return (
     <AuthProvider>

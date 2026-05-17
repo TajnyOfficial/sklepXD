@@ -9,6 +9,15 @@ const SCHEDULE = [
   { supplier: 'ElektroHurt24', days: [5], time: '08:00-10:00' },
 ];
 
+/**
+ * Widok modułu DeliverySchedulePage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z DeliverySchedule.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony DeliverySchedulePage
+ */
 export default function DeliverySchedulePage() {
   return (
     <div className="page animate-fadeIn">

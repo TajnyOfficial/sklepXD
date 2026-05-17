@@ -8,6 +8,15 @@ import toast from 'react-hot-toast';
 
 const EMPTY_PRODUCT = { name: '', sku: '', category_id: '', location_id: '', unit: 'szt', purchase_price: '', sell_price: '', min_stock: '', stock_qty: '', barcodes: '' };
 
+/**
+ * Widok modułu ProductCatalogPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z ProductCatalog.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony ProductCatalogPage
+ */
 export default function ProductCatalogPage() {
   const { products, categories, warehouseLocations, saveProduct, deleteProduct } = useStore();
   const [search, setSearch] = useState('');

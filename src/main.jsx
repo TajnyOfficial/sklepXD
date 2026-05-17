@@ -5,13 +5,27 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 
-// Importy aplikacji składowych
+// Importy poszczególnych modułów aplikacji (sub-aplikacji)
 import App from './App.jsx';
 import KioskApp from './apps/KioskApp';
 import POSApp from './apps/POSApp';
 import MobileApp from './apps/MobileApp';
 
-// Funkcja wykrywająca, którą aplikację uruchomić na podstawie URL
+/**
+ * Główny router (brama wejściowa) dla całej platformy.
+ * 
+ * Funkcja ta działa jako punkt decyzyjny (router na poziomie najwyższym).
+ * Analizuje aktualną ścieżkę URL przeglądarki i na jej podstawie decyduje, 
+ * którą główną aplikację (moduł) zamontować w drzewie DOM.
+ * 
+ * Dostępne ścieżki (drogi):
+ * - `/kiosk`  -> Ładuje aplikację trybu Kiosk (rejestracja czasu pracy)
+ * - `/pos`    -> Ładuje aplikację kasy fiskalnej/punktu sprzedaży (POS)
+ * - `/mobile` -> Ładuje aplikację mobilną (inwentaryzacja)
+ * - domyślnie -> Ładuje główną aplikację administracyjną i dashboard (`App.jsx`)
+ * 
+ * @returns {JSX.Element} Główny węzeł React ładujący odpowiednią aplikację
+ */
 function RootGateway() {
   const path = window.location.pathname;
 
@@ -27,7 +41,7 @@ function RootGateway() {
     return <MobileApp />;
   }
 
-  // Domyślnie główna aplikacja (zarządzanie)
+  // Fallback dla głównej aplikacji panelu administracyjnego
   return (
     <BrowserRouter>
       <AuthProvider>
@@ -37,6 +51,8 @@ function RootGateway() {
   );
 }
 
+// Inicjalizacja głównego korzenia (root) aplikacji React 18+
+// Renderuje bramę RootGateway otoczoną StrictMode oraz globalnym Toasterem do powiadomień
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RootGateway />

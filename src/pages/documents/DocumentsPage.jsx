@@ -96,7 +96,17 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
   );
 }
 
-// ── Główna strona ─────────────────────────────────────────────────────────────
+/**
+ * Rejestr Dokumentów Handlowych i Księgowych.
+ * 
+ * Służy jako archiwum oraz kreator dokumentów dla backoffice. Obejmuje:
+ * - Przeglądanie wygenerowanych paragonów z kasy POS.
+ * - Ręczne wystawianie Faktur VAT, Proform, Wydania Zewnętrznego (WZ).
+ * - Renderowanie ich do formatu PDF używając `InvoiceDownloadBtn`.
+ * - Automatyczne powiązania z bazą klientów z modułu CRM.
+ * 
+ * @returns {JSX.Element} Widok ewidencji dokumentów
+ */
 export default function DocumentsPage() {
   const { documents, saveDocument, customers, profile } = useStore();
   const [typeFilter, setTypeFilter] = useState('all');

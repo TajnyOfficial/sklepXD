@@ -7,6 +7,15 @@ import toast from 'react-hot-toast';
 const DEMO = [];
 const EMPTY = { customer: '', receipt: '', items: [{ name: '', qty: '1' }], reason: '', quarantine: 'shelf' };
 
+/**
+ * Widok modułu ReturnsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Returns.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony ReturnsPage
+ */
 export default function ReturnsPage() {
   const [returns, setReturns] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);

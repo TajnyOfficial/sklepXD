@@ -15,6 +15,15 @@ const INIT_INVOICES = [
 ];
 const EMPTY = { customer: '', nip: '', net: '', vat_rate: '23', due_days: '14', items: [{ name: '', qty: '1', price: '' }] };
 
+/**
+ * Widok modułu InvoicesPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Invoices.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony InvoicesPage
+ */
 export default function InvoicesPage() {
   const { shopSettings } = useStore();
   const [invoices, setInvoices] = useState(INIT_INVOICES);

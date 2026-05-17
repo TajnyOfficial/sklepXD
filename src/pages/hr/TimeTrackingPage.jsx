@@ -2,6 +2,15 @@ import { useState, useMemo } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { FiClock, FiCalendar, FiUser, FiInfo } from 'react-icons/fi';
 
+/**
+ * Widok modułu TimeTrackingPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z TimeTracking.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony TimeTrackingPage
+ */
 export default function TimeTrackingPage() {
   const { attendance, employees } = useStore();
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM

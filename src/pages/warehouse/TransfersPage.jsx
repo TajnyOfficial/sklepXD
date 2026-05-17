@@ -7,6 +7,15 @@ import toast from 'react-hot-toast';
 
 const DEMO = [];
 
+/**
+ * Widok modułu TransfersPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Transfers.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony TransfersPage
+ */
 export default function TransfersPage() {
   const { products, warehouseLocations } = useStore();
   const [transfers, setTransfers] = useState(DEMO);

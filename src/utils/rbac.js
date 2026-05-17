@@ -2,6 +2,10 @@
    RBAC — Role-Based Access Control
    ═══════════════════════════════════════════ */
 
+/**
+ * Definicje stałych reprezentujących role systemowe (Role-Based Access Control).
+ * Przypisane poszczególnym pracownikom, jednoznacznie określają ich pozycję w hierarchii.
+ */
 export const ROLES = {
   ADMIN: 'admin',
   SHIFT_MANAGER: 'shift_manager',
@@ -13,6 +17,10 @@ export const ROLES = {
   CLEANER: 'cleaner',
 };
 
+/**
+ * Słownik (Mapa) tłumaczący wewnętrzne klucze ról na czytelne dla człowieka nazwy polskie.
+ * Stosowany w interfejsie graficznym, np. w profilu zalogowanego pracownika.
+ */
 export const ROLE_LABELS = {
   [ROLES.ADMIN]: 'Administrator / Właściciel',
   [ROLES.SHIFT_MANAGER]: 'Główny Kierownik Zmiany',
@@ -24,6 +32,10 @@ export const ROLE_LABELS = {
   [ROLES.CLEANER]: 'Pracownik Sprzątający',
 };
 
+/**
+ * Centralny rejestr wszystkich unikalnych "atomowych" uprawnień (Permissions).
+ * Każde uprawnienie pozwala na wykonanie określonej akcji (np. zwrot towaru) lub dostęp do danego widoku.
+ */
 export const PERMISSIONS = {
   // POS & Sales
   POS_ACCESS: 'pos.access',
@@ -98,6 +110,10 @@ export const PERMISSIONS = {
   KIOSK_ACCESS: 'kiosk.access',
 };
 
+/**
+ * Matryca powiązań (Mapa), która określa, jaki zestaw atomowych uprawnień przysługuje danej roli.
+ * Administrator dziedziczy automatycznie pełen zakres (`Object.values(PERMISSIONS)`).
+ */
 export const ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: Object.values(PERMISSIONS), // all permissions
 
@@ -184,6 +200,13 @@ export const ROLE_PERMISSIONS = {
   ],
 };
 
+/**
+ * Sprawdza dostępność pojedynczego uprawnienia dla określonej roli.
+ * 
+ * @param {string} userRole - Kod roli przypisanej użytkownikowi
+ * @param {string} permission - Pojedyncze wymagane uprawnienie (np. `PERMISSIONS.POS_SELL`)
+ * @returns {boolean} Prawda, jeśli rola posiada to uprawnienie
+ */
 export function hasPermission(userRole, permission) {
   if (!userRole) return false;
   const perms = ROLE_PERMISSIONS[userRole];
@@ -191,6 +214,14 @@ export function hasPermission(userRole, permission) {
   return perms.includes(permission);
 }
 
+/**
+ * Sprawdza, czy rola posiada co najmniej jedno (dowolne) uprawnienie z podanej tablicy.
+ * Wykorzystywane głównie do sprawdzania dostępu do głównych kategorii w menu.
+ * 
+ * @param {string} userRole - Kod roli
+ * @param {Array<string>} permissions - Tablica możliwych uprawnień
+ * @returns {boolean} Prawda, jeśli posiada przynajmniej jedno uprawnienie
+ */
 export function hasAnyPermission(userRole, permissions) {
   return permissions.some((p) => hasPermission(userRole, p));
 }
@@ -217,7 +248,13 @@ export function getRoleLevel(role) {
   return levels[role] || 0;
 }
 
-// Navigation items filtered by permissions
+/**
+ * Zwraca dynamicznie budowane drzewo elementów nawigacyjnych (Sidebaru) na podstawie posiadanych praw.
+ * Całkowicie ukrywa pozycje (oraz grupy pozycji), do których zalogowany pracownik nie ma uprawnień wglądu.
+ * 
+ * @param {string} userRole - Aktualna rola zalogowanego pracownika
+ * @returns {Array<Object>} Oczyszczona tablica obiektów nawigacji
+ */
 export function getNavItems(userRole) {
   const items = [];
 

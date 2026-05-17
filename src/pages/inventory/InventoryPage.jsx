@@ -4,6 +4,17 @@ import { FiPlay, FiCheck, FiUserPlus, FiInfo, FiLayers } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
+/**
+ * Zintegrowany moduł Inwentaryzacji.
+ * 
+ * Widok centralny z perspektywy Managera Magazynu. Pozwala na:
+ * - Planowanie nowych inwentaryzacji: Pełnych, Częściowych oraz "Ślepych" (brak widoczności systemu dla liczącego).
+ * - Zlecanie wykonania spisu bezpośrednio magazynierom używającym terminali mobilnych.
+ * - Zatwierdzanie inwentaryzacji.
+ * - Weryfikowanie logów i raportów różnic z wykonanych zliczeń.
+ * 
+ * @returns {JSX.Element} Widok kontroli spisu z natury
+ */
 export default function InventoryPage() {
   const { products, categories, employees, inventories, saveInventory } = useStore();
   const [showCreate, setShowCreate] = useState(false);

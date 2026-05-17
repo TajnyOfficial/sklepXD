@@ -6,6 +6,15 @@ import {
   FiFileText, FiLogIn, FiLogOut, FiArrowUpCircle, FiArrowDownCircle
 } from 'react-icons/fi';
 
+/**
+ * Widok modułu POSHistoryPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z POSHistory.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony POSHistoryPage
+ */
 export default function POSHistoryPage() {
   const { posLogs = [] } = useStore(); // We'll add this to context
   const [filter, setFilter] = useState('all'); // all | session | cash | report

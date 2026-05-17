@@ -1,6 +1,21 @@
 import { useEffect, useRef } from 'react';
 import { FiX } from 'react-icons/fi';
 
+/**
+ * Uniwersalny komponent okna dialogowego (Modal).
+ * 
+ * Służy do wyświetlania treści nad główną warstwą aplikacji.
+ * Blokuje przewijanie tła (body overflow hidden) i obsługuje
+ * zamykanie za pomocą klawisza "Escape" oraz kliknięcia w zaciemnione tło.
+ * 
+ * @param {Object} props - Właściwości komponentu
+ * @param {boolean} props.isOpen - Flaga określająca widoczność modala
+ * @param {Function} props.onClose - Callback uruchamiany przy próbie zamknięcia
+ * @param {string} props.title - Tekst nagłówka okna
+ * @param {string} [props.size=''] - Opcjonalna klasa CSS rozmiaru (np. 'modal-lg')
+ * @param {React.ReactNode} props.children - Treść wewnętrzna okna
+ * @param {React.ReactNode} [props.footer] - Opcjonalna zawartość stopki (np. przyciski "Zapisz", "Anuluj")
+ */
 export default function Modal({ isOpen, onClose, title, size = '', children, footer }) {
   const overlayRef = useRef(null);
 
