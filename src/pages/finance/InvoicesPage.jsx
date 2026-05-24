@@ -6,13 +6,6 @@ import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 import { InvoiceDownloadBtn } from '../../components/Invoice/InvoiceDownloadBtn';
 
-
-const INIT_INVOICES = [
-  { id: '1', number: 'FV/2026/03/001', customer: 'Budmax Sp. z o.o.', nip: '5213456789', net: 2349.59, vat: 540.41, gross: 2890.00, status: 'paid', date: '2026-03-12', due: '2026-03-26' },
-  { id: '2', number: 'FV/2026/03/002', customer: 'ElektroMont S.A.', nip: '1234567890', net: 4609.76, vat: 1060.24, gross: 5670.00, status: 'unpaid', date: '2026-03-11', due: '2026-03-25' },
-  { id: '3', number: 'FV/2026/03/003', customer: 'Remont-Expert Jan Kowal', nip: '7891234560', net: 939.84, vat: 216.16, gross: 1156.00, status: 'paid', date: '2026-03-11', due: '2026-03-18' },
-  { id: '4', number: 'FV/2026/02/022', customer: 'Dom i Ogród Sp.j.', nip: '9876543210', net: 2780.49, vat: 639.51, gross: 3420.00, status: 'overdue', date: '2026-02-20', due: '2026-03-06' },
-];
 const EMPTY = { customer: '', nip: '', net: '', vat_rate: '23', due_days: '14', items: [{ name: '', qty: '1', price: '' }] };
 
 /**
@@ -25,8 +18,21 @@ const EMPTY = { customer: '', nip: '', net: '', vat_rate: '23', due_days: '14', 
  * @returns {JSX.Element} Widok strony InvoicesPage
  */
 export default function InvoicesPage() {
-  const { shopSettings } = useStore();
-  const [invoices, setInvoices] = useState(INIT_INVOICES);
+  const { shopSettings, documents = [], saveDocument, updateDocumentStatus, addPosLog, profile } = useStore();
+  const invoices = documents.filter(d => d.type === 'invoice' || d.id?.startsWith('FV') || d.document_number?.startsWith('FV')).map(d => ({
+    ...d,
+    id: d.id,
+    number: d.document_number || d.id,
+    customer: d.buyer?.name || d.customer,
+    nip: d.buyer?.nip || d.nip,
+    net: d.net_amount || d.net || 0,
+    vat: d.vat_amount || d.vat || 0,
+    gross: d.gross_amount || d.gross || d.total || 0,
+    status: d.status || 'unpaid',
+    date: d.issue_date || d.date,
+    due: d.due_date || d.due,
+    items: d.items || []
+  }));
   const [showModal, setShowModal] = useState(false);
   const [showView, setShowView] = useState(false);
   const [viewInv, setViewInv] = useState(null);
@@ -36,7 +42,7 @@ export default function InvoicesPage() {
   function updateItem(i, f, v) { setForm(p => ({ ...p, items: p.items.map((it, idx) => idx === i ? { ...it, [f]: v } : it) })); }
   function removeItem(i) { setForm(p => ({ ...p, items: p.items.filter((_, idx) => idx !== i) })); }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.customer) { toast.error('Podaj kontrahenta'); return; }
     const validItems = form.items.filter(i => i.name && i.price);
     if (validItems.length === 0) { toast.error('Dodaj pozycje'); return; }
@@ -45,13 +51,42 @@ export default function InvoicesPage() {
     const vat = net * vatRate;
     const today = new Date();
     const due = new Date(today); due.setDate(due.getDate() + parseInt(form.due_days));
-    const inv = { id: crypto.randomUUID(), number: `FV/2026/03/${String(invoices.length + 1).padStart(3, '0')}`, customer: form.customer, nip: form.nip, net: Math.round(net * 100) / 100, vat: Math.round(vat * 100) / 100, gross: Math.round((net + vat) * 100) / 100, status: 'unpaid', date: today.toISOString().split('T')[0], due: due.toISOString().split('T')[0], items: validItems };
-    setInvoices(prev => [inv, ...prev]);
-    toast.success(`Faktura ${inv.number} wystawiona`);
-    setShowModal(false); setForm(EMPTY);
+    const docData = { 
+      id: `FV/2026/03/${String(invoices.length + 1).padStart(3, '0')}`,
+      type: 'invoice',
+      customer: form.customer, 
+      nip: form.nip, 
+      net: Math.round(net * 100) / 100, 
+      vat: Math.round(vat * 100) / 100, 
+      total: Math.round((net + vat) * 100) / 100, 
+      status: 'unpaid', 
+      date: today.toISOString().split('T')[0], 
+      date_due: due.toISOString().split('T')[0], 
+      items: validItems,
+      buyer: { name: form.customer, nip: form.nip }
+    };
+    
+    try {
+      await saveDocument(docData);
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('create', userLabel, 'Admin', `Wystawiono nową fakturę: ${docData.id} dla ${docData.customer}`);
+      toast.success(`Faktura ${docData.id} wystawiona`);
+      setShowModal(false); setForm(EMPTY);
+    } catch(e) {
+      toast.error('Błąd zapisu faktury: ' + e.message);
+    }
   }
 
-  function markPaid(id) { setInvoices(prev => prev.map(i => i.id === id ? { ...i, status: 'paid' } : i)); toast.success('Oznaczono jako opłaconą'); }
+  async function markPaid(id) { 
+    try {
+      await updateDocumentStatus(id, 'paid'); 
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('update', userLabel, 'Admin', `Opłacono fakturę`);
+      toast.success('Oznaczono jako opłaconą'); 
+    } catch(e) {
+      toast.error('Błąd: ' + e.message);
+    }
+  }
   function sendEmail(inv) { toast.success(`E-mail wysłany do: ${inv.customer}`); }
 
   // Mapowanie danych z tabeli do formatu faktury
@@ -76,7 +111,15 @@ export default function InvoicesPage() {
       { name: 'Towar/Usługa (zestawienie)', qty: 1, unitPriceNet: inv.net, vatRate: 23, unit: 'usł.' }
     ]
   });
-  function handleDelete(inv) { if (!confirm(`Usunąć fakturę ${inv.number}?`)) return; setInvoices(prev => prev.filter(i => i.id !== inv.id)); toast.success('Faktura usunięta'); }
+  async function handleDelete(inv) { 
+    if (!confirm(`Anulować fakturę ${inv.number}?`)) return; 
+    try {
+      await updateDocumentStatus(inv.id, 'cancelled');
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('update', userLabel, 'Admin', `Anulowano fakturę ${inv.number}`);
+      toast.success('Faktura anulowana');
+    } catch(e) {}
+  }
   function exportCSV() {
     const csv = 'Nr;Kontrahent;NIP;Netto;VAT;Brutto;Status;Data;Termin\n' + invoices.map(i => `${i.number};${i.customer};${i.nip};${i.net};${i.vat};${i.gross};${i.status};${i.date};${i.due}`).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

@@ -45,6 +45,7 @@ export function StoreProvider({ children }) {
   const [employees, setEmployees] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [returnsList, setReturnsList] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [warehouseLocations, setWarehouseLocations] = useState([]);
   const [inventories, setInventories] = useState(() => {
@@ -376,7 +377,7 @@ export function StoreProvider({ children }) {
 
     // Supabase działa — ładuj dane
     try {
-      const [prodsRes, catsRes, custsRes, suppsRes, empsRes, txnsRes, attRes, docsRes, locsRes, schedsRes, settingsRes, logsRes] = await Promise.all([
+      const [prodsRes, catsRes, custsRes, suppsRes, empsRes, txnsRes, attRes, docsRes, locsRes, schedsRes, settingsRes, logsRes, returnsRes] = await Promise.all([
         supabase.from('products').select('*'),
         supabase.from('categories').select('*'),
         supabase.from('customers').select('*'),
@@ -388,7 +389,8 @@ export function StoreProvider({ children }) {
         supabase.from('warehouse_locations').select('*'),
         supabase.from('schedules').select('*'),
         supabase.from('store_settings').select('*'),
-        supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(200)
+        supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(200),
+        supabase.from('returns').select('*').order('created_at', { ascending: false }).limit(100)
       ]);
 
       let loadedEmps = (empsRes.data || []).map(e => ({ ...e, name: e.full_name, active: e.is_active, pin: e.pin }));
@@ -578,6 +580,25 @@ export function StoreProvider({ children }) {
       setTransactions(mappedTxns);
       setAttendance(attRes.data || []);
       setDocuments(mappedDocs);
+
+      const mappedReturns = (returnsRes.data || []).map(r => {
+        let meta = { customer: 'Nieznany', receipt: '' };
+        try {
+          if (r.note && r.note.startsWith('{')) meta = JSON.parse(r.note);
+        } catch(e){}
+        return {
+          id: r.id,
+          number: r.return_number,
+          customer: meta.customer || 'Nieznany',
+          receipt: meta.receipt || '',
+          status: r.status,
+          quarantine: r.quarantine,
+          items: typeof r.items === 'string' ? JSON.parse(r.items) : (r.items || []),
+          reason: r.reason,
+          date: r.created_at ? r.created_at.split('T')[0] : new Date().toISOString().split('T')[0]
+        };
+      });
+      setReturnsList(mappedReturns);
 
       // --- GRAFIK (SCHEDULES) ---
       let loadedSchedules = (schedsRes.data || []).map(s => ({
@@ -1135,6 +1156,55 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase]);
 
+  const updateDocumentStatus = useCallback(async (docId, newStatus) => {
+    const doc = documents.find(d => d.id === docId || d._db_id === docId);
+    if (!doc) return;
+    
+    if (isSupabase && doc._db_id) {
+      const { error } = await supabase.from('documents').update({ status: newStatus }).eq('id', doc._db_id);
+      if (error) throw error;
+    }
+    setDocuments(prev => prev.map(d => (d.id === docId || d._db_id === docId) ? { ...d, status: newStatus } : d));
+  }, [isSupabase, documents]);
+
+  // ── ZWROTY ────────────────────────────────────────────────────────────────
+  const saveReturn = useCallback(async (returnData) => {
+    const row = {
+      return_number: returnData.number || `ZW/${Date.now()}`,
+      status: returnData.status || 'pending',
+      quarantine: returnData.quarantine || 'shelf',
+      items: returnData.items || [],
+      reason: returnData.reason || null,
+      note: JSON.stringify({ customer: returnData.customer, receipt: returnData.receipt }),
+      total_amount: returnData.total || 0
+    };
+
+    if (isSupabase) {
+      const { data, error } = await supabase.from('returns').insert(row).select().single();
+      if (error) {
+        console.error('Supabase saveReturn error:', error);
+        throw error;
+      }
+      const norm = { ...returnData, id: data.id };
+      setReturnsList(prev => [norm, ...prev]);
+      return data;
+    } else {
+      setReturnsList(prev => [returnData, ...prev]);
+      return returnData;
+    }
+  }, [isSupabase]);
+
+  const updateReturnStatus = useCallback(async (returnId, newStatus) => {
+    if (isSupabase) {
+      const { error } = await supabase.from('returns').update({ status: newStatus }).eq('id', returnId);
+      if (error) {
+        console.error('Supabase updateReturnStatus error:', error);
+        throw error;
+      }
+    }
+    setReturnsList(prev => prev.map(r => r.id === returnId ? { ...r, status: newStatus } : r));
+  }, [isSupabase]);
+
   // ── TRANSAKCJE ────────────────────────────────────────────────────────────
   const addTransaction = useCallback(async (transaction) => {
     const isValidUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
@@ -1461,6 +1531,39 @@ export function StoreProvider({ children }) {
   // ── Stare funkcje (zachowane dla kompatybilności) ─────────────────────────
   const addDocument = saveDocument;
 
+  // ── KATEGORIE ─────────────────────────────────────────────────────────────
+  const saveCategory = useCallback(async (catData, existingId = null) => {
+    const row = {
+      name: catData.name,
+      sort_order: parseInt(catData.sort_order) || 0
+    };
+    if (isSupabase) {
+      if (existingId) {
+        const { data, error } = await supabase.from('categories').update(row).eq('id', existingId).select().single();
+        if (error) throw error;
+        setCategories(prev => prev.map(c => c.id === existingId ? data : c));
+        return data;
+      } else {
+        const { data, error } = await supabase.from('categories').insert(row).select().single();
+        if (error) throw error;
+        setCategories(prev => [...prev, data]);
+        return data;
+      }
+    } else {
+      const cat = { ...row, id: existingId || crypto.randomUUID() };
+      setCategories(prev => existingId ? prev.map(c => c.id === existingId ? cat : c) : [...prev, cat]);
+      return cat;
+    }
+  }, [isSupabase]);
+
+  const deleteCategory = useCallback(async (catId) => {
+    if (isSupabase) {
+      const { error } = await supabase.from('categories').delete().eq('id', catId);
+      if (error) throw error;
+    }
+    setCategories(prev => prev.filter(c => c.id !== catId));
+  }, [isSupabase]);
+
   const value = {
     products, customers, suppliers, employees, transactions, documents, inventories,
     loading, priceGroups: PRICE_GROUPS, categories, shopSettings, updateShopSettings, updateRolePermissions,
@@ -1469,11 +1572,13 @@ export function StoreProvider({ children }) {
     getCustomerDiscount, getLowStockProducts,
     // Supabase-backed mutations
     saveProduct, deleteProduct, updateProductStock,
+    saveCategory, deleteCategory,
     saveEmployee, deleteEmployee, toggleEmployeeActive, clockInOutEmployee,
-    saveDocument, addDocument,
+    saveDocument, addDocument, updateDocumentStatus,
     saveCustomer, deleteCustomer,
     saveInventory,
     addTransaction,
+    returnsList, saveReturn, updateReturnStatus,
     // Attendance state
     attendance,
     // Legacy setters (demo mode / inne widoki)

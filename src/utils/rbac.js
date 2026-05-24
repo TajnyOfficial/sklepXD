@@ -371,6 +371,7 @@ export function getNavItems(userRole) {
       children: [
         { id: 'admin-roles', label: 'Role i uprawnienia', path: '/admin/roles' },
         { id: 'admin-store', label: 'Ustawienia sklepu', path: '/admin/settings' },
+        { id: 'admin-additional', label: 'Dodatkowe', path: '/admin/additional' },
         { id: 'admin-audit', label: 'Logi audytu', path: '/admin/audit' },
         { id: 'admin-security', label: 'Bezpieczeństwo', path: '/admin/security' },
       ],

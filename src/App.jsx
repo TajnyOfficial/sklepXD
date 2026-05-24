@@ -60,6 +60,7 @@ import TasksPage from './pages/communication/TasksPage';
 // === Admin Module ===
 import RolesPage from './pages/admin/RolesPage';
 import StoreSettingsPage from './pages/admin/StoreSettingsPage';
+import AdditionalSettingsPage from './pages/admin/AdditionalSettingsPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import SecurityPage from './pages/admin/SecurityPage';
 
@@ -311,6 +312,7 @@ function AppLayout() {
             {/* Admin */}
             <Route path="/admin/roles" element={<RolesPage />} />
             <Route path="/admin/settings" element={<StoreSettingsPage />} />
+            <Route path="/admin/additional" element={<AdditionalSettingsPage />} />
             <Route path="/admin/audit" element={<AuditLogPage />} />
             <Route path="/admin/security" element={<SecurityPage />} />
 
