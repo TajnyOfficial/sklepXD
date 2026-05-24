@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/kiosk", "destination": "/src/apps/kiosk/index.html" },
+    { "source": "/kiosk/(.*)", "destination": "/src/apps/kiosk/index.html" },
+    { "source": "/pos", "destination": "/src/apps/pos/index.html" },
+    { "source": "/pos/(.*)", "destination": "/src/apps/pos/index.html" },
+    { "source": "/mobile", "destination": "/src/apps/mobile/index.html" },
+    { "source": "/mobile/(.*)", "destination": "/src/apps/mobile/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
