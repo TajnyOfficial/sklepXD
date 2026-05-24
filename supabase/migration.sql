@@ -87,6 +87,8 @@ CREATE TABLE profiles (
   hired_at      DATE,
   hourly_rate   NUMERIC(10,2) DEFAULT 0,
   commission_rate NUMERIC(5,2) DEFAULT 0,  -- % prowizji indywidualnej
+  system_login    TEXT,
+  system_password TEXT,
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
 );
@@ -94,6 +96,17 @@ CREATE TABLE profiles (
 CREATE UNIQUE INDEX idx_profiles_user_id ON profiles(user_id);
 CREATE UNIQUE INDEX idx_profiles_pin ON profiles(pin) WHERE pin IS NOT NULL;
 CREATE INDEX idx_profiles_role ON profiles(role);
+
+-- Cyfrowe akta osobowe
+CREATE TABLE employee_files (
+  id              UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  profile_id      UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  file_name       TEXT NOT NULL,
+  file_url        TEXT NOT NULL,
+  document_type   TEXT DEFAULT 'other',
+  uploaded_at     TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_employee_files_profile ON employee_files(profile_id);
 
 -- Ustawienia sklepu
 CREATE TABLE store_settings (
@@ -1083,3 +1096,17 @@ INSERT INTO categories (id, name, sort_order) VALUES
 -- 3. Skonfiguruj Supabase Auth i utwórz konta pracowników
 -- 4. Rozbuduj polityki RLS na podstawie ról
 -- ═══════════════════════════════════════════════════════════════
+
+-- ─────────────────────────────────────────────────────────────
+-- TABELE — GRAFIK PRACY
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE schedules (
+  id              UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  profile_id      UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  date            DATE NOT NULL,
+  start_time      TEXT NOT NULL,
+  end_time        TEXT NOT NULL,
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_schedules_profile_date ON schedules(profile_id, date);

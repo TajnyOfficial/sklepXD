@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { supabase, ensureSupabaseSession } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 import { ROLES, ROLE_LABELS, ROLE_PERMISSIONS } from '../utils/rbac';
+import toast from 'react-hot-toast';
 
 const StoreContext = createContext(null);
 
@@ -145,7 +146,8 @@ export function StoreProvider({ children }) {
           bank_account: newSettings.bankAccount || null,
           settings_json: {
             registers: newSettings.registers,
-            vatRates: newSettings.vatRates
+            vatRates: newSettings.vatRates,
+            integrations: newSettings.integrations
           }
         };
         if (existing && existing.length > 0) {
@@ -654,6 +656,7 @@ export function StoreProvider({ children }) {
             { name: 'VAT 0%', rate: 0, code: 'D' },
             { name: 'Zwolniony (zw)', rate: 0, code: 'E' },
           ],
+          integrations: s.settings_json?.integrations || { ksef: '', sms: '', bank: '' },
           role_permissions: s.settings_json?.role_permissions || null,
           role_labels: s.settings_json?.role_labels || null,
           roles: s.settings_json?.roles || null
@@ -851,6 +854,9 @@ export function StoreProvider({ children }) {
       barcodes: Array.isArray(productData.barcodes)
         ? productData.barcodes
         : (productData.barcodes ? String(productData.barcodes).split(',').map(b => b.trim()).filter(Boolean) : []),
+      attributes: typeof productData.attributes === 'string' 
+        ? (() => { try { return JSON.parse(productData.attributes); } catch { return {}; } })() 
+        : (productData.attributes || {}),
     };
 
     let result;
@@ -865,6 +871,19 @@ export function StoreProvider({ children }) {
         if (error) throw error;
         setProducts(prev => [...prev, data]);
         result = data;
+      }
+
+      // Zapis powiązanych produktów (cross-sell)
+      if (productData.cross_sell_products && Array.isArray(productData.cross_sell_products)) {
+        await supabase.from('product_cross_sell').delete().eq('product_id', result.id);
+        const crossSellRows = productData.cross_sell_products.map(relId => ({
+          product_id: result.id,
+          related_id: relId,
+          relation_type: 'cross_sell'
+        }));
+        if (crossSellRows.length > 0) {
+          await supabase.from('product_cross_sell').insert(crossSellRows);
+        }
       }
     } else {
       const product = { ...row, id: existingId || crypto.randomUUID() };
@@ -988,6 +1007,8 @@ export function StoreProvider({ children }) {
       hourly_rate: parseFloat(empData.hourly || empData.hourly_rate) || 0,
       is_active: empData.active ?? empData.is_active ?? true,
       pin: empData.pin || empData.demo_pin || null,
+      system_login: empData.system_login || null,
+      system_password: empData.system_password || null,
     };
 
     let norm;
@@ -1026,16 +1047,33 @@ export function StoreProvider({ children }) {
 
   const deleteEmployee = useCallback(async (employeeId) => {
     const emp = employees.find(e => e.id === employeeId);
+    let wasArchived = false;
+
     if (isSupabase) {
       const { error } = await supabase.from('profiles').delete().eq('id', employeeId);
-      if (error) throw error;
+      if (error) {
+        // FK constraint violation (e.g. employee has inventories/transactions)
+        if (error.code === '23503' || error.message.includes('violates foreign key')) {
+          const { error: updErr } = await supabase.from('profiles').update({ is_active: false }).eq('id', employeeId);
+          if (updErr) throw updErr;
+          wasArchived = true;
+          toast.success('Pracownik posiada historię systemową, więc został zarchiwizowany zamiast trwale usunięty.');
+        } else {
+          throw error;
+        }
+      }
     }
-    setEmployees(prev => prev.filter(e => e.id !== employeeId));
+    
+    if (wasArchived) {
+      setEmployees(prev => prev.map(e => e.id === employeeId ? { ...e, active: false, is_active: false } : e));
+    } else {
+      setEmployees(prev => prev.filter(e => e.id !== employeeId));
+    }
 
     // Zapisz log audytu
     if (emp) {
       const userLabel = profile ? profile.full_name : 'System';
-      addPosLog('delete', userLabel, 'Admin', `Usunięto pracownika ze sklepu: "${emp.full_name || emp.name}"`);
+      addPosLog(wasArchived ? 'update' : 'delete', userLabel, 'Admin', `${wasArchived ? 'Zarchiwizowano' : 'Usunięto'} pracownika ze sklepu: "${emp.full_name || emp.name}"`);
     }
   }, [isSupabase, employees, addPosLog, profile]);
 
@@ -1101,6 +1139,31 @@ export function StoreProvider({ children }) {
       return { employee, type: 'clock_out', entry: updated };
     } else {
       // 3b. Wejście (Clock In)
+      // Walidacja: czy pracownik ma dzisiaj zmianę w grafiku?
+      const dzisiaj = new Date().toISOString().split('T')[0];
+      const { data: shiftData, error: shiftErr } = await supabase
+        .from('schedules')
+        .select('*')
+        .eq('profile_id', employee.id)
+        .eq('date', dzisiaj)
+        .single();
+        
+      if (shiftErr || !shiftData) {
+        throw new Error("Nie masz dzisiaj zaplanowanej zmiany w grafiku.");
+      }
+      
+      // Walidacja: max 15 minut przed czasem
+      const [h, m] = shiftData.shift_start.split(':').map(Number);
+      const shiftStartTime = new Date();
+      shiftStartTime.setHours(h, m, 0, 0);
+      
+      const currentTime = new Date();
+      const diffMinutes = (shiftStartTime.getTime() - currentTime.getTime()) / (1000 * 60);
+      
+      if (diffMinutes > 15) {
+        throw new Error(`Za wcześnie! Twoja zmiana zaczyna się o ${shiftData.shift_start}. Najwcześniej możesz wejść 15 min przed.`);
+      }
+
       const { data: inserted, error: insertErr } = await supabase
         .from('time_entries')
         .insert({

@@ -260,27 +260,35 @@ export function getNavItems(userRole) {
 
   items.push({ id: 'dashboard', label: 'Dashboard', icon: 'FiHome', path: '/' });
 
-  if (hasPermission(userRole, PERMISSIONS.POS_ACCESS)) {
+  if (hasAnyPermission(userRole, [PERMISSIONS.POS_ACCESS, PERMISSIONS.ORDERS_VIEW, PERMISSIONS.CUSTOMERS_VIEW])) {
     items.push({
-      id: 'pos',
-      label: 'Sprzedaż (POS)',
+      id: 'sales',
+      label: 'Sprzedaż i Zamówienia',
       icon: 'FiShoppingCart',
-      path: '/pos',
+      path: '/sales',
       children: [
-        { id: 'pos-history', label: 'Historia działań', path: '/pos/history' },
+        ...(hasPermission(userRole, PERMISSIONS.POS_ACCESS) ? [{ id: 'pos-history', label: 'Historia działań', path: '/pos/history' }] : []),
+        ...(hasPermission(userRole, PERMISSIONS.ORDERS_VIEW) ? [{ id: 'sales-orders', label: 'Zamówienia (C&C)', path: '/sales/orders' }] : []),
+        ...(hasPermission(userRole, PERMISSIONS.RETURNS_VIEW) ? [{ id: 'sales-returns', label: 'Zwroty / RMA', path: '/sales/returns' }] : []),
+      ],
+    });
+  }
+
+  if (hasAnyPermission(userRole, [PERMISSIONS.CUSTOMERS_VIEW, PERMISSIONS.DELIVERIES_VIEW])) {
+    items.push({
+      id: 'contractors',
+      label: 'Kontrahenci',
+      icon: 'FiUsers',
+      path: '/contractors',
+      children: [
+        ...(hasPermission(userRole, PERMISSIONS.CUSTOMERS_VIEW) ? [{ id: 'contractors-customers', label: 'Klienci (CRM)', path: '/contractors/customers' }] : []),
+        ...(hasPermission(userRole, PERMISSIONS.DELIVERIES_VIEW) ? [{ id: 'contractors-suppliers', label: 'Dostawcy (B2B)', path: '/contractors/suppliers' }] : []),
       ],
     });
   }
 
 
-  if (hasAnyPermission(userRole, [PERMISSIONS.RETURNS_VIEW, PERMISSIONS.RETURNS_CREATE])) {
-    items.push({ id: 'returns', label: 'Zwroty / RMA', icon: 'FiRotateCcw', path: '/returns' });
-  }
 
-
-  if (hasAnyPermission(userRole, [PERMISSIONS.DOCS_VIEW])) {
-    items.push({ id: 'documents', label: 'Dokumenty', icon: 'FiFileText', path: '/documents' });
-  }
 
   if (hasAnyPermission(userRole, [PERMISSIONS.PRODUCTS_VIEW, PERMISSIONS.STOCK_VIEW])) {
     items.push({
@@ -294,6 +302,7 @@ export function getNavItems(userRole) {
         { id: 'warehouse-locations', label: 'Lokalizacje', path: '/warehouse/locations' },
         { id: 'warehouse-alerts', label: 'Alerty', path: '/warehouse/alerts' },
         { id: 'warehouse-transfers', label: 'Przesunięcia', path: '/warehouse/transfers' },
+        ...(hasPermission(userRole, PERMISSIONS.INVENTORY_VIEW) ? [{ id: 'warehouse-inventory', label: 'Inwentaryzacja', path: '/warehouse/inventory' }] : []),
       ],
     });
   }
@@ -306,15 +315,12 @@ export function getNavItems(userRole) {
       path: '/deliveries',
       children: [
         { id: 'deliveries-list', label: 'Lista dostaw', path: '/deliveries' },
-        { id: 'deliveries-suppliers', label: 'Dostawcy', path: '/deliveries/suppliers' },
         { id: 'deliveries-schedule', label: 'Harmonogram', path: '/deliveries/schedule' },
       ],
     });
   }
 
-  if (hasAnyPermission(userRole, [PERMISSIONS.INVENTORY_VIEW])) {
-    items.push({ id: 'inventory', label: 'Inwentaryzacja', icon: 'FiCheckSquare', path: '/inventory' });
-  }
+
 
   if (hasAnyPermission(userRole, [PERMISSIONS.FINANCE_VIEW])) {
     items.push({
@@ -347,20 +353,16 @@ export function getNavItems(userRole) {
               { id: 'hr-employees', label: 'Pracownicy', path: '/hr/employees' },
             ]
           : []),
+        ...(hasPermission(userRole, PERMISSIONS.DOCS_VIEW)
+          ? [
+              { id: 'hr-documents', label: 'Dokumenty', path: '/hr/documents' },
+            ]
+          : []),
+        { id: 'hr-announcements', label: 'Ogłoszenia', path: '/hr/announcements' },
+        { id: 'hr-tasks', label: 'Zadania', path: '/hr/tasks' },
       ],
     });
   }
-
-  items.push({
-    id: 'communication',
-    label: 'Komunikacja',
-    icon: 'FiMessageSquare',
-    path: '/communication',
-    children: [
-      { id: 'announcements', label: 'Ogłoszenia', path: '/communication/announcements' },
-      { id: 'tasks', label: 'Zadania', path: '/communication/tasks' },
-    ],
-  });
 
   if (hasAnyPermission(userRole, [PERMISSIONS.ADMIN_ROLES, PERMISSIONS.ADMIN_SETTINGS])) {
     items.push({

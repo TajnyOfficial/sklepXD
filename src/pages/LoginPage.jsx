@@ -1,217 +1,159 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { ROLE_LABELS } from '../utils/rbac';
-import { FiLogIn, FiShield, FiUser } from 'react-icons/fi';
+import { FiLogIn, FiUser, FiLock } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 /**
- * Ekran logowania do systemu.
- * Posiada dwa tryby:
- * 1. Logowanie testowe (Demo) - szybki wybór konta z listy
- * 2. Logowanie bezpiecznym kodem PIN (Produkcja) z dużą klawiaturą dotykową
+ * Zaktualizowany Ekran logowania do systemu głównego.
+ * Formularz oparty na klasycznym nazwie użytkownika / emailu i haśle.
+ * Posiada wbudowane konto awaryjne admin/admin.
  * 
  * @returns {JSX.Element} Widok strony logowania
  */
 export default function LoginPage() {
-  const { loginWithPin, loginWithDemo, demoUsers } = useAuth();
-  const [mode, setMode] = useState('select'); // 'select' | 'pin'
-  const [pin, setPin] = useState('');
-  const [error, setError] = useState('');
+  const { loginWithCredentials } = useAuth();
+  
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  async function handlePinSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    if (!username.trim() || !password) {
+      setError('Wprowadź nazwę użytkownika i hasło');
+      return;
+    }
+
     setError('');
     setLoading(true);
-    const result = await loginWithPin(pin);
-    if (!result.success) {
-      setError(result.error);
-    }
-    setLoading(false);
-  }
 
-  function handlePinPad(digit) {
-    if (pin.length < 4) {
-      const newPin = pin + digit;
-      setPin(newPin);
-      if (newPin.length === 4) {
-        setTimeout(async () => {
-          setError('');
-          setLoading(true);
-          const result = await loginWithPin(newPin);
-          if (!result.success) {
-            setError(result.error);
-            setPin('');
-          }
-          setLoading(false);
-        }, 200);
+    try {
+      const result = await loginWithCredentials(username, password);
+      if (!result.success) {
+        setError(result.error);
+        toast.error(result.error);
+      } else {
+        toast.success(`Zalogowano pomyślnie`);
       }
+    } catch (err) {
+      setError('Wystąpił błąd podczas logowania');
+    } finally {
+      setLoading(false);
     }
-  }
-
-  function handleBackspace() {
-    setPin(prev => prev.slice(0, -1));
-    setError('');
-  }
-
-  if (mode === 'select') {
-    return (
-      <div className="login-page">
-        <div className="login-card" style={{ maxWidth: 520 }}>
-          <div className="login-logo">
-            <div className="sidebar-logo" style={{ width: 48, height: 48, fontSize: '1.5rem' }}>S</div>
-          </div>
-          <h2>Sklep — System Zarządzania</h2>
-          <p className="login-subtitle">Wybierz konto lub zaloguj się kodem PIN</p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {demoUsers.map(user => (
-              <button
-                key={user.id}
-                className="btn btn-secondary"
-                style={{
-                  justifyContent: 'flex-start',
-                  padding: '12px 16px',
-                  width: '100%'
-                }}
-                onClick={() => loginWithDemo(user.id)}
-              >
-                <div className="sidebar-avatar" style={{ width: 36, height: 36, fontSize: '0.8rem' }}>
-                  {user.full_name.split(' ').map(n => n[0]).join('')}
-                </div>
-                <div style={{ textAlign: 'left', flex: 1 }}>
-                  <div style={{ fontWeight: 600, color: 'var(--text-heading)', fontSize: '0.9rem' }}>
-                    {user.full_name}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {ROLE_LABELS[user.role]}
-                  </div>
-                </div>
-                <FiLogIn size={16} style={{ color: 'var(--text-muted)' }} />
-              </button>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 20, textAlign: 'center' }}>
-            <button className="btn btn-ghost" onClick={() => setMode('pin')}>
-              <FiShield size={16} />
-              Zaloguj kodem PIN
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-logo">
-          <div className="sidebar-logo" style={{ width: 48, height: 48, fontSize: '1.5rem' }}>S</div>
+    <div className="login-page" style={{
+      minHeight: '100dvh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(145deg, var(--bg) 0%, var(--bg-secondary) 100%)',
+      padding: '24px'
+    }}>
+      <div className="login-card" style={{
+        background: 'var(--bg-card)',
+        padding: '48px',
+        borderRadius: '24px',
+        width: '100%',
+        maxWidth: '440px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.05)',
+        border: '1px solid var(--border-light)'
+      }}>
+        
+        <div className="login-logo" style={{ marginBottom: '32px' }}>
+          <div className="sidebar-logo" style={{ 
+            width: 56, 
+            height: 56, 
+            fontSize: '1.8rem',
+            margin: '0 auto',
+            background: 'linear-gradient(135deg, var(--primary), var(--accent))',
+            color: 'white',
+            borderRadius: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 800
+          }}>S</div>
         </div>
-        <h2>Wprowadź PIN</h2>
-        <p className="login-subtitle">Wpisz 4-cyfrowy kod PIN aby się zalogować</p>
+        
+        <h2 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.5rem', fontWeight: 700 }}>SklepXD ERP</h2>
+        <p className="login-subtitle" style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-muted)' }}>
+          Zaloguj się do panelu zarządzania
+        </p>
 
-        <form onSubmit={handlePinSubmit}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 24 }}>
-            {[0, 1, 2, 3].map(i => (
-              <div
-                key={i}
-                style={{
-                  width: 48,
-                  height: 56,
-                  borderRadius: 'var(--radius-md)',
-                  border: `2px solid ${pin.length > i ? 'var(--accent)' : 'var(--border-primary)'}`,
-                  background: 'var(--bg-input)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.5rem',
-                  fontWeight: 700,
-                  color: 'var(--text-heading)',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {pin.length > i ? '●' : ''}
-              </div>
-            ))}
-          </div>
-
+        <form onSubmit={handleSubmit}>
           {error && (
             <div style={{
-              textAlign: 'center',
+              background: 'var(--danger-bg, #fee2e2)',
               color: 'var(--danger)',
+              padding: '12px 16px',
+              borderRadius: 'var(--radius-md)',
               fontSize: '0.85rem',
-              marginBottom: 16,
-              animation: 'slideUp 0.2s ease'
+              marginBottom: '20px',
+              textAlign: 'center',
+              fontWeight: 500
             }}>
               {error}
             </div>
           )}
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 8,
-            maxWidth: 240,
-            margin: '0 auto'
-          }}>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => (
-              <button
-                key={digit}
-                type="button"
-                className="btn btn-secondary"
-                style={{
-                  aspectRatio: '1',
-                  fontSize: '1.25rem',
-                  fontWeight: 600,
-                  justifyContent: 'center',
-                  borderRadius: 'var(--radius-lg)',
-                }}
-                onClick={() => handlePinPad(String(digit))}
+          <div className="input-group mb-16">
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Nazwa użytkownika</label>
+            <div style={{ position: 'relative' }}>
+              <FiUser style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
+              <input 
+                type="text" 
+                className="input" 
+                style={{ paddingLeft: 42, paddingRight: 16, height: 48, fontSize: '1rem' }}
+                placeholder="Wprowadź login lub email..." 
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                autoFocus
                 disabled={loading}
-              >
-                {digit}
-              </button>
-            ))}
-            <button
-              type="button"
-              className="btn btn-ghost"
-              style={{ aspectRatio: '1', justifyContent: 'center' }}
-              onClick={() => { setMode('select'); setPin(''); setError(''); }}
-            >
-              <FiUser size={18} />
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{
-                aspectRatio: '1',
-                fontSize: '1.25rem',
-                fontWeight: 600,
-                justifyContent: 'center',
-                borderRadius: 'var(--radius-lg)',
-              }}
-              onClick={() => handlePinPad('0')}
-              disabled={loading}
-            >
-              0
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              style={{ aspectRatio: '1', justifyContent: 'center', fontSize: '1.25rem' }}
-              onClick={handleBackspace}
-            >
-              ⌫
-            </button>
+              />
+            </div>
           </div>
 
-          {loading && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
-              <div className="spinner"></div>
+          <div className="input-group mb-24">
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Hasło</label>
+            <div style={{ position: 'relative' }}>
+              <FiLock style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
+              <input 
+                type="password" 
+                className="input" 
+                style={{ paddingLeft: 42, paddingRight: 16, height: 48, fontSize: '1rem' }}
+                placeholder="Wprowadź hasło..." 
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                disabled={loading}
+              />
             </div>
-          )}
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn btn-primary" 
+            style={{ 
+              width: '100%', 
+              height: 48, 
+              fontSize: '1rem', 
+              fontWeight: 600,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+            disabled={loading}
+          >
+            {loading ? <div className="spinner"></div> : <><FiLogIn /> Zaloguj się</>}
+          </button>
         </form>
+        
+        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          Konto awaryjne: login <b>admin</b>, hasło <b>admin</b>
+        </div>
       </div>
     </div>
   );

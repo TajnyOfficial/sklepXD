@@ -1,14 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../../contexts/StoreContext';
-import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiSave, FiKey, FiMessageCircle, FiBriefcase } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
 export default function AdditionalSettingsPage() {
-  const { categories, saveCategory, deleteCategory } = useStore();
+  const { categories, saveCategory, deleteCategory, shopSettings, updateShopSettings } = useStore();
+  
+  // Category management
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [form, setForm] = useState({ name: '', sort_order: '0' });
+
+  // Integrations management
+  const [integrations, setIntegrations] = useState({
+    ksef: '',
+    sms: '',
+    bank: ''
+  });
+
+  useEffect(() => {
+    if (shopSettings?.integrations) {
+      setIntegrations(shopSettings.integrations);
+    }
+  }, [shopSettings]);
 
   function openAdd() {
     setEditingCategory(null);
@@ -22,7 +37,7 @@ export default function AdditionalSettingsPage() {
     setShowModal(true);
   }
 
-  async function handleSave() {
+  async function handleSaveCategory() {
     if (!form.name.trim()) {
       toast.error('Nazwa kategorii nie może być pusta');
       return;
@@ -46,6 +61,20 @@ export default function AdditionalSettingsPage() {
     }
   }
 
+  async function handleSaveIntegrations() {
+    try {
+      await updateShopSettings({
+        ...shopSettings,
+        integrations
+      });
+      toast.success('Ustawienia integracji zapisane');
+    } catch (err) {
+      toast.error(`Błąd: ${err.message}`);
+    }
+  }
+
+  const F_INT = (field) => (e) => setIntegrations(p => ({ ...p, [field]: e.target.value }));
+
   // Sortowanie po sort_order, a następnie alfabetycznie
   const sortedCategories = [...categories].sort((a, b) => {
     if (a.sort_order !== b.sort_order) {
@@ -59,53 +88,101 @@ export default function AdditionalSettingsPage() {
       <div className="page-header">
         <div className="page-header-left">
           <h1>Dodatkowe Ustawienia</h1>
-          <p>Zarządzanie kategoriami i innymi słownikami systemowymi</p>
+          <p>Zarządzanie kategoriami i konfiguracja integracji (KSeF, SMS, Banki)</p>
         </div>
       </div>
 
-      <div className="card mb-24">
-        <div className="flex-between mb-16">
-          <h3>Kategorie Produktów</h3>
-          <button className="btn btn-primary btn-sm" onClick={openAdd}>
-            <FiPlus size={14} /> Nowa kategoria
-          </button>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
         
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Nazwa kategorii</th>
-                <th>Kolejność sortowania</th>
-                <th style={{ width: 100 }}>Akcje</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedCategories.length > 0 ? (
-                sortedCategories.map(cat => (
-                  <tr key={cat.id}>
-                    <td style={{ fontWeight: 500 }}>{cat.name}</td>
-                    <td className="text-muted">{cat.sort_order || 0}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(cat)} title="Edytuj">
-                          <FiEdit size={14} />
-                        </button>
-                        <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(cat)} title="Usuń">
-                          <FiTrash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="text-center text-muted py-24">Brak dodanych kategorii</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* Integracje */}
+        <div className="card">
+          <div className="flex-between mb-16">
+            <h3>Integracje zewnętrzne</h3>
+            <button className="btn btn-primary btn-sm" onClick={handleSaveIntegrations}>
+              <FiSave size={14} /> Zapisz integracje
+            </button>
+          </div>
+
+          <div className="input-group mb-16">
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FiKey /> Token KSeF (Krajowy System e-Faktur)</label>
+            <input 
+              className="input font-mono text-sm" 
+              type="password" 
+              value={integrations.ksef} 
+              onChange={F_INT('ksef')} 
+              placeholder="Wprowadź token autoryzacyjny KSeF..." 
+            />
+          </div>
+
+          <div className="input-group mb-16">
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FiMessageCircle /> Bramka SMS (API Key)</label>
+            <input 
+              className="input font-mono text-sm" 
+              type="password" 
+              value={integrations.sms} 
+              onChange={F_INT('sms')} 
+              placeholder="Klucz API bramki SMS (np. SMSAPI)..." 
+            />
+          </div>
+
+          <div className="input-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FiBriefcase /> Integracja Bankowa (Open Banking API)</label>
+            <input 
+              className="input font-mono text-sm" 
+              type="password" 
+              value={integrations.bank} 
+              onChange={F_INT('bank')} 
+              placeholder="Wprowadź token API dla Twojego banku..." 
+            />
+          </div>
         </div>
+
+        {/* Kategorie */}
+        <div className="card">
+          <div className="flex-between mb-16">
+            <h3>Kategorie Produktów</h3>
+            <button className="btn btn-secondary btn-sm" onClick={openAdd}>
+              <FiPlus size={14} /> Nowa kategoria
+            </button>
+          </div>
+          
+          <div className="table-container" style={{ maxHeight: 300, overflowY: 'auto' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nazwa kategorii</th>
+                  <th>Kolejność sortowania</th>
+                  <th style={{ width: 100 }}>Akcje</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedCategories.length > 0 ? (
+                  sortedCategories.map(cat => (
+                    <tr key={cat.id}>
+                      <td style={{ fontWeight: 500 }}>{cat.name}</td>
+                      <td className="text-muted">{cat.sort_order || 0}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(cat)} title="Edytuj">
+                            <FiEdit size={14} />
+                          </button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(cat)} title="Usuń" style={{ color: 'var(--danger)' }}>
+                            <FiTrash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center text-muted py-24">Brak dodanych kategorii</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
 
       <Modal 
@@ -115,7 +192,7 @@ export default function AdditionalSettingsPage() {
         footer={
           <>
             <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Anuluj</button>
-            <button className="btn btn-primary" onClick={handleSave}>Zapisz</button>
+            <button className="btn btn-primary" onClick={handleSaveCategory}>Zapisz</button>
           </>
         }
       >

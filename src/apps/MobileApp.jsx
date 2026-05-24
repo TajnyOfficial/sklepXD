@@ -14,7 +14,9 @@ import { StoreProvider, useStore } from '../contexts/StoreContext';
 import MobileInventoryPage from '../pages/mobile/MobileInventoryPage';
 import MobileStockPage from '../pages/mobile/MobileStockPage';
 import MobileScanPage from '../pages/mobile/MobileScanPage';
-import { FiClipboard, FiPackage, FiSearch, FiLogOut, FiTablet } from 'react-icons/fi';
+import MobileDeliveriesPage from '../pages/mobile/MobileDeliveriesPage';
+import MobileReceiveDeliveryPage from '../pages/mobile/MobileReceiveDeliveryPage';
+import { FiClipboard, FiPackage, FiSearch, FiLogOut, FiTablet, FiTruck } from 'react-icons/fi';
 
 /**
  * Ekran logowania kodem PIN dla pracowników na urządzeniach mobilnych.
@@ -147,9 +149,10 @@ function BottomNav() {
   const { logoutMobileUser } = useStore();
 
   const tabs = [
-    { path: '/', label: 'Inwentaryzacja', icon: FiClipboard },
+    { path: '/', label: 'Inwent', icon: FiClipboard },
     { path: '/stock', label: 'Stany', icon: FiPackage },
     { path: '/scan', label: 'Skaner', icon: FiSearch },
+    { path: '/deliveries', label: 'Dostawy', icon: FiTruck },
   ];
 
   return (
@@ -204,6 +207,8 @@ function MobileLayout() {
         <Route path="/" element={<MobileInventoryPage />} />
         <Route path="/stock" element={<MobileStockPage />} />
         <Route path="/scan" element={<MobileScanPage />} />
+        <Route path="/deliveries" element={<MobileDeliveriesPage />} />
+        <Route path="/deliveries/:id" element={<MobileReceiveDeliveryPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <BottomNav />

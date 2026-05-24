@@ -1,24 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { formatCurrency } from '../../utils/helpers';
 import { FiPackage, FiSearch, FiPlus, FiEdit, FiEye, FiTag, FiTrash2, FiPrinter, FiVideo } from 'react-icons/fi';
 import BarcodeScanner from '../../components/BarcodeScanner/BarcodeScanner';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
 
-const EMPTY_PRODUCT = { name: '', sku: '', category_id: '', location_id: '', unit: 'szt', purchase_price: '', sell_price: '', min_stock: '', stock_qty: '', barcodes: '' };
+const EMPTY_PRODUCT = { 
+  name: '', sku: '', category_id: '', location_id: '', unit: 'szt', 
+  purchase_price: '', sell_price: '', min_stock: '', stock_qty: '', 
+  barcodes: '', attributes: '{}', cross_sell_products: [] 
+};
 
-/**
- * Widok modułu ProductCatalogPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z ProductCatalog.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony ProductCatalogPage
- */
 export default function ProductCatalogPage() {
-  const { products, categories, warehouseLocations, saveProduct, deleteProduct } = useStore();
+  const { products, categories, warehouseLocations, saveProduct, deleteProduct, isSupabase } = useStore();
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
@@ -30,6 +26,9 @@ export default function ProductCatalogPage() {
   const [selectedForLabels, setSelectedForLabels] = useState([]);
   const [showScanner, setShowScanner] = useState(false);
   const [scannerMode, setScannerMode] = useState('form'); // 'form' | 'search'
+  
+  // Tabs w modalu edycji (0 = Podstawowe, 1 = Warianty, 2 = Powiązane)
+  const [activeTab, setActiveTab] = useState(0);
 
   const filtered = products.filter(p => {
     if (catFilter !== 'all' && p.category_id !== catFilter) return false;
@@ -40,11 +39,27 @@ export default function ProductCatalogPage() {
   function openAdd() {
     setEditingProduct(null);
     setForm(EMPTY_PRODUCT);
+    setActiveTab(0);
     setShowModal(true);
   }
 
-  function openEdit(product) {
+  async function openEdit(product) {
     setEditingProduct(product);
+    setActiveTab(0);
+    
+    // Fetch cross-sell products
+    let crossSell = [];
+    if (isSupabase) {
+      try {
+        const { data, error } = await supabase.from('product_cross_sell').select('related_id').eq('product_id', product.id);
+        if (!error && data) {
+          crossSell = data.map(d => d.related_id);
+        }
+      } catch (e) {
+        console.warn('Failed to fetch cross-sell relations', e);
+      }
+    }
+
     setForm({
       ...product,
       barcodes: product.barcodes?.join(', ') || '',
@@ -52,7 +67,9 @@ export default function ProductCatalogPage() {
       sell_price: String(product.sell_price),
       min_stock: String(product.min_stock),
       stock_qty: String(product.stock_qty),
-      location_id: product.location_id || ''
+      location_id: product.location_id || '',
+      attributes: product.attributes ? JSON.stringify(product.attributes, null, 2) : '{}',
+      cross_sell_products: crossSell
     });
     setShowModal(true);
   }
@@ -67,6 +84,15 @@ export default function ProductCatalogPage() {
       toast.error('Wypełnij wymagane pola: Nazwa, SKU, Cena sprzedaży');
       return;
     }
+    
+    // Walidacja JSON
+    try {
+      if (form.attributes) JSON.parse(form.attributes);
+    } catch (e) {
+      toast.error('Pola Warianty muszą być prawidłowym formatem JSON');
+      return;
+    }
+
     try {
       await saveProduct(form, editingProduct?.id || null);
       toast.success(editingProduct ? 'Produkt zaktualizowany' : 'Produkt dodany i zapisany w bazie');
@@ -125,6 +151,17 @@ export default function ProductCatalogPage() {
   }
 
   const F = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
+
+  function toggleCrossSell(prodId) {
+    setForm(prev => {
+      const current = prev.cross_sell_products || [];
+      if (current.includes(prodId)) {
+        return { ...prev, cross_sell_products: current.filter(id => id !== prodId) };
+      } else {
+        return { ...prev, cross_sell_products: [...current, prodId] };
+      }
+    });
+  }
 
   return (
     <div className="page animate-fadeIn">
@@ -189,7 +226,7 @@ export default function ProductCatalogPage() {
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button className="btn btn-ghost btn-sm" onClick={() => openView(p)}><FiEye size={14} /></button>
                       <button className="btn btn-ghost btn-sm" onClick={() => openEdit(p)}><FiEdit size={14} /></button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(p)}><FiTrash2 size={14} /></button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(p)} style={{ color: 'var(--danger)' }}><FiTrash2 size={14} /></button>
                     </div>
                   </td>
                 </tr>
@@ -199,61 +236,117 @@ export default function ProductCatalogPage() {
         </table>
       </div>
 
-      {/* Modal: Dodaj / Edytuj produkt */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingProduct ? 'Edytuj produkt' : 'Nowy produkt'} size="modal-lg" footer={<><button className="btn btn-secondary" onClick={() => setShowModal(false)}>Anuluj</button><button className="btn btn-primary" onClick={handleSave}>{editingProduct ? 'Zapisz zmiany' : 'Dodaj produkt'}</button></>}>
-        <div className="input-row mb-16">
-          <div className="input-group"><label>Nazwa *</label><input className="input" value={form.name} onChange={F('name')} placeholder="np. Farba akrylowa biała 10L" /></div>
-          <div className="input-group"><label>SKU *</label><input className="input" value={form.sku} onChange={F('sku')} placeholder="np. FAR-AK-B10" /></div>
+        
+        <div className="tabs mb-16" style={{ display: 'flex', borderBottom: '1px solid var(--border-light)' }}>
+          <button className={`tab-btn ${activeTab === 0 ? 'active' : ''}`} onClick={() => setActiveTab(0)} style={{ padding: '8px 16px', background: 'none', border: 'none', borderBottom: activeTab === 0 ? '2px solid var(--primary)' : '2px solid transparent', cursor: 'pointer', fontWeight: activeTab === 0 ? 600 : 400 }}>Podstawowe</button>
+          <button className={`tab-btn ${activeTab === 1 ? 'active' : ''}`} onClick={() => setActiveTab(1)} style={{ padding: '8px 16px', background: 'none', border: 'none', borderBottom: activeTab === 1 ? '2px solid var(--primary)' : '2px solid transparent', cursor: 'pointer', fontWeight: activeTab === 1 ? 600 : 400 }}>Warianty (JSON)</button>
+          <button className={`tab-btn ${activeTab === 2 ? 'active' : ''}`} onClick={() => setActiveTab(2)} style={{ padding: '8px 16px', background: 'none', border: 'none', borderBottom: activeTab === 2 ? '2px solid var(--primary)' : '2px solid transparent', cursor: 'pointer', fontWeight: activeTab === 2 ? 600 : 400 }}>Cross-Selling</button>
         </div>
-        <div className="input-row mb-16">
-          <div className="input-group"><label>Kategoria</label>
-            <select className="select" value={form.category_id} onChange={F('category_id')}>
-              <option value="">— Wybierz —</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+
+        {activeTab === 0 && (
+          <div>
+            <div className="input-row mb-16">
+              <div className="input-group"><label>Nazwa *</label><input className="input" value={form.name} onChange={F('name')} placeholder="np. Farba akrylowa biała 10L" /></div>
+              <div className="input-group"><label>SKU *</label><input className="input" value={form.sku} onChange={F('sku')} placeholder="np. FAR-AK-B10" /></div>
+            </div>
+            <div className="input-row mb-16">
+              <div className="input-group"><label>Kategoria</label>
+                <select className="select" value={form.category_id} onChange={F('category_id')}>
+                  <option value="">— Wybierz —</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="input-group"><label>Jednostka</label>
+                <select className="select" value={form.unit} onChange={F('unit')}>
+                  {['szt', 'kg', 'm', 'm²', 'L', 'op', 'kpl', 'usł'].map(u => <option key={u} value={u}>{u}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="input-row mb-16">
+              <div className="input-group"><label>Cena zakupu (netto)</label><input className="input" type="number" step="0.01" value={form.purchase_price} onChange={F('purchase_price')} /></div>
+              <div className="input-group"><label>Cena sprzedaży (brutto) *</label><input className="input" type="number" step="0.01" value={form.sell_price} onChange={F('sell_price')} /></div>
+            </div>
+            <div className="input-row mb-16">
+              <div className="input-group"><label>Stan magazynowy</label><input className="input" type="number" value={form.stock_qty} onChange={F('stock_qty')} /></div>
+              <div className="input-group"><label>Minimalny stan</label><input className="input" type="number" value={form.min_stock} onChange={F('min_stock')} /></div>
+            </div>
+            <div className="input-row mb-16">
+              <div className="input-group"><label>Lokalizacja magazynowa</label>
+                <select className="select" value={form.location_id || ''} onChange={F('location_id')}>
+                  <option value="">— Brak (Brak lokalizacji) —</option>
+                  {warehouseLocations.map(l => {
+                    const prodCount = products.filter(p => p.location_id === l.id && p.id !== editingProduct?.id).length;
+                    const locText = `${l.sector} - ${l.description || 'Bez opisu strefy'} (Regał ${l.rack || '—'}, Półka ${l.shelf || '—'}) [${prodCount} prod.]`;
+                    return <option key={l.id} value={l.id}>{locText}</option>;
+                  })}
+                </select>
+              </div>
+              <div className="input-group" style={{ opacity: 0, pointerEvents: 'none' }}><label>Spacer</label><input className="input" /></div>
+            </div>
+            <div className="input-group">
+              <label>Kody kreskowe (oddzielone przecinkiem)</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input className="input" value={form.barcodes} onChange={F('barcodes')} placeholder="5901234567890, 5901234567891" />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-icon"
+                  onClick={() => openScanner('form')}
+                  title="Skanuj kod kreskowy"
+                  style={{ padding: '0 12px' }}
+                >
+                  <FiVideo size={18} />
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="input-group"><label>Jednostka</label>
-            <select className="select" value={form.unit} onChange={F('unit')}>
-              {['szt', 'kg', 'm', 'm²', 'L', 'op', 'kpl', 'usł'].map(u => <option key={u} value={u}>{u}</option>)}
-            </select>
+        )}
+
+        {activeTab === 1 && (
+          <div>
+            <div className="input-group mb-16">
+              <label>Atrybuty wariantów (Format JSON)</label>
+              <textarea 
+                className="input font-mono text-sm" 
+                rows="10" 
+                value={form.attributes} 
+                onChange={F('attributes')} 
+                placeholder={'{\n  "kolor": "biały",\n  "pojemność": "10L"\n}'}
+              ></textarea>
+              <p className="text-xs text-muted mt-4">Wprowadź prawidłowy obiekt JSON określający atrybuty tego wariantu produktu.</p>
+            </div>
           </div>
-        </div>
-        <div className="input-row mb-16">
-          <div className="input-group"><label>Cena zakupu (netto)</label><input className="input" type="number" step="0.01" value={form.purchase_price} onChange={F('purchase_price')} /></div>
-          <div className="input-group"><label>Cena sprzedaży (brutto) *</label><input className="input" type="number" step="0.01" value={form.sell_price} onChange={F('sell_price')} /></div>
-        </div>
-        <div className="input-row mb-16">
-          <div className="input-group"><label>Stan magazynowy</label><input className="input" type="number" value={form.stock_qty} onChange={F('stock_qty')} /></div>
-          <div className="input-group"><label>Minimalny stan</label><input className="input" type="number" value={form.min_stock} onChange={F('min_stock')} /></div>
-        </div>
-        <div className="input-row mb-16">
-          <div className="input-group"><label>Lokalizacja magazynowa</label>
-            <select className="select" value={form.location_id || ''} onChange={F('location_id')}>
-              <option value="">— Brak (Brak lokalizacji) —</option>
-              {warehouseLocations.map(l => {
-                const prodCount = products.filter(p => p.location_id === l.id && p.id !== editingProduct?.id).length;
-                const locText = `${l.sector} - ${l.description || 'Bez opisu strefy'} (Regał ${l.rack || '—'}, Półka ${l.shelf || '—'}) [${prodCount} prod.]`;
-                return <option key={l.id} value={l.id}>{locText}</option>;
-              })}
-            </select>
+        )}
+
+        {activeTab === 2 && (
+          <div>
+            <p className="text-sm text-muted mb-16">Wybierz produkty komplementarne, które będą sugerowane podczas sprzedaży tego produktu.</p>
+            <div className="table-container" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th style={{ width: 40 }}>Wybrany</th>
+                    <th>SKU</th>
+                    <th>Nazwa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.filter(p => p.id !== editingProduct?.id).map(p => {
+                    const isSelected = form.cross_sell_products?.includes(p.id);
+                    return (
+                      <tr key={p.id} onClick={() => toggleCrossSell(p.id)} style={{ cursor: 'pointer', background: isSelected ? 'var(--bg-highlight)' : '' }}>
+                        <td><input type="checkbox" checked={isSelected} readOnly /></td>
+                        <td className="font-mono text-xs">{p.sku}</td>
+                        <td>{p.name}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div className="input-group" style={{ opacity: 0, pointerEvents: 'none' }}><label>Spacer</label><input className="input" /></div>
-        </div>
-        <div className="input-group">
-          <label>Kody kreskowe (oddzielone przecinkiem)</label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input className="input" value={form.barcodes} onChange={F('barcodes')} placeholder="5901234567890, 5901234567891" />
-            <button
-              type="button"
-              className="btn btn-secondary btn-icon"
-              onClick={() => openScanner('form')}
-              title="Skanuj kod kreskowy"
-              style={{ padding: '0 12px' }}
-            >
-              <FiVideo size={18} />
-            </button>
-          </div>
-        </div>
+        )}
+
       </Modal>
 
       {/* Skaner kodów */}
@@ -272,6 +365,12 @@ export default function ProductCatalogPage() {
             {(() => {
               const loc = warehouseLocations.find(l => l.id === viewProduct.location_id);
               const locString = loc ? `Sektor ${loc.sector} - ${loc.description || 'Bez opisu'} (Regał ${loc.rack || '—'}, Półka ${loc.shelf || '—'})` : 'Brak przypisanej lokalizacji';
+              
+              let attrString = 'Brak';
+              if (viewProduct.attributes && Object.keys(viewProduct.attributes).length > 0) {
+                attrString = Object.entries(viewProduct.attributes).map(([k, v]) => `${k}: ${v}`).join(', ');
+              }
+
               return [
                 ['Nazwa', viewProduct.name],
                 ['SKU', viewProduct.sku],
@@ -283,7 +382,8 @@ export default function ProductCatalogPage() {
                 ['Marża', viewProduct.purchase_price > 0 ? `${((viewProduct.sell_price - viewProduct.purchase_price) / viewProduct.sell_price * 100).toFixed(1)}%` : '—'],
                 ['Stan magazynowy', `${viewProduct.stock_qty} ${viewProduct.unit}`],
                 ['Minimalny stan', viewProduct.min_stock],
-                ['Kody kreskowe', viewProduct.barcodes?.join(', ') || 'Brak']
+                ['Kody kreskowe', viewProduct.barcodes?.join(', ') || 'Brak'],
+                ['Atrybuty', attrString]
               ].map(([label, value]) => (
                 <div key={label} className="flex-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
                   <span className="text-sm text-muted">{label}</span>

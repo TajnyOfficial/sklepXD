@@ -51,8 +51,14 @@ export function AuthProvider({ children }) {
         setUser(session.user);
         await fetchProfile(session.user.id);
       } else {
-        // No session => demo mode
-        setIsDemoMode(true);
+        const localUser = localStorage.getItem('local_user');
+        if (localUser) {
+          const parsed = JSON.parse(localUser);
+          setUser({ id: parsed.id });
+          setProfile(parsed);
+        } else {
+          setIsDemoMode(true);
+        }
       }
     } catch {
       setIsDemoMode(true);
@@ -129,22 +135,61 @@ export function AuthProvider({ children }) {
     }
   }, [isDemoMode]);
 
-  const loginWithEmail = useCallback(async (email, password) => {
+  const loginWithCredentials = useCallback(async (username, password) => {
+    // 1. Zawsze działające konto awaryjne: admin / admin
+    if (username === 'admin' && password === 'admin') {
+      const adminDemo = DEMO_USERS.find(u => u.role === ROLES.ADMIN) || DEMO_USERS[0];
+      setProfile(adminDemo);
+      setUser({ id: adminDemo.id, email: adminDemo.email });
+      setIsDemoMode(true);
+      return { success: true };
+    }
+
+    // 2. W trybie demo (brak URL), pozwalamy logować się za pomocą pierwszego imienia jako loginu
+    if (!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
+      const uName = username.toLowerCase();
+      const demoUser = DEMO_USERS.find(u => 
+        u.email.split('@')[0].toLowerCase() === uName || 
+        u.full_name.split(' ')[0].toLowerCase() === uName
+      );
+      // W wersji demo akceptujemy puste hasło lub 'haslo'
+      if (demoUser && (password === 'haslo' || password === '')) {
+        setProfile(demoUser);
+        setUser({ id: demoUser.id, email: demoUser.email });
+        return { success: true };
+      }
+      return { success: false, error: 'Nieprawidłowa nazwa użytkownika lub hasło (Tryb offline)' };
+    }
+
+    // 3. Prawdziwe logowanie w Supabase za pomocą system_login i system_password
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return { success: false, error: error.message };
-      setUser(data.user);
-      await fetchProfile(data.user.id);
+      // Szukamy pracownika w bazie Supabase po loginie i haśle
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('system_login', username)
+        .eq('system_password', password)
+        .single();
+        
+      if (error || !data) {
+        return { success: false, error: 'Nieprawidłowa nazwa użytkownika lub hasło' };
+      }
+      
+      setUser({ id: data.id });
+      setProfile(data);
+      localStorage.setItem('local_user', JSON.stringify(data));
+      setIsDemoMode(false);
       return { success: true };
     } catch {
       return { success: false, error: 'Błąd połączenia z serwerem' };
     }
-  }, []);
+  }, [isDemoMode]);
 
   const logout = useCallback(async () => {
     if (!isDemoMode) {
       await supabase.auth.signOut();
     }
+    localStorage.removeItem('local_user');
     setUser(null);
     setProfile(null);
   }, [isDemoMode]);
@@ -172,7 +217,7 @@ export function AuthProvider({ children }) {
     demoUsers: DEMO_USERS,
     loginWithDemo,
     loginWithPin,
-    loginWithEmail,
+    loginWithCredentials,
     logout,
     can,
     canAny,

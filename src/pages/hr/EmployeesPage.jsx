@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../../contexts/StoreContext';
-import { FiUsers, FiPlus, FiEdit, FiTrash2, FiPhone, FiMail, FiKey, FiRefreshCw, FiToggleLeft, FiToggleRight, FiCalendar, FiDollarSign } from 'react-icons/fi';
+import { FiUsers, FiPlus, FiEdit, FiTrash2, FiPhone, FiMail, FiKey, FiRefreshCw, FiToggleLeft, FiToggleRight, FiCalendar, FiDollarSign, FiFileText, FiDownload } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
 
 // Mapowanie: klucz DB → etykieta UI
 const ROLE_LABELS = {
@@ -16,7 +17,6 @@ const ROLE_LABELS = {
   cleaner: 'Pracownik Sprzątający',
 };
 
-// Mapowanie: etykieta UI → klucz DB
 const ROLE_KEYS = {
   'Administrator': 'admin',
   'Kierownik Zmiany': 'shift_manager',
@@ -40,7 +40,7 @@ const ROLE_COLORS = {
 };
 
 const ROLES_LIST = Object.keys(ROLE_KEYS);
-const EMPTY = { name: '', role: 'Kasjer', phone: '', email: '', hired: '', hourly: '28', active: true, pin: '' };
+const EMPTY = { name: '', role: 'Kasjer', phone: '', email: '', hired: '', hourly: '28', active: true, pin: '', system_login: '', system_password: '' };
 
 function generatePin() {
   const arr = new Uint32Array(1);
@@ -48,7 +48,6 @@ function generatePin() {
   return String(arr[0]).slice(-4).padStart(4, '0');
 }
 
-// Normalizuj pracownika niezależnie od źródła (DB vs. lokalny)
 function normalizeEmployee(e) {
   return {
     ...e,
@@ -56,6 +55,8 @@ function normalizeEmployee(e) {
     role: e.role || 'cashier',
     phone: e.phone || null,
     email: e.email || null,
+    system_login: e.system_login || null,
+    system_password: e.system_password || null,
     hired: e.hired || e.hired_at || null,
     hourly: e.hourly ?? e.hourly_rate ?? 0,
     active: e.active ?? e.is_active ?? true,
@@ -63,44 +64,54 @@ function normalizeEmployee(e) {
   };
 }
 
-/**
- * Panel zarządzania Personelem (HR).
- * 
- * Interfejs dla administratora i managera umożliwiający:
- * - Dodawanie, edycję i usuwanie pracowników z systemu.
- * - Nadawanie stanowisk i uprawnień systemowych (Role).
- * - Generowanie oraz przypisywanie 4-cyfrowych kodów PIN używanych do autoryzacji sprzętowej w Kiosku/POS.
- * - Włączanie/wyłączanie kont bez konieczności ich trwałego usunięcia z bazy.
- * 
- * @returns {JSX.Element} Widok panelu pracowników
- */
 export default function EmployeesPage() {
-  const { employees, saveEmployee, deleteEmployee, toggleEmployeeActive } = useStore();
+  const { employees, saveEmployee, deleteEmployee, toggleEmployeeActive, isSupabase } = useStore();
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
+  
+  const [activeTab, setActiveTab] = useState(0); // 0 = Dane, 1 = Akta
+  const [employeeFiles, setEmployeeFiles] = useState([]);
+  const [newFileUrl, setNewFileUrl] = useState('');
+  const [newFileName, setNewFileName] = useState('');
+  const [newFileType, setNewFileType] = useState('contract');
 
   const normalized = employees.map(normalizeEmployee);
 
   function openAdd() {
     setEditing(null);
     setForm(EMPTY);
+    setActiveTab(0);
     setShowModal(true);
   }
 
-  function openEdit(emp) {
+  async function openEdit(emp) {
     setEditing(emp);
     setForm({
       name: emp.name || emp.full_name || '',
       role: ROLE_LABELS[emp.role] || emp.role || 'Kasjer',
       phone: emp.phone || '',
       email: emp.email || '',
+      system_login: emp.system_login || '',
+      system_password: emp.system_password || '',
       hired: emp.hired || emp.hired_at || '',
       hourly: String(emp.hourly ?? emp.hourly_rate ?? 28),
       active: emp.active ?? emp.is_active ?? true,
       pin: emp.pin || emp.demo_pin || '',
     });
+    setActiveTab(0);
     setShowModal(true);
+    
+    if (isSupabase && emp.id) {
+      try {
+        const { data, error } = await supabase.from('employee_files').select('*').eq('profile_id', emp.id);
+        if (!error && data) {
+          setEmployeeFiles(data);
+        }
+      } catch(e) {
+        console.warn('Failed to fetch employee files', e);
+      }
+    }
   }
 
   async function handleSave() {
@@ -133,6 +144,41 @@ export default function EmployeesPage() {
       toast.success('Status zmieniony');
     } catch (err) {
       toast.error(`Błąd: ${err.message}`);
+    }
+  }
+
+  async function handleAddFile() {
+    if (!isSupabase) return toast.error('Wymagane połączenie z Supabase');
+    if (!newFileName || !newFileUrl) return toast.error('Podaj nazwę i URL pliku');
+    if (!editing) return toast.error('Zapisz pracownika najpierw');
+
+    try {
+      const row = {
+        profile_id: editing.id,
+        file_name: newFileName,
+        file_url: newFileUrl,
+        document_type: newFileType
+      };
+      const { data, error } = await supabase.from('employee_files').insert(row).select().single();
+      if (error) throw error;
+      setEmployeeFiles(prev => [data, ...prev]);
+      setNewFileName('');
+      setNewFileUrl('');
+      toast.success('Dokument dodany');
+    } catch(e) {
+      toast.error('Błąd: ' + e.message);
+    }
+  }
+
+  async function handleDeleteFile(fileId) {
+    if (!confirm('Usunąć ten dokument?')) return;
+    try {
+      const { error } = await supabase.from('employee_files').delete().eq('id', fileId);
+      if (error) throw error;
+      setEmployeeFiles(prev => prev.filter(f => f.id !== fileId));
+      toast.success('Usunięto');
+    } catch(e) {
+      toast.error('Błąd: ' + e.message);
     }
   }
 
@@ -176,7 +222,6 @@ export default function EmployeesPage() {
                   transition: 'opacity 0.2s',
                 }}
               >
-                {/* Nagłówek karty */}
                 <div className="flex-between mb-12">
                   <div className="flex gap-12" style={{ alignItems: 'center' }}>
                     <div style={{
@@ -203,7 +248,6 @@ export default function EmployeesPage() {
                   </div>
                 </div>
 
-                {/* Dane kontaktowe */}
                 <div className="text-sm" style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 10 }}>
                   {emp.phone && (
                     <div className="flex gap-8 text-muted" style={{ alignItems: 'center' }}>
@@ -227,7 +271,6 @@ export default function EmployeesPage() {
                   )}
                 </div>
 
-                {/* Stopka: PIN + status */}
                 <div style={{
                   borderTop: '1px solid var(--border)',
                   paddingTop: 10,
@@ -235,7 +278,6 @@ export default function EmployeesPage() {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                  {/* PIN */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FiKey size={12} style={{ color: 'var(--text-muted)' }} />
                     <span className="text-xs text-muted">
@@ -246,7 +288,6 @@ export default function EmployeesPage() {
                     </span>
                   </div>
 
-                  {/* Przełącznik aktywności */}
                   <button
                     onClick={() => handleToggle(emp.id)}
                     style={{
@@ -272,7 +313,6 @@ export default function EmployeesPage() {
         </div>
       )}
 
-      {/* Modal */}
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -284,86 +324,170 @@ export default function EmployeesPage() {
           </>
         }
       >
-        <div className="input-row mb-16">
-          <div className="input-group">
-            <label>Imię i nazwisko *</label>
-            <input className="input" value={form.name} onChange={F('name')} placeholder="Jan Kowalski" />
-          </div>
-          <div className="input-group">
-            <label>Stanowisko</label>
-            <select className="select" value={form.role} onChange={F('role')}>
-              {ROLES_LIST.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
-          </div>
+        <div className="tabs mb-16" style={{ display: 'flex', borderBottom: '1px solid var(--border-light)' }}>
+          <button className={`tab-btn ${activeTab === 0 ? 'active' : ''}`} onClick={() => setActiveTab(0)} style={{ padding: '8px 16px', background: 'none', border: 'none', borderBottom: activeTab === 0 ? '2px solid var(--primary)' : '2px solid transparent', cursor: 'pointer', fontWeight: activeTab === 0 ? 600 : 400 }}>Dane pracownika</button>
+          {editing && <button className={`tab-btn ${activeTab === 1 ? 'active' : ''}`} onClick={() => setActiveTab(1)} style={{ padding: '8px 16px', background: 'none', border: 'none', borderBottom: activeTab === 1 ? '2px solid var(--primary)' : '2px solid transparent', cursor: 'pointer', fontWeight: activeTab === 1 ? 600 : 400 }}>Akta osobowe</button>}
         </div>
 
-        <div className="input-row mb-16">
-          <div className="input-group">
-            <label>Telefon</label>
-            <input className="input" value={form.phone} onChange={F('phone')} placeholder="501 234 567" />
-          </div>
-          <div className="input-group">
-            <label>E-mail</label>
-            <input className="input" type="email" value={form.email} onChange={F('email')} placeholder="jan@firma.pl" />
-          </div>
-        </div>
-
-        <div className="input-row mb-16">
-          <div className="input-group">
-            <label>Data zatrudnienia</label>
-            <input className="input" type="date" value={form.hired} onChange={F('hired')} />
-          </div>
-          <div className="input-group">
-            <label>Stawka godzinowa (zł)</label>
-            <input className="input" type="number" min="0" step="0.5" value={form.hourly} onChange={F('hourly')} />
-          </div>
-        </div>
-
-        <div className="input-group mb-16">
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <FiKey size={13} /> PIN dostępu (4 cyfry)
-          </label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              className="input"
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              value={form.pin}
-              onChange={F('pin')}
-              placeholder="np. 1234"
-              style={{ letterSpacing: '0.2em', flex: 1 }}
-            />
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => setForm(p => ({ ...p, pin: generatePin() }))}
-              title="Generuj losowy PIN"
-              style={{ flexShrink: 0 }}
-            >
-              <FiRefreshCw size={14} /> Generuj
-            </button>
-          </div>
-          {form.pin && (
-            <div className="text-xs mt-4" style={{ color: 'var(--warning)' }}>
-              ⚠️ Zanotuj PIN — pracownik będzie go potrzebował do logowania w kiosku
+        {activeTab === 0 && (
+          <div>
+            <div className="input-row mb-16">
+              <div className="input-group">
+                <label>Imię i nazwisko *</label>
+                <input className="input" value={form.name} onChange={F('name')} placeholder="Jan Kowalski" />
+              </div>
+              <div className="input-group">
+                <label>Stanowisko</label>
+                <select className="select" value={form.role} onChange={F('role')}>
+                  {ROLES_LIST.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
             </div>
-          )}
-        </div>
 
-        <div className="input-group">
-          <label>Status</label>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-              <input type="radio" name="active" checked={form.active === true} onChange={() => setForm(p => ({ ...p, active: true }))} />
-              <span style={{ color: '#10b981', fontWeight: 600 }}>Aktywny</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-              <input type="radio" name="active" checked={form.active === false} onChange={() => setForm(p => ({ ...p, active: false }))} />
-              <span style={{ color: 'var(--text-muted)' }}>Nieaktywny</span>
-            </label>
+            <div className="input-row mb-16">
+              <div className="input-group">
+                <label>Telefon</label>
+                <input className="input" value={form.phone} onChange={F('phone')} placeholder="501 234 567" />
+              </div>
+              <div className="input-group">
+                <label>E-mail</label>
+                <input className="input" type="email" value={form.email} onChange={F('email')} placeholder="jan@firma.pl" />
+              </div>
+            </div>
+
+            <h4 className="mb-8" style={{ marginTop: 16 }}>Dostęp do systemu</h4>
+            <div className="input-row mb-16">
+              <div className="input-group">
+                <label>Login systemowy</label>
+                <input className="input" value={form.system_login} onChange={F('system_login')} placeholder="np. jkowalski" />
+              </div>
+              <div className="input-group">
+                <label>Hasło systemowe</label>
+                <input className="input" type="text" value={form.system_password} onChange={F('system_password')} placeholder="***" />
+              </div>
+            </div>
+
+            <div className="input-row mb-16">
+              <div className="input-group">
+                <label>Data zatrudnienia</label>
+                <input className="input" type="date" value={form.hired} onChange={F('hired')} />
+              </div>
+              <div className="input-group">
+                <label>Stawka godzinowa (zł)</label>
+                <input className="input" type="number" min="0" step="0.5" value={form.hourly} onChange={F('hourly')} />
+              </div>
+            </div>
+
+            <div className="input-group mb-16">
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <FiKey size={13} /> PIN dostępu (4 cyfry)
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className="input"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={form.pin}
+                  onChange={F('pin')}
+                  placeholder="np. 1234"
+                  style={{ letterSpacing: '0.2em', flex: 1 }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setForm(p => ({ ...p, pin: generatePin() }))}
+                  title="Generuj losowy PIN"
+                  style={{ flexShrink: 0 }}
+                >
+                  <FiRefreshCw size={14} /> Generuj
+                </button>
+              </div>
+              {form.pin && (
+                <div className="text-xs mt-4" style={{ color: 'var(--warning)' }}>
+                  ⚠️ Zanotuj PIN — pracownik będzie go potrzebował do logowania w kiosku
+                </div>
+              )}
+            </div>
+
+            <div className="input-group">
+              <label>Status</label>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                  <input type="radio" name="active" checked={form.active === true} onChange={() => setForm(p => ({ ...p, active: true }))} />
+                  <span style={{ color: '#10b981', fontWeight: 600 }}>Aktywny</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                  <input type="radio" name="active" checked={form.active === false} onChange={() => setForm(p => ({ ...p, active: false }))} />
+                  <span style={{ color: 'var(--text-muted)' }}>Nieaktywny</span>
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 1 && (
+          <div>
+            <div className="card mb-16" style={{ background: 'var(--bg-highlight)', padding: 12 }}>
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>Nowy dokument</div>
+              <div className="input-row mb-8">
+                <div className="input-group">
+                  <input className="input select-sm" placeholder="Nazwa pliku np. Umowa o pracę" value={newFileName} onChange={e => setNewFileName(e.target.value)} />
+                </div>
+                <div className="input-group">
+                  <select className="select select-sm" value={newFileType} onChange={e => setNewFileType(e.target.value)}>
+                    <option value="contract">Umowa</option>
+                    <option value="medical">Badania lekarskie</option>
+                    <option value="training">Szkolenie BHP</option>
+                    <option value="other">Inne</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-8">
+                <input className="input select-sm" placeholder="URL dokumentu..." style={{ flex: 1 }} value={newFileUrl} onChange={e => setNewFileUrl(e.target.value)} />
+                <button className="btn btn-secondary btn-sm" onClick={handleAddFile}><FiPlus /> Dodaj</button>
+              </div>
+            </div>
+
+            <div className="table-container" style={{ maxHeight: 200, overflowY: 'auto' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Typ</th>
+                    <th>Nazwa</th>
+                    <th>Data</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {employeeFiles.map(f => (
+                    <tr key={f.id}>
+                      <td>
+                        <span className="badge badge-ghost">
+                          {f.document_type === 'contract' ? 'Umowa' : 
+                           f.document_type === 'medical' ? 'Badania' : 
+                           f.document_type === 'training' ? 'BHP' : 'Inne'}
+                        </span>
+                      </td>
+                      <td>
+                        <a href={f.file_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary)', textDecoration: 'none' }}>
+                          <FiFileText /> {f.file_name}
+                        </a>
+                      </td>
+                      <td className="text-xs text-muted">{f.uploaded_at?.split('T')[0]}</td>
+                      <td>
+                        <button className="btn btn-ghost btn-sm text-danger" onClick={() => handleDeleteFile(f.id)}><FiTrash2 /></button>
+                      </td>
+                    </tr>
+                  ))}
+                  {employeeFiles.length === 0 && (
+                    <tr><td colSpan="4" className="text-center p-20 text-muted">Brak dokumentów</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

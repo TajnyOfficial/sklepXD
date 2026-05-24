@@ -19,6 +19,10 @@ import DashboardPage from './pages/DashboardPage';
 // === POS Module ===
 import POSHistoryPage from './pages/pos/POSHistoryPage';
 
+// === Sales Module ===
+import CustomersPage from './pages/sales/CustomersPage';
+import OrdersPage from './pages/sales/OrdersPage';
+
 // === Returns Module ===
 import ReturnsPage from './pages/returns/ReturnsPage';
 
@@ -271,11 +275,13 @@ function AppLayout() {
             <Route path="/pos" element={<Navigate to="/pos/history" replace />} />
             <Route path="/pos/history" element={<POSHistoryPage />} />
 
-            {/* Returns */}
-            <Route path="/returns" element={<ReturnsPage />} />
+            {/* Sales */}
+            <Route path="/sales/orders" element={<OrdersPage />} />
+            <Route path="/sales/returns" element={<ReturnsPage />} />
 
-            {/* Documents */}
-            <Route path="/documents" element={<DocumentsPage />} />
+            {/* Contractors */}
+            <Route path="/contractors/customers" element={<CustomersPage />} />
+            <Route path="/contractors/suppliers" element={<SuppliersPage />} />
 
             {/* Warehouse */}
             <Route path="/warehouse/products" element={<ProductCatalogPage />} />
@@ -283,14 +289,13 @@ function AppLayout() {
             <Route path="/warehouse/locations" element={<LocationsPage />} />
             <Route path="/warehouse/alerts" element={<AlertsPage />} />
             <Route path="/warehouse/transfers" element={<TransfersPage />} />
+            <Route path="/warehouse/inventory" element={<InventoryPage />} />
 
             {/* Deliveries */}
             <Route path="/deliveries" element={<DeliveriesPage />} />
-            <Route path="/deliveries/suppliers" element={<SuppliersPage />} />
             <Route path="/deliveries/schedule" element={<DeliverySchedulePage />} />
 
-            {/* Inventory */}
-            <Route path="/inventory" element={<InventoryPage />} />
+
 
             {/* Finance */}
             <Route path="/finance/invoices" element={<InvoicesPage />} />
@@ -304,10 +309,9 @@ function AppLayout() {
             <Route path="/hr/schedule" element={<SchedulePage />} />
             <Route path="/hr/absences" element={<AbsencesPage />} />
             <Route path="/hr/employees" element={<EmployeesPage />} />
-
-            {/* Communication */}
-            <Route path="/communication/announcements" element={<AnnouncementsPage />} />
-            <Route path="/communication/tasks" element={<TasksPage />} />
+            <Route path="/hr/documents" element={<DocumentsPage />} />
+            <Route path="/hr/announcements" element={<AnnouncementsPage />} />
+            <Route path="/hr/tasks" element={<TasksPage />} />
 
             {/* Admin */}
             <Route path="/admin/roles" element={<RolesPage />} />
