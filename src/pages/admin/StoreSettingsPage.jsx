@@ -3,6 +3,15 @@ import { FiSettings, FiSave, FiUpload, FiMapPin, FiCreditCard, FiPrinter } from 
 import toast from 'react-hot-toast';
 import { useStore } from '../../contexts/StoreContext';
 
+/**
+ * Widok modułu StoreSettingsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z StoreSettings.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony StoreSettingsPage
+ */
 export default function StoreSettingsPage() {
   const { shopSettings, updateShopSettings } = useStore();
   const [store, setStore] = useState(shopSettings);

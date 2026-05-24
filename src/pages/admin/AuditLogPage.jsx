@@ -34,6 +34,20 @@ const ACTION_LABELS = {
   delivery: 'Dostawa',
 };
 
+/**
+ * Podgląd systemowych logów audytowych (Audit Trails).
+ * 
+ * Niezwykle ważny moduł bezpieczeństwa używany do kontroli aktywności w aplikacji.
+ * Rejestruje kluczowe operacje:
+ * - Kto i kiedy się logował/wylogował, używając którego urządzenia (POS/Mobile).
+ * - Raporty dotyczące edycji cen towarów i krytycznych modyfikacji.
+ * - Operacje przeprowadzane w szufladzie kasowej (KP, KW, X, Z).
+ * - Zmiany w ustawieniach systemu.
+ * 
+ * Logi nie mogą być ręcznie usuwane przez użytkownika (ochrona integralności w Supabase RLS).
+ * 
+ * @returns {JSX.Element} Widok logów bezpieczeństwa
+ */
 export default function AuditLogPage() {
   const { posLogs } = useStore();
   const [search, setSearch] = useState('');

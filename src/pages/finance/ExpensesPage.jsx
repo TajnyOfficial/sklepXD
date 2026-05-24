@@ -15,6 +15,15 @@ const INIT = [
 const CATS = ['Zaopatrzenie', 'Stałe opłaty', 'Marketing', 'Serwis urządzeń', 'Wynagrodzenia', 'Podatki', 'Inne'];
 const EMPTY = { category: 'Zaopatrzenie', supplier: '', desc: '', amount: '', vat_rate: '23', date: new Date().toISOString().split('T')[0] };
 
+/**
+ * Widok modułu ExpensesPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Expenses.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony ExpensesPage
+ */
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState(INIT);
   const [showModal, setShowModal] = useState(false);

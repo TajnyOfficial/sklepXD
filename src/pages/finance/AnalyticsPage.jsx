@@ -37,6 +37,15 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
+/**
+ * Widok modułu AnalyticsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Analytics.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony AnalyticsPage
+ */
 export default function AnalyticsPage() {
   return (
     <div className="page animate-fadeIn">

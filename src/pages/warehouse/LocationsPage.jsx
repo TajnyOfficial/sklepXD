@@ -6,6 +6,15 @@ import toast from 'react-hot-toast';
 
 const EMPTY = { sector: '', rack: '', shelf: '', description: '' };
 
+/**
+ * Widok modułu LocationsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Locations.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony LocationsPage
+ */
 export default function LocationsPage() {
   const { warehouseLocations, saveWarehouseLocation, deleteWarehouseLocation, products } = useStore();
   const [showModal, setShowModal] = useState(false);

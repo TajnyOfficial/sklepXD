@@ -3,6 +3,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { ROLE_LABELS } from '../utils/rbac';
 import { FiLogIn, FiShield, FiUser } from 'react-icons/fi';
 
+/**
+ * Ekran logowania do systemu.
+ * Posiada dwa tryby:
+ * 1. Logowanie testowe (Demo) - szybki wybór konta z listy
+ * 2. Logowanie bezpiecznym kodem PIN (Produkcja) z dużą klawiaturą dotykową
+ * 
+ * @returns {JSX.Element} Widok strony logowania
+ */
 export default function LoginPage() {
   const { loginWithPin, loginWithDemo, demoUsers } = useAuth();
   const [mode, setMode] = useState('select'); // 'select' | 'pin'

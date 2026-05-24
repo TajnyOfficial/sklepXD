@@ -5,6 +5,15 @@ import { FiDatabase, FiEdit, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
+/**
+ * Widok modułu StockOverviewPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z StockOverview.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony StockOverviewPage
+ */
 export default function StockOverviewPage() {
   const { products, categories, updateProductStock } = useStore();
   const [showAdjust, setShowAdjust] = useState(false);

@@ -1,14 +1,22 @@
 import { useState } from 'react';
+import { useStore } from '../../contexts/StoreContext';
 import { formatCurrency } from '../../utils/helpers';
 import { FiRotateCcw, FiPlus, FiCheck, FiX, FiEye } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
-
-const DEMO = [];
 const EMPTY = { customer: '', receipt: '', items: [{ name: '', qty: '1' }], reason: '', quarantine: 'shelf' };
 
+/**
+ * Widok modułu ReturnsPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Returns.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony ReturnsPage
+ */
 export default function ReturnsPage() {
-  const [returns, setReturns] = useState(DEMO);
+  const { returnsList = [], saveReturn, updateReturnStatus, addPosLog, profile } = useStore();
   const [showModal, setShowModal] = useState(false);
   const [showView, setShowView] = useState(false);
   const [viewItem, setViewItem] = useState(null);
@@ -17,15 +25,36 @@ export default function ReturnsPage() {
   function addItem() { setForm(p => ({ ...p, items: [...p.items, { name: '', qty: '1' }] })); }
   function updateItem(i, f, v) { setForm(p => ({ ...p, items: p.items.map((it, idx) => idx === i ? { ...it, [f]: v } : it) })); }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.customer || !form.reason) { toast.error('Podaj klienta i powód zwrotu'); return; }
-    const ret = { id: crypto.randomUUID(), number: `ZW/2026/03/${String(returns.length + 1).padStart(3, '0')}`, customer: form.customer, receipt: form.receipt, items: form.items.filter(i => i.name), total: 0, quarantine: form.quarantine, status: 'pending', reason: form.reason, date: new Date().toISOString().split('T')[0] };
-    setReturns(prev => [ret, ...prev]);
-    toast.success(`Zwrot ${ret.number} zarejestrowany`);
-    setShowModal(false); setForm(EMPTY);
+    try {
+      const ret = { number: `ZW/2026/03/${String(returnsList.length + 1).padStart(3, '0')}`, customer: form.customer, receipt: form.receipt, items: form.items.filter(i => i.name), total: 0, quarantine: form.quarantine, status: 'pending', reason: form.reason };
+      await saveReturn(ret);
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('create', userLabel, 'Admin', `Zarejestrowano nowy zwrot RMA: ${ret.number} dla ${ret.customer}`);
+      toast.success(`Zwrot ${ret.number} zarejestrowany`);
+      setShowModal(false); setForm(EMPTY);
+    } catch(e) {
+      toast.error('Błąd zapisu zwrotu: ' + e.message);
+    }
   }
-  function approve(id) { setReturns(prev => prev.map(r => r.id === id ? { ...r, status: 'completed' } : r)); toast.success('Zwrot zatwierdzony — towar na półkę/serwis'); }
-  function reject(id) { if (!confirm('Odrzucić zwrot?')) return; setReturns(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } : r)); toast.success('Zwrot odrzucony'); }
+  async function approve(id) { 
+    try {
+      await updateReturnStatus(id, 'completed'); 
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('update', userLabel, 'Admin', `Zatwierdzono zwrot RMA`);
+      toast.success('Zwrot zatwierdzony — towar na półkę/serwis'); 
+    } catch(e) { toast.error('Błąd: ' + e.message); }
+  }
+  async function reject(id) { 
+    if (!confirm('Odrzucić zwrot?')) return; 
+    try {
+      await updateReturnStatus(id, 'rejected'); 
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('update', userLabel, 'Admin', `Odrzucono zwrot RMA`);
+      toast.success('Zwrot odrzucony'); 
+    } catch(e) { toast.error('Błąd: ' + e.message); }
+  }
   const F = (f) => (e) => setForm(p => ({ ...p, [f]: e.target.value }));
 
   return (
@@ -35,15 +64,15 @@ export default function ReturnsPage() {
         <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setShowModal(true); }}><FiPlus size={16} /> Nowy zwrot</button>
       </div>
       <div className="grid-3 mb-24">
-        <div className="stat-card"><span className="stat-label">Oczekujące</span><span className="stat-value text-warning">{returns.filter(r => r.status === 'pending').length}</span></div>
-        <div className="stat-card"><span className="stat-label">Na półkę</span><span className="stat-value">{returns.filter(r => r.quarantine === 'shelf').length}</span></div>
-        <div className="stat-card"><span className="stat-label">Do serwisu</span><span className="stat-value text-danger">{returns.filter(r => r.quarantine === 'service').length}</span></div>
+        <div className="stat-card"><span className="stat-label">Oczekujące</span><span className="stat-value text-warning">{returnsList.filter(r => r.status === 'pending').length}</span></div>
+        <div className="stat-card"><span className="stat-label">Na półkę</span><span className="stat-value">{returnsList.filter(r => r.quarantine === 'shelf').length}</span></div>
+        <div className="stat-card"><span className="stat-label">Do serwisu</span><span className="stat-value text-danger">{returnsList.filter(r => r.quarantine === 'service').length}</span></div>
       </div>
       <div className="table-container">
         <table>
           <thead><tr><th>Nr zwrotu</th><th>Klient</th><th>Nr paragonu/FV</th><th>Pozycje</th><th>Kwarantanna</th><th>Powód</th><th>Status</th><th></th></tr></thead>
           <tbody>
-            {returns.map(r => (
+            {returnsList.map(r => (
               <tr key={r.id}>
                 <td className="font-mono text-sm" style={{ fontWeight: 600 }}>{r.number}</td>
                 <td>{r.customer}</td><td className="text-sm text-muted">{r.receipt}</td>

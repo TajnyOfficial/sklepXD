@@ -1,6 +1,15 @@
 import { formatCurrency } from '../../utils/helpers';
 import { FiDollarSign, FiPrinter } from 'react-icons/fi';
 
+/**
+ * Widok modułu CashReportPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z CashReport.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony CashReportPage
+ */
 export default function CashReportPage() {
   const data = { opening: 500, sales_cash: 633.78, deposits: 100, withdrawals: 200, closing: 1033.78, physical: 1030.00 };
   return (

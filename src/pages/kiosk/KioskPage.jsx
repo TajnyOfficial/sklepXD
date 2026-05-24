@@ -1,10 +1,12 @@
-// =============================================================================
-// KioskPage — Terminal rejestracji czasu pracy
-//
-// Interfejs dla urządzeń stacjonarnych (tablet/kiosk) przy wejściu do pracy.
-// Pracownik wpisuje PIN za pomocą klawiatury dotykowej.
-// =============================================================================
-
+/**
+ * Interfejs terminala Kiosku (Rejestracja Czasu Pracy).
+ * 
+ * Ekran przeznaczony stricte pod tablety zamontowane na stałe przy wejściu do firmy.
+ * Posiada wbudowany duży zegar czasu rzeczywistego i dedykowaną klawiaturę numeryczną
+ * do wpisywania PIN-u w celu zarejestrowania godziny rozpoczęcia/zakończenia pracy.
+ * 
+ * @returns {JSX.Element}
+ */
 import { useState, useEffect } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import toast from 'react-hot-toast';

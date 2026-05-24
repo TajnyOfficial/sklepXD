@@ -5,6 +5,18 @@ import { formatCurrency, formatDateTime } from '../../utils/helpers';
 import { FiDollarSign, FiArrowUpCircle, FiArrowDownCircle, FiFileText, FiPrinter, FiCalendar } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
+/**
+ * Ekran zarządzania Szufladą Kasową (Cash Drawer).
+ * 
+ * Prowadzi rejestr absolutnie wszystkich operacji finansowych na bieżącym stanowisku.
+ * Oferuje:
+ * - Bezpośrednie wpłaty Kasa Przyjmie (KP)
+ * - Wypłaty Kasa Wyda (KW)
+ * - Drukowanie i weryfikację Raportów Zmianowych (Raport X)
+ * - Zamykanie dnia księgowego kasjera (Raport Z)
+ * 
+ * @returns {JSX.Element} Widok rejestru finansowego stacji POS
+ */
 export default function CashDrawerPage() {
   const { profile } = useAuth();
   const { addPosLog, posSession } = useStore();

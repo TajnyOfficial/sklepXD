@@ -107,6 +107,14 @@ const styles = StyleSheet.create({
   }
 });
 
+/**
+ * Wygenerowany układ strukturalny (Document) dla biblioteki `@react-pdf/renderer`.
+ * Odpowiada za bezpośrednie konwertowanie danych JSON na graficzne węzły XML/PDF.
+ * 
+ * @param {Object} props - Właściwości komponentu
+ * @param {Object} props.data - Całkowicie przeliczone i zwalidowane dane faktury (np. z `calculateInvoiceData`)
+ * @returns {JSX.Element|null} Zwraca strukturę dokumentu lub `null`
+ */
 export const InvoiceDocument = ({ data }) => {
   if (!data) return null;
 

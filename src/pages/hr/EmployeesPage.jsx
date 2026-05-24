@@ -63,6 +63,17 @@ function normalizeEmployee(e) {
   };
 }
 
+/**
+ * Panel zarządzania Personelem (HR).
+ * 
+ * Interfejs dla administratora i managera umożliwiający:
+ * - Dodawanie, edycję i usuwanie pracowników z systemu.
+ * - Nadawanie stanowisk i uprawnień systemowych (Role).
+ * - Generowanie oraz przypisywanie 4-cyfrowych kodów PIN używanych do autoryzacji sprzętowej w Kiosku/POS.
+ * - Włączanie/wyłączanie kont bez konieczności ich trwałego usunięcia z bazy.
+ * 
+ * @returns {JSX.Element} Widok panelu pracowników
+ */
 export default function EmployeesPage() {
   const { employees, saveEmployee, deleteEmployee, toggleEmployeeActive } = useStore();
   const [showModal, setShowModal] = useState(false);

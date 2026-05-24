@@ -1,8 +1,9 @@
-// =============================================================================
-// POSApp — Standalone aplikacja kasowa
-// URL: /pos/
-// Premium UI, wybór stanowiska, logowanie PIN, brak sidebar
-// =============================================================================
+/**
+ * Moduł (Aplikacja) Punktu Sprzedaży (POS).
+ * 
+ * Izolowane środowisko kasowe zoptymalizowane pod obsługę dotykową i skanery kodów.
+ * Funkcjonalności: Wybór kasy, logowanie szybkim kodem PIN, dedykowany pasek górny.
+ */
 
 import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
@@ -16,7 +17,11 @@ import {
   FiGrid, FiChevronRight, FiUser
 } from 'react-icons/fi';
 
-// ── 1. Wybór stanowiska (Premium) ───────────────────────────────────────────
+/**
+ * Ekran wyboru stanowiska kasowego.
+ * Wymuszany na początku sesji POS, aby przypisać transakcje i logi
+ * do odpowiedniej fizycznej kasy (np. "Kasa 1", "Kasa 2").
+ */
 function RegisterSelection() {
   const { updatePosSession, shopSettings } = useStore();
 
@@ -56,7 +61,13 @@ function RegisterSelection() {
   );
 }
 
-// ── 2. Logowanie PIN (Premium) ──────────────────────────────────────────────
+/**
+ * Ekran logowania za pomocą kodu PIN dla kasjerów.
+ * Wyświetlany natychmiast po wybraniu konkretnej kasy.
+ * 
+ * @param {Object} props Właściwości komponentu
+ * @param {string} props.selectedRegister - Nazwa aktualnie wybranego stanowiska kasowego
+ */
 function POSPinLogin({ selectedRegister }) {
   const { updatePosSession, clearPosSession, employees, addPosLog } = useStore();
   const [pin, setPin] = useState('');
@@ -129,7 +140,14 @@ function POSPinLogin({ selectedRegister }) {
   );
 }
 
-// ── 3. POS Topbar ───────────────────────────────────────────────────────────
+/**
+ * Górny pasek nawigacyjny, unikalny dla środowiska POS.
+ * Zawiera dane zalogowanego kasjera, informację o stanowisku 
+ * oraz szybkie nawigacje do widoku koszyka lub otwierania szuflady na gotówkę.
+ * 
+ * @param {Object} props Właściwości komponentu
+ * @param {Object} props.session - Aktualna sesja zawierająca wybraną kasę i użytkownika
+ */
 function POSTopbar({ session }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -226,7 +244,10 @@ function POSInner() {
   );
 }
 
-// ── 5. POSApp Root ───────────────────────────────────────────────────────────
+/**
+ * Główny komponent (root) aplikacji POS.
+ * Podłącza dostawców stanu, autoryzacji oraz definiuje nadrzędny router (basename="/pos").
+ */
 export default function POSApp() {
   return (
     <AuthProvider>

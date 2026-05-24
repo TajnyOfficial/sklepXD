@@ -23,6 +23,15 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
+/**
+ * Widok modułu SchedulePage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Schedule.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony SchedulePage
+ */
 export default function SchedulePage() {
   const { employees, schedules, saveSchedule, deleteSchedule } = useStore();
   

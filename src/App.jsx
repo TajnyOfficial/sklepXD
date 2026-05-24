@@ -60,6 +60,7 @@ import TasksPage from './pages/communication/TasksPage';
 // === Admin Module ===
 import RolesPage from './pages/admin/RolesPage';
 import StoreSettingsPage from './pages/admin/StoreSettingsPage';
+import AdditionalSettingsPage from './pages/admin/AdditionalSettingsPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import SecurityPage from './pages/admin/SecurityPage';
 
@@ -68,12 +69,31 @@ import SecurityPage from './pages/admin/SecurityPage';
 // Dostępne pod URL-ami: /kiosk/  /pos/  /mobile/
 // (wbudowane multi-entry w vite.config.js)
 
+/**
+ * Obiekt (Mapa) przypisujący nazwy ikon w postaci tekstowej do komponentów biblioteki react-icons.
+ * Zastosowanie: Dynamiczne renderowanie ikon w panelu nawigacyjnym na podstawie 
+ * konfiguracji dostępów i ról użytkownika zdefiniowanych w systemie (np. rbac).
+ */
 const ICON_MAP = {
   FiHome, FiShoppingCart, FiClipboard, FiRotateCcw, FiUsers,
   FiFileText, FiPackage, FiTruck, FiCheckSquare, FiDollarSign,
   FiClock, FiMessageSquare, FiSettings, FiGrid, FiVideo
 };
 
+/**
+ * Komponent bocznego paska nawigacyjnego (Sidebar).
+ * 
+ * Funkcjonalności:
+ * - Generuje dynamiczne drzewo nawigacji na podstawie tablicy `navItems`.
+ * - Obsługuje zwijanie i rozwijanie sekcji (wielopoziomowe menu).
+ * - Prezentuje szybkie linki do osobnych aplikacji (Kiosk, Mobile, Kasa).
+ * - Renderuje profil zalogowanego użytkownika (inicjały, ranga) wraz z opcją wylogowania.
+ * 
+ * @param {Object} props - Właściwości komponentu
+ * @param {Array} props.navItems - Struktura nawigacji (obiekty ze ścieżkami i ikonami)
+ * @param {boolean} props.collapsed - Stan zwinięcia całego paska (zminimalizowany / pełny)
+ * @param {Function} props.onToggle - Funkcja wywoływana przy żądaniu przełączenia stanu zwinięcia
+ */
 function Sidebar({ navItems, collapsed, onToggle }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -181,6 +201,18 @@ function Sidebar({ navItems, collapsed, onToggle }) {
   );
 }
 
+/**
+ * Komponent górnego paska narzędziowego (TopBar).
+ * 
+ * Znajduje się na samej górze interfejsu (nagłówek).
+ * Zawiera:
+ * - Globalną, zunifikowaną wyszukiwarkę systemową.
+ * - Moduł powiadomień i dzwonek alertów (ze wskaźnikiem nieprzeczytanych powiadomień).
+ * - Przycisk włączania tzw. "Trybu kryzysowego".
+ * 
+ * @param {Object} props - Właściwości komponentu
+ * @param {Function} props.onMenuToggle - Funkcja do przełączania widoczności paska bocznego (na urządzeniach mobilnych)
+ */
 function TopBar({ onMenuToggle }) {
   const { profile } = useAuth();
 
@@ -208,6 +240,15 @@ function TopBar({ onMenuToggle }) {
   );
 }
 
+/**
+ * Główny kontener (Layout) całej aplikacji dla zalogowanego pracownika.
+ * 
+ * Opis:
+ * Jest to "szkielet", który umieszcza pasek boczny (`Sidebar`) i pasek górny (`TopBar`), 
+ * a w ich środku (jako zawartość główna `app-content`) osadza router React (`Routes`).
+ * Właśnie w tym komponencie zdefiniowane są wszystkie **Drogi (Routes)** i ścieżki
+ * prowadzące do poszczególnych widoków całego systemu klasy ERP (finanse, magazyn, pracownicy).
+ */
 function AppLayout() {
   const { navItems } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -271,6 +312,7 @@ function AppLayout() {
             {/* Admin */}
             <Route path="/admin/roles" element={<RolesPage />} />
             <Route path="/admin/settings" element={<StoreSettingsPage />} />
+            <Route path="/admin/additional" element={<AdditionalSettingsPage />} />
             <Route path="/admin/audit" element={<AuditLogPage />} />
             <Route path="/admin/security" element={<SecurityPage />} />
 
@@ -283,6 +325,16 @@ function AppLayout() {
   );
 }
 
+/**
+ * Główny komponent wejściowy dla platformy administracyjnej i zarządzania biznesem.
+ * 
+ * Działanie:
+ * 1. Sprawdza status uwierzytelnienia z kontekstu `AuthContext`.
+ * 2. Prezentuje ekran ładowania podczas autoryzacji sesji.
+ * 3. Jeżeli użytkownik nie jest autoryzowany -> wczytuje widok logowania (`LoginPage`).
+ * 4. Jeżeli logowanie przebiegło pomyślnie -> osadza `StoreProvider` z głównymi danymi 
+ *    stanu aplikacji, po czym ładuje docelowy układ `AppLayout`.
+ */
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
 

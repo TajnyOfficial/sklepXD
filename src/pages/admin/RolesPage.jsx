@@ -75,6 +75,15 @@ const PERMISSION_LABELS = {
   'kiosk.access': 'Dostęp do kiosku RCP (kod PIN)'
 };
 
+/**
+ * Widok modułu RolesPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Roles.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony RolesPage
+ */
 export default function RolesPage() {
   const { updateRolePermissions } = useStore();
 

@@ -1,8 +1,10 @@
-// =============================================================================
-// MobileApp — Standalone aplikacja mobilna (skaner + inwentaryzacja)
-// URL: /mobile/
-// Bottom navigation, zoptymalizowany pod telefon
-// =============================================================================
+/**
+ * Moduł (Aplikacja) Mobilnego Asystenta Sklepu.
+ * 
+ * Zoptymalizowany pod urządzenia przenośne (smartfony, terminale zebra).
+ * Służy głównie do inwentaryzacji, przyjmowania dostaw i szybkiego sprawdzania stanów.
+ * Interfejs opiera się na dolnym pasku nawigacyjnym (Bottom Navigation).
+ */
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
@@ -12,7 +14,10 @@ import { StoreProvider, useStore } from '../contexts/StoreContext';
 import MobileInventoryPage from '../pages/mobile/MobileInventoryPage';
 import { FiClipboard, FiPackage, FiSearch, FiLogOut, FiTablet } from 'react-icons/fi';
 
-// ── PIN Login dla Mobile ──────────────────────────────────────────────────────
+/**
+ * Ekran logowania kodem PIN dla pracowników na urządzeniach mobilnych.
+ * Identyfikuje osobę obsługującą skaner przed dopuszczeniem jej do pracy.
+ */
 function MobilePinLogin() {
   const { employees, updateMobileSession, addPosLog } = useStore();
   const [pin, setPin] = useState('');
@@ -140,7 +145,11 @@ function StockMobilePage() {
   );
 }
 
-// ── Bottom Navigation ─────────────────────────────────────────────────────────
+/**
+ * Dolny pasek nawigacyjny (Bottom Navigation).
+ * Ergonomiczny interfejs charakterystyczny dla systemów operacyjnych urządzeń mobilnych.
+ * Pozwala na szybkie przełączanie między inwentaryzacją, stanami i skanerem, używając kciuka.
+ */
 function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -192,7 +201,11 @@ function BottomNav() {
   );
 }
 
-// ── Layout mobilny ────────────────────────────────────────────────────────────
+/**
+ * Szablon (Layout) wizualny aplikacji mobilnej.
+ * Obejmuje obszar ze ścieżkami (Routes) zajmujący większość ekranu 
+ * oraz przytwierdzony na stałe dolny pasek (BottomNav).
+ */
 function MobileLayout() {
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 64 }}>
@@ -216,6 +229,10 @@ function MobileInner() {
   return <MobileLayout />;
 }
 
+/**
+ * Główny komponent (root) aplikacji Mobile.
+ * Inicjalizuje wymagane konteksty oraz obsługuje routing dla bazy "/mobile".
+ */
 export default function MobileApp() {
   return (
     <AuthProvider>

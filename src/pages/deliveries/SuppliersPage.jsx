@@ -6,6 +6,15 @@ import toast from 'react-hot-toast';
 
 const EMPTY = { name: '', nip: '', contact: { phone: '', email: '' }, rating: '4.0', address: '', payment_terms: '14' };
 
+/**
+ * Widok modułu SuppliersPage.
+ * 
+ * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
+ * Odpowiada za wyświetlanie interfejsu powiązanego z Suppliers.
+ * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
+ * 
+ * @returns {JSX.Element} Widok strony SuppliersPage
+ */
 export default function SuppliersPage() {
   const { suppliers, setSuppliers } = useStore();
   const [search, setSearch] = useState('');

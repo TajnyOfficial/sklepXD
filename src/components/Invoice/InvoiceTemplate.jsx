@@ -1,5 +1,10 @@
 /**
- * InvoiceTemplate.jsx — Szablon faktury VAT dla @react-pdf/renderer
+ * Szablon strukturalny faktury VAT dla modułu `@react-pdf/renderer`.
+ * Wymusza rygorystyczny i prawnie akceptowalny w Polsce widok siatki transakcyjnej
+ * wraz ze szczegółowym zgrupowaniem wartości VAT na dole dokumentu.
+ * 
+ * @param {Object} props Właściwości
+ * @param {Object} props.invoice Dane źródłowe faktury/rachunku
  */
 import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer';
 import { calculateLineItem, groupVatRates, calculateInvoiceTotals, formatPLN } from '../../utils/invoiceUtils';

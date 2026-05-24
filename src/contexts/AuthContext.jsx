@@ -4,7 +4,11 @@ import { ROLES, ROLE_LABELS, hasPermission, hasAnyPermission, getNavItems } from
 
 const AuthContext = createContext(null);
 
-// Demo users for development (when Supabase isn't configured)
+/**
+ * Tablica predefiniowanych użytkowników testowych (demo).
+ * Wykorzystywana domyślnie podczas programowania lub w przypadku braku poprawnej 
+ * konfiguracji backendu Supabase. Zawiera użytkowników o różnych rolach.
+ */
 const DEMO_USERS = [
   { id: '1', full_name: 'Jan Kowalski', role: ROLES.ADMIN, pin: '11111111', email: 'admin@sklep.pl', avatar_url: null },
   { id: '2', full_name: 'Anna Nowak', role: ROLES.SHIFT_MANAGER, pin: '22222222', email: 'kierownik@sklep.pl', avatar_url: null },
@@ -15,6 +19,17 @@ const DEMO_USERS = [
   { id: '7', full_name: 'Andrzej Majewski', role: ROLES.CLEANER, pin: '77777777', email: 'sprzatanie@sklep.pl', avatar_url: null },
 ];
 
+/**
+ * Dostawca kontekstu autoryzacji (Auth Provider).
+ * 
+ * Główne centrum zarządzania tożsamością w aplikacji.
+ * Przechowuje stan sesji, weryfikuje lokalne tokeny przy starcie aplikacji,
+ * dostarcza funkcje logowania (w tym logowanie kodem PIN) oraz udostępnia
+ * metody sprawdzające uprawnienia (can, canAny) dla zalogowanego pracownika.
+ * 
+ * @param {Object} props
+ * @param {JSX.Element} props.children
+ */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -25,6 +40,10 @@ export function AuthProvider({ children }) {
     checkSession();
   }, []);
 
+  /**
+   * Weryfikuje aktywną sesję użytkownika z serwerem Supabase (lub z LocalStorage).
+   * Jeśli sesja nie zostanie znaleziona lub wystąpi błąd - wymusza tryb demonstracyjny.
+   */
   async function checkSession() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -42,6 +61,11 @@ export function AuthProvider({ children }) {
     }
   }
 
+  /**
+   * Odpytuje bazę danych o szczegóły profilu przypisanego do konkretnego `userId`.
+   * Przekształca surowe ID z Supabase na obiekt biznesowy profilu (rola, imię, inicjały).
+   * @param {string} userId - Identyfikator UUID w bazie Supabase
+   */
   async function fetchProfile(userId) {
     try {
       const { data, error } = await supabase
@@ -68,6 +92,13 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  /**
+   * Próba logowania z użyciem szybkiego kodu PIN.
+   * Weryfikuje, czy podany PIN pasuje do jednego z autoryzowanych kont.
+   * 
+   * @param {string} pin - Ciąg cyfr (hasło PIN)
+   * @returns {Promise<{success: boolean, error?: string}>}
+   */
   const loginWithPin = useCallback(async (pin) => {
     // In demo mode, check demo users
     if (isDemoMode || !import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
@@ -118,6 +149,13 @@ export function AuthProvider({ children }) {
     setProfile(null);
   }, [isDemoMode]);
 
+  /**
+   * Sprawdza pojedyncze uprawnienie przypisane do aktualnej roli użytkownika.
+   * Wykorzystuje wbudowany system RBAC (Role-Based Access Control).
+   * 
+   * @param {string} permission - Identyfikator uprawnienia (np. "MANAGE_USERS")
+   * @returns {boolean} - true jeśli posiada uprawnienie
+   */
   const can = useCallback((permission) => {
     return hasPermission(profile?.role, permission);
   }, [profile]);
@@ -147,6 +185,13 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/**
+ * Niestandardowy Hook dostępowy do AuthContext.
+ * Zabezpiecza przed użyciem kontekstu w złym miejscu drzewa React.
+ * 
+ * @returns {Object} Aktualny obiekt profilu, funkcje logowania oraz sprawdzania praw.
+ * @throws {Error} Jeśli zostanie użyty poza <AuthProvider>
+ */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

@@ -1,9 +1,3 @@
-// =============================================================================
-// MobileInventoryPage — Mobilna strona inwentaryzacji ze skanerem
-//
-// Interfejs zoptymalizowany pod telefon — uproszczony UX, duże przyciski,
-// zintegrowany BarcodeScanner z kamerą, lista zleceń do realizacji.
-// =============================================================================
 
 import { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
@@ -249,9 +243,18 @@ function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
   );
 }
 
-// =============================================================================
-// GŁÓWNY KOMPONENT
-// =============================================================================
+/**
+ * Mobilny moduł PWA przeznaczony dla Magazynierów.
+ * 
+ * Silnie zoptymalizowany pod telefony komórkowe z systemami iOS oraz Android.
+ * Funkcjonalności:
+ * - Odbieranie i wyświetlanie przypisanych zleceń magazynowych (np. Inwentaryzacja)
+ * - Wbudowany skaner optyczny (wykorzystujący kamerę smartfona) 
+ * - System ostrzeżeń przed pomyłkami (walidacja wpisywanych ilości ze stanem bazy)
+ * - Bezpieczne zamykanie zleceń potwierdzane hasłem/pinem
+ * 
+ * @returns {JSX.Element} Widok aplikacji mobilnej magazynu
+ */
 export default function MobileInventoryPage() {
   const { employees, mobileSession, inventories, saveInventory } = useStore();
   const [activeTaskId, setActiveTaskId] = useState(null);

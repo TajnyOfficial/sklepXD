@@ -1,14 +1,16 @@
-// =============================================================================
-// useBarcodeScannerInput — Hook obsługi fizycznych skanerów kodów kreskowych USB/Bluetooth
-//
-// Fizyczne skanery podłączone przez USB działają jako "klawiatura HID" (Keyboard Wedge).
-// Wpisują znaki BARDZO szybko (< 50ms między klawiszami) i kończą sekwencję Enter-em.
-// Hook rozróżnia "szybkie wpisywanie skanera" od "powolnego wpisywania użytkownika".
-//
-// Użycie:
-//   useBarcodeScannerInput(onScan, { disabled: showModal })
-// =============================================================================
-
+/**
+ * Niestandardowy Hook do globalnej obsługi sprzętowych skanerów kodów kreskowych (USB/Bluetooth).
+ * 
+ * Fizyczne skanery kodów funkcjonują w systemie operacyjnym jako symulatory niezwykle szybkiej klawiatury.
+ * Wciskają serię klawiszy w ułamkach sekundy (< 50ms) i domyślnie zakańczają ją klawiszem "Enter".
+ * 
+ * Zadaniem tego hooka jest odseparowanie i zignorowanie wirtualnych naciśnięć pochodzących
+ * z powolnego (naturalnego) pisania człowieka, a wyizolowanie i "złapanie" wyłącznie bardzo
+ * szybkich ciągów znaków pochodzących prosto z optyki lasera sprzętowego skanera.
+ * 
+ * @param {Function} onScan - Wywołanie zwrotne (callback) uruchamiane z rozpoznanym kodem (string) jako parametrem
+ * @param {Object} [options] - Opcje konfiguracyjne (czas tolerancji milisekund, flaga wyłączająca hook `disabled`)
+ */
 import { useEffect, useRef, useCallback } from 'react';
 
 const DEFAULT_OPTIONS = {
