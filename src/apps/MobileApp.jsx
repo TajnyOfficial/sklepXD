@@ -12,6 +12,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { StoreProvider, useStore } from '../contexts/StoreContext';
 import MobileInventoryPage from '../pages/mobile/MobileInventoryPage';
+import MobileStockPage from '../pages/mobile/MobileStockPage';
+import MobileScanPage from '../pages/mobile/MobileScanPage';
 import { FiClipboard, FiPackage, FiSearch, FiLogOut, FiTablet } from 'react-icons/fi';
 
 /**
@@ -133,17 +135,6 @@ function MobilePinLogin() {
   );
 }
 
-// ── Prosty placeholder dla widoków niepełnych jeszcze ─────────────────────────
-function StockMobilePage() {
-  return (
-    <div style={{ padding: '20px 16px', paddingBottom: 80 }}>
-      <h2 style={{ color: 'var(--text)', marginBottom: 16 }}>Stany magazynowe</h2>
-      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-        Widok dostępny w pełnej aplikacji — zakładka Magazyn → Stany.
-      </p>
-    </div>
-  );
-}
 
 /**
  * Dolny pasek nawigacyjny (Bottom Navigation).
@@ -211,8 +202,8 @@ function MobileLayout() {
     <div style={{ minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 64 }}>
       <Routes>
         <Route path="/" element={<MobileInventoryPage />} />
-        <Route path="/stock" element={<StockMobilePage />} />
-        <Route path="/scan" element={<MobileInventoryPage />} />
+        <Route path="/stock" element={<MobileStockPage />} />
+        <Route path="/scan" element={<MobileScanPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <BottomNav />
