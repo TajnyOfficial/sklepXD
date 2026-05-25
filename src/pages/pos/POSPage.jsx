@@ -21,20 +21,12 @@ const QUICK_TILES = [
   { id: 'advice', name: 'Konsultacja fachowa', price: 0, icon: '💡' },
 ];
 
-/**
- * Główny ekran interfejsu Punktu Sprzedaży (POS).
- * 
- * Stanowi rdzeń funkcjonalności kasowej całej aplikacji. Posiada wbudowaną:
- * - Pełną obsługę skanerów sprzętowych (USB/BT) i wbudowanej kamery aparatu.
- * - System dynamicznego koszyka z szybkimi obliczeniami cen, zniżek i podatku VAT.
- * - Moduł płatności wielowalutowych (Gotówka wydająca resztę, Karty płatnicze, Przelewy).
- * - Algorytm weryfikacji kontahentów po numerze NIP pobierający dane bezpośrednio z GUS/MF.
- * - Mechanizm zaparkowanych rachunków (odroczone płatności w tle).
- * 
- * @returns {JSX.Element} Pełnoekranowy, odporny na błędy interfejs kasjera
- */
+/* Zaawansowany i odporny na błędy terminal sprzedażowy (POS) integrujący sprzęt, transakcje, koszyk oraz wydruki paragonów */
 export default function POSPage() {
+  /* Import obszernego zestawu funkcji sklepowych takich jak: koszyk, magazyn, dokumenty końcowe i logi audytu */
   const { products, findProduct, findProductByBarcode, getCrossSellProducts, customers, getCustomerDiscount, addTransaction, updateProductStock, saveDocument, addPosLog, posSession } = useStore();
+  
+  /* Pobranie identyfikatora sprzedawcy oraz weryfikacja jego uprawnień (np. do zniżek lub anulowania) */
   const { profile, can } = useAuth();
 
   const [cart, setCart] = useState([]);
@@ -52,8 +44,7 @@ export default function POSPage() {
   const [isSearchingNip, setIsSearchingNip] = useState(false);
   const searchRef = useRef(null);
 
-  // ── addToCart musi być zdefiniowany JAKO PIERWSZY ─────────────────────────
-  // bo handleSearchKeyDown, handleCameraScan i useBarcodeScannerInput go używają
+  /* Główna logika dodawania asortymentu do paragonu; automatycznie podbija ilość lub dodaje unikalny nowy wiersz z ceną */
   const addToCart = useCallback((product, qty = 1) => {
     if (!product) return;
     setCart(prev => {
@@ -86,8 +77,7 @@ export default function POSPage() {
     toast.success(`Dodano: ${product.name}`, { duration: 1500 });
   }, [getCrossSellProducts]);
 
-  // ── Obsługa fizycznego skanera USB/Bluetooth (Keyboard Wedge) ─────────────
-  // Hook nasłuchuje globalnie na szybkie wpisywanie zakończone Enter-em
+  /* Nasłuchiwacz zdarzeń podłączonego czytnika kodów kreskowych (emulacja klawiatury + enter), zablokowany gdy trwa płatność */
   useBarcodeScannerInput(useCallback((scannedCode) => {
     if (!scannedCode) return;
     const found = findProductByBarcode(scannedCode) || findProduct(scannedCode)[0];
@@ -99,6 +89,7 @@ export default function POSPage() {
     }
   }, [findProductByBarcode, findProduct, addToCart]), { disabled: showPayment });
 
+  /* Obsługa wyszukiwarki ręcznej: odpala wyszukiwanie dopiero od 2 znaków aby zmniejszyć obciążenie interfejsu */
   const handleSearch = useCallback((query) => {
     setSearchQuery(query);
     if (query && query.trim().length >= 2) {
@@ -180,6 +171,7 @@ export default function POSPage() {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [cashGiven, setCashGiven] = useState('');
 
+  /* Funkcja weryfikująca kontrahenta w lokalnej bazie, a przy jej braku odpytująca bezpośrednio serwery Ministerstwa Finansów (Biała lista) */
   const handleNipLookup = async () => {
     const cleanNip = nip.replace(/[^0-9]/g, '');
     if (cleanNip.length !== 10) {
@@ -239,6 +231,7 @@ export default function POSPage() {
     setIsSearchingNip(false);
   };
 
+  /* Otwarcie okna zamykającego transakcję (finalizacja); resetuje uprzednio wpisane dane kontrahenta, zabezpieczając koszyk */
   function openPayment() {
     if (cart.length === 0) return;
     setShowPayment(true);
@@ -250,6 +243,7 @@ export default function POSPage() {
     setBuyerAddress('');
   }
 
+  /* Najbardziej krytyczna funkcja systemu; zdejmuje stany magazynowe, zapisuje paragony, zamyka płatność i czyści koszyk w jednej fali */
   async function processPayment() {
     try {
       const txnId = String(Date.now());
@@ -321,7 +315,7 @@ export default function POSPage() {
     }
   }
 
-  // Parked receipts
+  /* Funkcjonalność odłożenia koszyka na później ("zaparkowania"), zapisująca go lokalnie w przeglądarce kasjera */
   function parkReceipt() {
     if (cart.length === 0) return;
     const parked = JSON.parse(localStorage.getItem('parkedReceipts') || '[]');
@@ -668,7 +662,7 @@ export default function POSPage() {
                 </div>
               )}
 
-              <div style={{ marginTop: 24, padding: 16, background: 'var(--bg-subtle, #f1f5f9)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
+              <div style={{ marginTop: 24, padding: 16, background: 'var(--bg-card)', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 12 }}>Dane nabywcy / NIP</div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                   <input

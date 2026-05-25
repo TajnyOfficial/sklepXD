@@ -1,15 +1,7 @@
 import { FiShield, FiKey, FiDatabase, FiLock, FiSmartphone, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/**
- * Widok modułu SecurityPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Security.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony SecurityPage
- */
+/* Ekran przeglądu zabezpieczeń informujący o włączonych protokołach RODO, 2FA oraz statusie kopii zapasowych */
 export default function SecurityPage() {
   return (
     <div className="page animate-fadeIn">

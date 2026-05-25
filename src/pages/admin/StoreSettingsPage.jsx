@@ -3,17 +3,12 @@ import { FiSettings, FiSave, FiUpload, FiMapPin, FiCreditCard, FiPrinter } from 
 import toast from 'react-hot-toast';
 import { useStore } from '../../contexts/StoreContext';
 
-/**
- * Widok modułu StoreSettingsPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z StoreSettings.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony StoreSettingsPage
- */
+/* Komponent pozwalający na aktualizację globalnych ustawień konfiguracyjnych i profilu całego systemu (np. NIP, VAT, nazwa) */
 export default function StoreSettingsPage() {
+  /* Odczytanie bieżących ustawień firmy wraz z funkcją zlecającą ich docelowy zapis/nadpis w bazie danych Supabase */
   const { shopSettings, updateShopSettings } = useStore();
+  
+  /* Lokalny stan formularza służący do przetrzymywania "szkicu" zmian przed pomyślnym zatwierdzeniem przyciskiem Zapisz */
   const [store, setStore] = useState(shopSettings);
 
   useEffect(() => {
@@ -26,6 +21,7 @@ export default function StoreSettingsPage() {
     return <div className="page p-24">Wczytywanie ustawień...</div>;
   }
 
+  /* Obsługa akcji zatwierdzenia i przesłania ustawień konfiguracyjnych z powrotem do funkcji aktualizacyjnej w StoreContext */
   function handleSave() {
     updateShopSettings(store);
     toast.success('Ustawienia sklepu zostały zapisane!');

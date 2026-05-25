@@ -17,6 +17,16 @@ CREATE TABLE public.absences (
   CONSTRAINT absences_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
   CONSTRAINT absences_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.profiles(id)
 );
+CREATE TABLE public.active_sessions (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  profile_id uuid NOT NULL,
+  device_id text NOT NULL,
+  app_type text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  last_seen_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT active_sessions_pkey PRIMARY KEY (id),
+  CONSTRAINT active_sessions_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
+);
 CREATE TABLE public.announcements (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   title text NOT NULL,
@@ -87,23 +97,6 @@ CREATE TABLE public.categories (
   CONSTRAINT categories_pkey PRIMARY KEY (id),
   CONSTRAINT categories_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.categories(id)
 );
-CREATE TABLE public.commissions (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  profile_id uuid NOT NULL,
-  period_start date NOT NULL,
-  period_end date NOT NULL,
-  total_sales numeric DEFAULT 0,
-  individual_rate numeric DEFAULT 3,
-  individual_amount numeric DEFAULT 0,
-  team_bonus numeric DEFAULT 0,
-  category_bonus numeric DEFAULT 0,
-  total_commission numeric DEFAULT 0,
-  is_paid boolean DEFAULT false,
-  paid_at timestamp with time zone,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT commissions_pkey PRIMARY KEY (id),
-  CONSTRAINT commissions_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
-);
 CREATE TABLE public.customers (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   type USER-DEFINED NOT NULL DEFAULT 'person'::customer_type,
@@ -143,6 +136,7 @@ CREATE TABLE public.deliveries (
   created_by uuid,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  assigned_users ARRAY DEFAULT '{}'::uuid[],
   CONSTRAINT deliveries_pkey PRIMARY KEY (id),
   CONSTRAINT deliveries_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id),
   CONSTRAINT deliveries_received_by_fkey FOREIGN KEY (received_by) REFERENCES public.profiles(id),
@@ -229,6 +223,7 @@ CREATE TABLE public.inventories (
   completed_at timestamp with time zone,
   created_by uuid,
   created_at timestamp with time zone DEFAULT now(),
+  assigned_users ARRAY DEFAULT '{}'::uuid[],
   CONSTRAINT inventories_pkey PRIMARY KEY (id),
   CONSTRAINT inventories_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
 );
@@ -347,10 +342,10 @@ CREATE TABLE public.profiles (
   hired_at date,
   hourly_rate numeric DEFAULT 0,
   commission_rate numeric DEFAULT 0,
-  system_login text,
-  system_password text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  system_login text,
+  system_password text,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );

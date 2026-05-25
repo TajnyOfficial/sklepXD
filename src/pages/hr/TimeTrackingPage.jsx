@@ -1,21 +1,64 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useStore } from '../../contexts/StoreContext';
-import { FiClock, FiCalendar, FiUser, FiInfo } from 'react-icons/fi';
+import { supabase } from '../../lib/supabase';
+import { FiClock, FiCalendar, FiUser, FiInfo, FiRefreshCw } from 'react-icons/fi';
 
-/**
- * Widok modułu TimeTrackingPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z TimeTracking.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony TimeTrackingPage
- */
+/* Ewidencja Czasu Pracy (RCP): agreguje surowe dane o "odbiciach" w Kiosku i wyświetla je jako czytelne raporty + live tracking z wykorzystaniem Supabase Realtime */
 export default function TimeTrackingPage() {
-  const { attendance, employees } = useStore();
+  const { attendance: initialAttendance, employees, isSupabase } = useStore();
+  const [attendance, setAttendance] = useState(initialAttendance);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Przygotuj dane do wyświetlenia — złącz ewidencję z danymi pracowników
+  // Synchronizuj z kontekstem przy pierwszym załadowaniu
+  useEffect(() => {
+    setAttendance(initialAttendance);
+  }, [initialAttendance]);
+
+  /* Główna funkcja synchronizująca: wymusza twarde dociągnięcie ostatnich 500 wpisów (time_entries) prosto z tabeli PostgreSQL */
+  const refreshData = useCallback(async () => {
+    if (!isSupabase) return;
+    setRefreshing(true);
+    try {
+      const { data } = await supabase
+        .from('time_entries')
+        .select('*')
+        .order('clock_in', { ascending: false })
+        .limit(500);
+      if (data) {
+        setAttendance(data);
+        setLastRefresh(new Date());
+      }
+    } catch (e) {
+      console.error('Refresh error:', e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [isSupabase]);
+
+  /* Mechanizm automatycznego podtrzymywania świeżości danych: łączy polling (co 30s) z natychmiastowymi powiadomieniami WebSockets (Supabase Realtime) */
+  useEffect(() => {
+    if (!isSupabase) return;
+
+    // Auto-odświeżanie co 30 sekund
+    const interval = setInterval(refreshData, 30000);
+
+    // Supabase Realtime subscription na time_entries
+    const channel = supabase
+      .channel('time_entries_live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'time_entries' }, () => {
+        refreshData();
+      })
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
+  }, [isSupabase, refreshData]);
+
+  /* Proces ETL (Extract, Transform, Load) dla frontendu: łączy wpisy czasowe z nazwami pracowników i wylicza czas trwania (tzw. Enriching) */
   const enrichedEntries = useMemo(() => {
     return attendance
       .filter(a => a.clock_in.startsWith(selectedMonth))
@@ -46,9 +89,21 @@ export default function TimeTrackingPage() {
       });
   }, [attendance, employees, selectedMonth]);
 
-  // Podsumowanie dla każdego pracownika w wybranym miesiącu
+  /* Silnik agregacyjny tworzący "Ranking/Podsumowanie": grupuje przepracowane godziny z całego miesiąca sumując je na każdego pracownika z osobna */
   const employeeSummaries = useMemo(() => {
     const summary = {};
+    
+    // Inicjalizuj wszystkich aktywnych pracowników wartościami zerowymi
+    employees.forEach(emp => {
+      if (emp.active || emp.is_active) {
+        summary[emp.id] = {
+          name: emp.name || emp.full_name || 'Nieznany',
+          totalMinutes: 0,
+          sessions: 0
+        };
+      }
+    });
+
     enrichedEntries.forEach(entry => {
         if (!summary[entry.profile_id]) {
             summary[entry.profile_id] = {
@@ -62,7 +117,7 @@ export default function TimeTrackingPage() {
     });
 
     return Object.values(summary).sort((a, b) => b.totalMinutes - a.totalMinutes);
-  }, [enrichedEntries]);
+  }, [enrichedEntries, employees]);
 
   const formatMinutes = (totalMin) => {
     const h = Math.floor(totalMin / 60);
@@ -86,6 +141,19 @@ export default function TimeTrackingPage() {
             onChange={(e) => setSelectedMonth(e.target.value)}
             style={{ width: 'auto' }}
           />
+          <button
+            className="btn btn-secondary"
+            onClick={refreshData}
+            disabled={refreshing}
+            title="Odśwież dane"
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <FiRefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+            {refreshing ? 'Aktualizacja...' : 'Odśwież'}
+          </button>
+          <span className="text-xs text-muted">
+            {lastRefresh.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </span>
         </div>
       </div>
 

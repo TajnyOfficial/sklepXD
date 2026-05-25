@@ -5,19 +5,23 @@ import { FiShoppingBag, FiSearch, FiPlus, FiEdit, FiTrash2, FiCheck, FiTruck, Fi
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const EMPTY_ORDER = { 
-  order_number: '', 
-  type: 'click_collect', 
-  status: 'new', 
-  customer_id: '', 
-  total: 0, 
+const EMPTY_ORDER = {
+  order_number: '',
+  type: 'click_collect',
+  status: 'new',
+  customer_id: '',
+  total: 0,
   deposit_amount: 0,
   pickup_date: '',
-  note: '' 
+  note: ''
 };
 
+/* Moduł do zarządzania zamówieniami zewnętrznymi (Click&Collect, Rezerwacje) z obsługą zaliczek i statusów realizacji */
 export default function OrdersPage() {
+  /* Pobranie listy klientów i flagi połączenia z Supabase ze StoreContext (zamówienia korzystają prosto z DB) */
   const { customers, isSupabase } = useStore();
+  
+  /* Lokalne stany przechowujące pobrane zamówienia, parametry filtrowania oraz ustawienia modala edycji */
   const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -29,6 +33,7 @@ export default function OrdersPage() {
     fetchOrders();
   }, [isSupabase]);
 
+  /* Zdalne pobranie najnowszych zamówień z tabeli 'orders' w Supabase z sortowaniem od najnowszych */
   async function fetchOrders() {
     if (!isSupabase) return;
     setLoading(true);
@@ -43,6 +48,7 @@ export default function OrdersPage() {
     }
   }
 
+  /* Tablica zamówień przefiltrowana przez aktualnie wpisane w wyszukiwarkę słowo (po nazwie klienta lub numerze zamówienia) */
   const filtered = orders.filter(o => {
     const q = search.toLowerCase();
     const cust = customers.find(c => c.id === o.customer_id);
@@ -50,12 +56,14 @@ export default function OrdersPage() {
     return o.order_number.toLowerCase().includes(q) || custName.includes(q);
   });
 
+  /* Wyzerowanie formularza i przygotowanie automatycznego numeru dla nowo tworzonego zamówienia */
   function openAdd() {
     setEditing(null);
     setForm({ ...EMPTY_ORDER, order_number: `ZAM/${Date.now()}` });
     setShowModal(true);
   }
 
+  /* Załadowanie istniejącego zamówienia do formatki edycyjnej (z parsowaniem dat) */
   function openEdit(order) {
     setEditing(order);
     setForm({
@@ -65,6 +73,7 @@ export default function OrdersPage() {
     setShowModal(true);
   }
 
+  /* Wygenerowanie poprawnego payloadu i insert/update rekordu zamówienia w bazie Supabase na podstawie wypełnionych danych */
   async function handleSave() {
     if (!isSupabase) return toast.error('Wymagane połączenie z Supabase');
     try {
@@ -95,6 +104,7 @@ export default function OrdersPage() {
     }
   }
 
+  /* Procedura trwałego kasowania wybranego zamówienia z potwierdzeniem akcji użytkownika */
   async function handleDelete(orderId) {
     if (!confirm('Usunąć to zamówienie?')) return;
     if (!isSupabase) return;
@@ -108,6 +118,7 @@ export default function OrdersPage() {
     }
   }
 
+  /* Szybka, jedno-polowa aktualizacja statusu (np. z 'Nowe' na 'Gotowe') bezpośrednio z poziomu tabelki (w locie) */
   async function handleStatusChange(orderId, newStatus) {
     if (!isSupabase) return;
     try {
@@ -162,7 +173,7 @@ export default function OrdersPage() {
               {filtered.map(o => {
                 const cust = customers.find(c => c.id === o.customer_id);
                 const custName = cust ? (cust.company_name || cust.name) : 'Brak przypisania';
-                
+
                 return (
                   <tr key={o.id}>
                     <td className="font-mono font-bold">{o.order_number}</td>
@@ -173,9 +184,9 @@ export default function OrdersPage() {
                       </span>
                     </td>
                     <td>
-                      <select 
+                      <select
                         className={`select select-sm ${o.status === 'completed' ? 'border-success text-success' : ''}`}
-                        value={o.status} 
+                        value={o.status}
                         onChange={(e) => handleStatusChange(o.id, e.target.value)}
                         style={{ width: 'auto' }}
                       >

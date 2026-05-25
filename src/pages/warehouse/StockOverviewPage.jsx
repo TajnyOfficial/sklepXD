@@ -5,17 +5,12 @@ import { FiDatabase, FiEdit, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-/**
- * Widok modułu StockOverviewPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z StockOverview.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony StockOverviewPage
- */
+/* Podgląd stanu magazynu w czasie rzeczywistym, pozwalający na ręczne operacje "Przyjęcia" i "Wydania" (korekta stocku) */
 export default function StockOverviewPage() {
+  /* Dostęp do globalnej listy asortymentu i API do inwentaryzacji/korekt na bazie */
   const { products, categories, updateProductStock } = useStore();
+  
+  /* Stany odpowiadające za wyświetlanie i obsługę formularza korekty magazynowej dla wybranego SKU */
   const [showAdjust, setShowAdjust] = useState(false);
   const [adjustProduct, setAdjustProduct] = useState(null);
   const [adjustQty, setAdjustQty] = useState('');
@@ -30,6 +25,7 @@ export default function StockOverviewPage() {
     setShowAdjust(true);
   }
 
+  /* Zastosowanie poprawek (delta +/-) do wybranego produktu z zabezpieczeniem bazy danych przed zerwaniem transakcji */
   async function handleAdjust() {
     const qty = parseFloat(adjustQty);
     if (!qty || qty <= 0) { toast.error('Podaj poprawną ilość'); return; }

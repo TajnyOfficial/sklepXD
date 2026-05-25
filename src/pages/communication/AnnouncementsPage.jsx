@@ -6,15 +6,7 @@ import toast from 'react-hot-toast';
 const DEMO = [];
 const EMPTY = { title: '', content: '', priority: 'normal' };
 
-/**
- * Widok modułu AnnouncementsPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Announcements.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony AnnouncementsPage
- */
+/* Wewnętrzna "Tablica Ogłoszeń" komunikacji korporacyjnej dla pracowników. Obsługuje przypinanie ważnych postów i oznaczanie priorytetów */
 export default function AnnouncementsPage() {
   const [items, setItems] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);
@@ -43,7 +35,7 @@ export default function AnnouncementsPage() {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {sorted.map(a => (
-          <div key={a.id} className="card" style={{ borderLeft: `4px solid ${a.priority === 'high' ? 'var(--danger)' : a.priority === 'low' ? 'var(--text-muted)' : 'var(--accent)'}` }}>
+          <div key={a.id} className="card" style={{ border: ` 1px solid ${a.priority === 'high' ? 'var(--danger)' : a.priority === 'low' ? 'var(--text-muted)' : 'var(--accent)'}` }}>
             <div className="flex-between mb-8">
               <div className="flex gap-8" style={{ alignItems: 'center' }}>
                 {a.pinned && <FiBookmark size={14} style={{ color: 'var(--accent-light)' }} />}

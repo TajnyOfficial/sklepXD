@@ -4,7 +4,9 @@ import { useStore } from '../../contexts/StoreContext';
 import { supabase } from '../../lib/supabase';
 import { FiTruck, FiChevronRight, FiClock, FiCheckCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import MobileHeader from '../../components/mobile/MobileHeader';
 
+/* Widok listy dostaw oczekujących i odebranych dla aplikacji mobilnej. Wykorzystuje Supabase do odczytu danych w czasie rzeczywistym */
 export default function MobileDeliveriesPage() {
   const navigate = useNavigate();
   const { isSupabase } = useStore();
@@ -43,11 +45,10 @@ export default function MobileDeliveriesPage() {
   const received = deliveries.filter(d => d.status === 'received');
 
   return (
-    <div style={{ padding: '16px 12px' }}>
-      <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: 4 }}>Dostawy (PZ)</h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Wybierz dostawę do odbioru</p>
-      </div>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg-primary)', fontFamily: 'var(--font-sans)', color: 'var(--text-heading)', paddingBottom: 80 }}>
+      <MobileHeader title="Sklep Mobile" subtitle="Dostawy (PZ)" />
+      
+      <div style={{ padding: '20px' }}>
 
       <div style={{ marginBottom: 12, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Oczekujące</div>
       {expected.length === 0 ? (
@@ -102,6 +103,7 @@ export default function MobileDeliveriesPage() {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

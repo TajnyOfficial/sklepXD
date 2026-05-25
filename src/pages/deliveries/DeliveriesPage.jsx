@@ -5,13 +5,14 @@ import { FiPlus, FiCheck, FiAlertTriangle, FiEye } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const EMPTY = { supplier_id: '', expected_date: '', items: [{ product_name: '', expected_qty: '', received_qty: null }] };
+const EMPTY = { supplier_id: '', expected_date: '', items: [{ product_name: '', expected_qty: '', received_qty: null }], assigned_users: [] };
 
+/* Rejestr Dostaw (PZ) - przyjmowanie towaru od dostawców. Integruje się z Supabase i pozwala na wychwytywanie "rozbieżności" ilościowych */
 export default function DeliveriesPage() {
-  const { suppliers, isSupabase } = useStore();
+  const { suppliers, employees, isSupabase } = useStore();
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [showModal, setShowModal] = useState(false);
   const [showView, setShowView] = useState(false);
   const [viewDel, setViewDel] = useState(null);
@@ -28,7 +29,7 @@ export default function DeliveriesPage() {
         .from('deliveries')
         .select('*, supplier:suppliers(name)')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       setDeliveries(data || []);
     } catch (err) {
@@ -38,33 +39,34 @@ export default function DeliveriesPage() {
     }
   }
 
-  function addItem() { 
-    setForm(p => ({ ...p, items: [...p.items, { product_name: '', expected_qty: '', received_qty: null }] })); 
+  function addItem() {
+    setForm(p => ({ ...p, items: [...p.items, { product_name: '', expected_qty: '', received_qty: null }] }));
   }
-  
-  function updateItem(i, f, v) { 
-    setForm(p => ({ ...p, items: p.items.map((it, idx) => idx === i ? { ...it, [f]: v } : it) })); 
+
+  function updateItem(i, f, v) {
+    setForm(p => ({ ...p, items: p.items.map((it, idx) => idx === i ? { ...it, [f]: v } : it) }));
   }
 
   async function handleSave() {
     if (!form.supplier_id) { toast.error('Wybierz dostawcę'); return; }
-    
+
     try {
       const { data, error } = await supabase.from('deliveries').insert({
         delivery_number: `PZ/2026/05/${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
         supplier_id: form.supplier_id,
         status: 'expected',
         expected_date: form.expected_date || null,
-        items: form.items.filter(i => i.product_name).map(i => ({ 
-          product_name: i.product_name, 
-          expected_qty: parseInt(i.expected_qty) || 0, 
-          received_qty: null 
-        }))
+        items: form.items.filter(i => i.product_name).map(i => ({
+          product_name: i.product_name,
+          expected_qty: parseInt(i.expected_qty) || 0,
+          received_qty: null
+        })),
+        assigned_users: form.assigned_users || []
       }).select().single();
-      
+
       if (error) throw error;
       toast.success(`Dostawa dodana`);
-      setShowModal(false); 
+      setShowModal(false);
       setForm(EMPTY);
       fetchDeliveries();
     } catch (err) {
@@ -83,7 +85,7 @@ export default function DeliveriesPage() {
         <div className="stat-card"><span className="stat-label">W trakcie sprawdzania</span><span className="stat-value text-info">{deliveries.filter(d => d.status === 'checking').length}</span></div>
         <div className="stat-card"><span className="stat-label">Z rozbieżnościami</span><span className="stat-value text-danger">{deliveries.filter(d => d.has_discrepancy).length}</span></div>
       </div>
-      
+
       {loading ? (
         <div className="text-center p-20 text-muted">Ładowanie dostaw...</div>
       ) : (
@@ -132,6 +134,27 @@ export default function DeliveriesPage() {
             <input className="input" type="date" value={form.expected_date} onChange={e => setForm(p => ({ ...p, expected_date: e.target.value }))} />
           </div>
         </div>
+        <div className="input-group mb-16">
+          <label>Przypisz magazynierów</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 150, overflowY: 'auto', background: 'var(--bg-secondary)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)' }}>
+            {employees.filter(e => e.active).map(e => (
+              <label key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={form.assigned_users.includes(e.id)}
+                  onChange={(ev) => {
+                    const checked = ev.target.checked;
+                    setForm(p => ({
+                      ...p,
+                      assigned_users: checked ? [...p.assigned_users, e.id] : p.assigned_users.filter(id => id !== e.id)
+                    }));
+                  }}
+                />
+                {e.name} ({e.role})
+              </label>
+            ))}
+          </div>
+        </div>
         <h4 className="mb-8">Pozycje</h4>
         {form.items.map((item, i) => (
           <div key={i} className="flex gap-8 mb-8" style={{ alignItems: 'flex-end' }}>
@@ -152,9 +175,9 @@ export default function DeliveriesPage() {
         {viewDel && (<div>
           <div className="grid-2 mb-16">
             {[
-              ['Dostawca', viewDel.supplier?.name], 
-              ['Status', viewDel.status], 
-              ['Data oczekiwana', viewDel.expected_date], 
+              ['Dostawca', viewDel.supplier?.name],
+              ['Status', viewDel.status],
+              ['Data oczekiwana', viewDel.expected_date],
               ['Data przyjęcia', viewDel.received_date || '—']
             ].map(([l, v]) => (
               <div key={l} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }} className="flex-between">

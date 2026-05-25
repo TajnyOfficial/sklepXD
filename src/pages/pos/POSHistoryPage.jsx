@@ -6,21 +6,29 @@ import {
   FiFileText, FiLogIn, FiLogOut, FiArrowUpCircle, FiArrowDownCircle
 } from 'react-icons/fi';
 
-/**
- * Widok modułu POSHistoryPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z POSHistory.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony POSHistoryPage
- */
-export default function POSHistoryPage() {
-  const { posLogs = [] } = useStore(); // We'll add this to context
-  const [filter, setFilter] = useState('all'); // all | session | cash | report
+/* Zbiór identyfikatorów określających, jakie dokładnie operacje uważa się za zdarzenia "typowe" dla pracy na kasie (np. raport X, wpłata KP) */
+const POS_LOG_TYPES = new Set(['login', 'logout', 'deposit', 'withdrawal', 'sale', 'report_x', 'report_z', 'cash_in', 'cash_out']);
 
-  // Sample data if posLogs is empty
-  const displayLogs = posLogs.length > 0 ? posLogs : [
+/* Komponent wyświetlający listę zdarzeń przypisanych tylko i wyłącznie do punktu sprzedaży (historia paragonów, szuflad) */
+export default function POSHistoryPage() {
+  /* Pobranie całego rejestru zdarzeń kasowych i przygotowanie stanu filtru widoku (np. 'wszystkie', 'tylko logowania') */
+  const { posLogs = [] } = useStore();
+  const [filter, setFilter] = useState('all');
+
+  /* Mechanizm oddzielający zaawansowane logi systemowe (np. zmiana ról admina) od prostych zdarzeń sprzętowych POS */
+  const posOnlyLogs = posLogs.filter(log => {
+    const type = (log.type || '').toLowerCase();
+    // Przyjmij log jeśli: jest typem POS, lub rejestr wygląda jak kasa, lub typ to login/logout na urządzeniu kasowym
+    const isKassa = log.register && (
+      log.register.toLowerCase().startsWith('kasa') ||
+      log.register === 'POS'
+    );
+    const isPosType = POS_LOG_TYPES.has(type);
+    return isPosType || isKassa;
+  });
+
+  // Przykładowe dane jeśli brak logów
+  const displayLogs = posOnlyLogs.length > 0 ? posOnlyLogs : [
     { id: 1, type: 'login', user: 'Jan Kowalski', register: 'Kasa 1', time: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), details: 'Rozpoczęcie sesji' },
     { id: 2, type: 'deposit', user: 'Jan Kowalski', register: 'Kasa 1', time: new Date(Date.now() - 1000 * 60 * 60 * 1.5).toISOString(), amount: 200, details: 'Wpłata początkowa' },
     { id: 3, type: 'sale', user: 'Jan Kowalski', register: 'Kasa 1', time: new Date(Date.now() - 1000 * 60 * 45).toISOString(), amount: 156.40, details: 'Paragon PAR/2026/0001' },
@@ -32,7 +40,7 @@ export default function POSHistoryPage() {
   const filteredLogs = displayLogs.filter(log => {
     if (filter === 'all') return true;
     if (filter === 'session') return ['login', 'logout'].includes(log.type);
-    if (filter === 'cash') return ['deposit', 'withdrawal', 'sale'].includes(log.type);
+    if (filter === 'cash') return ['deposit', 'withdrawal', 'sale', 'cash_in', 'cash_out'].includes(log.type);
     if (filter === 'report') return ['report_x', 'report_z'].includes(log.type);
     return true;
   });

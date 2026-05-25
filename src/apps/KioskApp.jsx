@@ -4,17 +4,7 @@ import { StoreProvider } from '../contexts/StoreContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import KioskPage from '../pages/kiosk/KioskPage';
 
-/**
- * Moduł (Aplikacja poboczna) Kiosku samoobsługowego (Terminala RCP).
- * 
- * Kontekst uruchomieniowy:
- * Samodzielna, pełnoekranowa aplikacja (bez paska bocznego), zamontowana
- * pod bazową ścieżką sieciową `/kiosk`. Przeznaczona do działania na terminalach
- * wewnątrz firmy (np. tablety do rejestracji czasu wejścia/wyjścia z pracy).
- * Zawiera własny, wydzielony router React, ale korzysta z globalnych kontekstów stanu.
- * 
- * @returns {JSX.Element} Drzewo komponentów aplikacji Kiosk
- */
+/* Punkt startowy (Root) aplikacji Kiosku RCP (Rejestracji Czasu Pracy). Pełnoekranowy terminal montowany pod ścieżką "/kiosk", korzystający z globalnego stanu */
 export default function KioskApp() {
   return (
     <AuthProvider>

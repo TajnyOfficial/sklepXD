@@ -5,21 +5,13 @@ import { formatCurrency, formatDateTime } from '../../utils/helpers';
 import { FiDollarSign, FiArrowUpCircle, FiArrowDownCircle, FiFileText, FiPrinter, FiCalendar } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/**
- * Ekran zarządzania Szufladą Kasową (Cash Drawer).
- * 
- * Prowadzi rejestr absolutnie wszystkich operacji finansowych na bieżącym stanowisku.
- * Oferuje:
- * - Bezpośrednie wpłaty Kasa Przyjmie (KP)
- * - Wypłaty Kasa Wyda (KW)
- * - Drukowanie i weryfikację Raportów Zmianowych (Raport X)
- * - Zamykanie dnia księgowego kasjera (Raport Z)
- * 
- * @returns {JSX.Element} Widok rejestru finansowego stacji POS
- */
+/* Ekran zarządzania Szufladą Kasową (Cash Drawer) pozwalający na ewidencję gotówki i generowanie raportów fiskalnych (X/Z) */
 export default function CashDrawerPage() {
+  /* Dane profilowe używane do podpisywania wykonywanych raportów, powiązane z mechanizmem dodawania logu do historii */
   const { profile } = useAuth();
   const { addPosLog, posSession } = useStore();
+  
+  /* Lokalny stan śledzący przemieszczenia gotówki (KP/KW), na ten moment odczytywany z pamięci localStorage */
   const [movements, setMovements] = useState(() => {
     const saved = localStorage.getItem('cashMovements');
     return saved ? JSON.parse(saved) : [];
@@ -27,6 +19,7 @@ export default function CashDrawerPage() {
 
   const balance = movements.reduce((sum, m) => sum + m.amount, 0);
 
+  /* Funkcja obliczająca kwotę netto wpłaty/wypłaty z kasy i dodająca taki wpis bezpośrednio do raportu zdarzeń */
   function addMovement(type, amount, note) {
     const actualAmount = type === 'withdrawal' ? -Math.abs(amount) : Math.abs(amount);
     const newMovement = {

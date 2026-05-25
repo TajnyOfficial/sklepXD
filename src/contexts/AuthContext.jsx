@@ -4,11 +4,7 @@ import { ROLES, ROLE_LABELS, hasPermission, hasAnyPermission, getNavItems } from
 
 const AuthContext = createContext(null);
 
-/**
- * Tablica predefiniowanych użytkowników testowych (demo).
- * Wykorzystywana domyślnie podczas programowania lub w przypadku braku poprawnej 
- * konfiguracji backendu Supabase. Zawiera użytkowników o różnych rolach.
- */
+/* Tablica predefiniowanych użytkowników testowych (demo), używana przy braku połączenia z bazą */
 const DEMO_USERS = [
   { id: '1', full_name: 'Jan Kowalski', role: ROLES.ADMIN, pin: '11111111', email: 'admin@sklep.pl', avatar_url: null },
   { id: '2', full_name: 'Anna Nowak', role: ROLES.SHIFT_MANAGER, pin: '22222222', email: 'kierownik@sklep.pl', avatar_url: null },
@@ -19,46 +15,95 @@ const DEMO_USERS = [
   { id: '7', full_name: 'Andrzej Majewski', role: ROLES.CLEANER, pin: '77777777', email: 'sprzatanie@sklep.pl', avatar_url: null },
 ];
 
-/**
- * Dostawca kontekstu autoryzacji (Auth Provider).
- * 
- * Główne centrum zarządzania tożsamością w aplikacji.
- * Przechowuje stan sesji, weryfikuje lokalne tokeny przy starcie aplikacji,
- * dostarcza funkcje logowania (w tym logowanie kodem PIN) oraz udostępnia
- * metody sprawdzające uprawnienia (can, canAny) dla zalogowanego pracownika.
- * 
- * @param {Object} props
- * @param {JSX.Element} props.children
- */
+/* Główny komponent dostarczający kontekst autoryzacji, zarządzający sesją i uprawnieniami */
 export function AuthProvider({ children }) {
+  /* Stan przechowujący podstawowe dane zalogowanego użytkownika (np. ID, email) */
   const [user, setUser] = useState(null);
+  
+  /* Stan przechowujący szczegółowy profil użytkownika (rola, imię, inicjały itp.) */
   const [profile, setProfile] = useState(null);
+  
+  /* Stan określający, czy trwa weryfikacja sesji podczas uruchamiania aplikacji */
   const [loading, setLoading] = useState(true);
+  
+  /* Stan informujący, czy aplikacja działa w trybie demonstracyjnym (offline/bez Supabase) */
   const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
     checkSession();
   }, []);
 
-  /**
-   * Weryfikuje aktywną sesję użytkownika z serwerem Supabase (lub z LocalStorage).
-   * Jeśli sesja nie zostanie znaleziona lub wystąpi błąd - wymusza tryb demonstracyjny.
-   */
+  /* Funkcja asynchroniczna weryfikująca aktywną sesję użytkownika na starcie aplikacji */
   async function checkSession() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      } else {
-        const localUser = localStorage.getItem('local_user');
-        if (localUser) {
-          const parsed = JSON.parse(localUser);
-          setUser({ id: parsed.id });
-          setProfile(parsed);
-        } else {
-          setIsDemoMode(true);
+        // Obsolete Supabase Auth handling. We force sign out to prevent conflict with local_user bypass.
+        await supabase.auth.signOut();
+      }
+
+      // Restore session from localStorage to support cross-tab in same browser
+      const localUser = localStorage.getItem('local_user');
+      if (localUser) {
+        const parsed = JSON.parse(localUser);
+        
+        if (import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
+          // Verify with active_sessions
+          let deviceId = localStorage.getItem('system_device_id');
+          if (!deviceId) {
+            deviceId = crypto.randomUUID();
+            localStorage.setItem('system_device_id', deviceId);
+          }
+
+          const { data: activeSession, error } = await supabase
+            .from('active_sessions')
+            .select('id, last_seen_at')
+            .eq('profile_id', parsed.id)
+            .eq('device_id', deviceId)
+            .eq('app_type', 'web')
+            .single();
+
+          if (error) {
+            console.error('Błąd weryfikacji sesji (możliwy brak tabeli):', error);
+            // If table doesn't exist, fallback to keeping them logged in locally
+            if (error.code === '42P01' || (error.message && error.message.includes('relation'))) {
+              setUser({ id: parsed.id });
+              setProfile(parsed);
+              setIsDemoMode(false);
+              setLoading(false);
+              return;
+            }
+          }
+
+          if (error || !activeSession) {
+            // Invalid session or logged out from elsewhere
+            localStorage.removeItem('local_user');
+            setIsDemoMode(true);
+            setLoading(false);
+            return;
+          }
+
+          // Check if session is older than 30 minutes
+          const lastSeen = new Date(activeSession.last_seen_at).getTime();
+          const now = new Date().getTime();
+          const thirtyMinutes = 30 * 60 * 1000;
+          if (now - lastSeen > thirtyMinutes) {
+            await supabase.from('active_sessions').delete().eq('id', activeSession.id);
+            localStorage.removeItem('local_user');
+            setIsDemoMode(true);
+            setLoading(false);
+            return;
+          }
+
+          // Update last seen
+          await supabase.from('active_sessions').update({ last_seen_at: new Date().toISOString() }).eq('id', activeSession.id);
         }
+
+        setUser({ id: parsed.id });
+        setProfile(parsed);
+        setIsDemoMode(false);
+      } else {
+        setIsDemoMode(true);
       }
     } catch {
       setIsDemoMode(true);
@@ -67,11 +112,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  /**
-   * Odpytuje bazę danych o szczegóły profilu przypisanego do konkretnego `userId`.
-   * Przekształca surowe ID z Supabase na obiekt biznesowy profilu (rola, imię, inicjały).
-   * @param {string} userId - Identyfikator UUID w bazie Supabase
-   */
+  /* Funkcja asynchroniczna pobierająca szczegółowy profil pracownika z bazy na podstawie userId */
   async function fetchProfile(userId) {
     try {
       const { data, error } = await supabase
@@ -89,6 +130,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  /* Funkcja logująca użytkownika na konto testowe w trybie demonstracyjnym */
   const loginWithDemo = useCallback((userId) => {
     const demoUser = DEMO_USERS.find(u => u.id === userId);
     if (demoUser) {
@@ -98,13 +140,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  /**
-   * Próba logowania z użyciem szybkiego kodu PIN.
-   * Weryfikuje, czy podany PIN pasuje do jednego z autoryzowanych kont.
-   * 
-   * @param {string} pin - Ciąg cyfr (hasło PIN)
-   * @returns {Promise<{success: boolean, error?: string}>}
-   */
+  /* Funkcja asynchroniczna weryfikująca kod PIN i logująca użytkownika w modułach POS/Kiosk */
   const loginWithPin = useCallback(async (pin) => {
     // In demo mode, check demo users
     if (isDemoMode || !import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
@@ -135,6 +171,7 @@ export function AuthProvider({ children }) {
     }
   }, [isDemoMode]);
 
+  /* Funkcja asynchroniczna autoryzująca użytkownika tradycyjnym loginem i hasłem z wykorzystaniem Supabase */
   const loginWithCredentials = useCallback(async (username, password) => {
     // 1. Zawsze działające konto awaryjne: admin / admin
     if (username === 'admin' && password === 'admin') {
@@ -163,7 +200,8 @@ export function AuthProvider({ children }) {
 
     // 3. Prawdziwe logowanie w Supabase za pomocą system_login i system_password
     try {
-      // Szukamy pracownika w bazie Supabase po loginie i haśle
+      await supabase.auth.signOut(); // Clear any stale native session
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -174,41 +212,82 @@ export function AuthProvider({ children }) {
       if (error || !data) {
         return { success: false, error: 'Nieprawidłowa nazwa użytkownika lub hasło' };
       }
+
+      // Check if user is already logged in on another web device
+      let deviceId = localStorage.getItem('system_device_id');
+      if (!deviceId) {
+        deviceId = crypto.randomUUID();
+        localStorage.setItem('system_device_id', deviceId);
+      }
+
+      // If user is already logged in on ANOTHER device (app_type=web), reject
+      const { data: existingSessions } = await supabase
+        .from('active_sessions')
+        .select('id, device_id')
+        .eq('profile_id', data.id)
+        .eq('app_type', 'web');
+
+      if (existingSessions && existingSessions.length > 0) {
+        const otherDevice = existingSessions.find(s => s.device_id !== deviceId);
+        if (otherDevice) {
+          // Check if it's abandoned (e.g. > 12h)
+          // Simplified: We reject if there is another session
+          return { success: false, error: 'Użytkownik jest już zalogowany na innym urządzeniu. Wyloguj się tam najpierw.' };
+        }
+      }
+
+      // Upsert current session
+      const { error: sessionError } = await supabase.from('active_sessions').upsert({
+        profile_id: data.id,
+        device_id: deviceId,
+        app_type: 'web',
+        last_seen_at: new Date().toISOString()
+      }, { onConflict: 'device_id,app_type' });
+
+      if (sessionError) {
+        console.warn('Błąd podczas tworzenia sesji (Active Sessions). Logowanie kontynuowane offline dla tej funkcji.', sessionError);
+      }
       
       setUser({ id: data.id });
       setProfile(data);
       localStorage.setItem('local_user', JSON.stringify(data));
       setIsDemoMode(false);
       return { success: true };
-    } catch {
+    } catch (err) {
+      console.error(err);
       return { success: false, error: 'Błąd połączenia z serwerem' };
     }
   }, [isDemoMode]);
 
+  /* Funkcja asynchroniczna czyszcząca sesję i wylogowująca użytkownika ze wszystkich urządzeń typu web */
   const logout = useCallback(async () => {
-    if (!isDemoMode) {
+    if (!isDemoMode && profile) {
       await supabase.auth.signOut();
+      
+      const deviceId = localStorage.getItem('system_device_id');
+      if (deviceId) {
+        await supabase.from('active_sessions')
+          .delete()
+          .eq('device_id', deviceId)
+          .eq('app_type', 'web');
+      }
     }
     localStorage.removeItem('local_user');
     setUser(null);
     setProfile(null);
-  }, [isDemoMode]);
+  }, [isDemoMode, profile]);
 
-  /**
-   * Sprawdza pojedyncze uprawnienie przypisane do aktualnej roli użytkownika.
-   * Wykorzystuje wbudowany system RBAC (Role-Based Access Control).
-   * 
-   * @param {string} permission - Identyfikator uprawnienia (np. "MANAGE_USERS")
-   * @returns {boolean} - true jeśli posiada uprawnienie
-   */
+  /* Funkcja sprawdzająca, czy zalogowany pracownik posiada wskazane pojedyncze uprawnienie (RBAC) */
   const can = useCallback((permission) => {
     return hasPermission(profile?.role, permission);
   }, [profile]);
 
+  /* Funkcja sprawdzająca, czy zalogowany pracownik posiada przynajmniej jedno ze wskazanych uprawnień */
   const canAny = useCallback((permissions) => {
     return hasAnyPermission(profile?.role, permissions);
   }, [profile]);
 
+  /* Obiekt kontekstu udostępniany do wszystkich komponentów potomnych aplikacji */
   const value = {
     user,
     profile,
@@ -230,13 +309,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/**
- * Niestandardowy Hook dostępowy do AuthContext.
- * Zabezpiecza przed użyciem kontekstu w złym miejscu drzewa React.
- * 
- * @returns {Object} Aktualny obiekt profilu, funkcje logowania oraz sprawdzania praw.
- * @throws {Error} Jeśli zostanie użyty poza <AuthProvider>
- */
+/* Niestandardowy hook ułatwiający dostęp do kontekstu autoryzacji w komponentach funkcyjnych */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

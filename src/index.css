@@ -8,31 +8,31 @@
 /* ─── CSS Variables ─────────────────────────────────────────── */
 :root {
   /* Background */
-  --bg-primary: #0f1117;
-  --bg-secondary: #161821;
-  --bg-tertiary: #1c1e2b;
-  --bg-card: #1a1c28;
-  --bg-card-hover: #1f2133;
-  --bg-input: #1a1c28;
-  --bg-sidebar: #12131c;
-  --bg-overlay: rgba(0, 0, 0, 0.6);
-  --bg-tooltip: #282a3a;
-  --bg-modal: #1a1c28;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #161616;
+  --bg-tertiary: #161616;
+  --bg-card: #161616;
+  --bg-card-hover: #222222;
+  --bg-input: #1a1a1a;
+  --bg-sidebar: #161616;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --bg-tooltip: #222222;
+  --bg-modal: #1a1a1a;
 
   /* Text */
-  --text-primary: #e8eaed;
-  --text-secondary: #9ca3b4;
-  --text-muted: #6b7280;
-  --text-inverse: #0f1117;
-  --text-heading: #f3f4f8;
+  --text-primary: #cccccc;
+  --text-secondary: #999999;
+  --text-muted: #777777;
+  --text-inverse: #1a1a1a;
+  --text-heading: #eeeeee;
 
   /* Accent — Indigo/Violet */
-  --accent: #6366f1;
-  --accent-light: #818cf8;
-  --accent-dark: #4f46e5;
-  --accent-bg: rgba(99, 102, 241, 0.12);
-  --accent-bg-hover: rgba(99, 102, 241, 0.2);
-  --accent-border: rgba(99, 102, 241, 0.3);
+  --accent: #5b6af0;
+  --accent-light: #707df2;
+  --accent-dark: #4756d6;
+  --accent-bg: rgba(91, 106, 240, 0.12);
+  --accent-bg-hover: rgba(91, 106, 240, 0.2);
+  --accent-border: rgba(91, 106, 240, 0.3);
 
   /* Semantic Colors */
   --success: #22c55e;
@@ -52,29 +52,25 @@
   --info-border: rgba(59, 130, 246, 0.3);
 
   /* Borders */
-  --border-primary: #2a2d3e;
-  --border-secondary: #353849;
-  --border-light: #1f2232;
+  --border-primary: #333333;
+  --border-secondary: #444444;
+  --border-light: #2a2a2a;
   --border-focus: var(--accent);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
-
-  /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  /* Shadows - Set to none */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-glow: none;
 
   /* Sizing */
   --sidebar-width: 260px;
   --sidebar-collapsed: 72px;
   --topbar-height: 56px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -107,10 +103,9 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg-primary);
+  background: #1e1e1e; /* Ciemny szary lekko jaśniejszy od menu (#161616) */
   color: var(--text-primary);
   line-height: 1.5;
-  overflow-x: hidden;
 }
 
 #root {
@@ -128,23 +123,12 @@ a:hover {
   color: var(--accent);
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  display: none;
 }
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-secondary);
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ─── Typography ────────────────────────────────────────────── */
@@ -212,7 +196,7 @@ h4 {
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-dark);
-  box-shadow: var(--shadow-glow);
+  
 }
 
 .btn-secondary {
@@ -292,7 +276,7 @@ h4 {
 .textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+  
 }
 
 .input::placeholder {
@@ -523,7 +507,7 @@ table tr:last-child td {
   justify-content: center;
   z-index: var(--z-modal);
   animation: fadeIn 0.2s ease;
-  backdrop-filter: blur(4px);
+  
 }
 
 .modal {
@@ -534,7 +518,7 @@ table tr:last-child td {
   max-width: 560px;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: var(--shadow-lg);
+  
   animation: slideUp 0.25s ease;
 }
 
@@ -559,7 +543,11 @@ table tr:last-child td {
 }
 
 .modal-body {
-  padding: 24px;
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  overflow: hidden;
 }
 
 .modal-footer {
@@ -573,9 +561,12 @@ table tr:last-child td {
 
 /* ─── Page Layout ───────────────────────────────────────────── */
 .page {
-  padding: 24px 32px;
+  padding: 16px;
   flex: 1;
   max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -875,7 +866,7 @@ table tr:last-child td {
 
 /* ─── Skeleton loading ──────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-card-hover) 50%, var(--bg-tertiary) 75%);
+  background: var(--bg-card-hover);
   background-size: 200% 100%;
   animation: skeleton-wave 1.5s infinite;
   border-radius: var(--radius-md);
@@ -967,7 +958,7 @@ div[class*="go"] {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--accent), #a855f7);
+  background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1106,7 +1097,7 @@ div[class*="go"] {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--accent), #a855f7);
+  background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1147,20 +1138,7 @@ div[class*="go"] {
   transition: margin-left var(--transition-normal);
 }
 
-.app-topbar {
-  height: var(--topbar-height);
-  min-height: var(--topbar-height);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-primary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: var(--z-topbar);
-  backdrop-filter: blur(12px);
-}
+
 
 .topbar-left {
   display: flex;
@@ -1186,7 +1164,7 @@ div[class*="go"] {
 .topbar-search input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+  
   width: 360px;
 }
 
@@ -1286,7 +1264,7 @@ div[class*="go"] {
   padding: 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: var(--shadow-lg);
+  
   animation: slideUp 0.4s ease;
 }
 
@@ -1476,7 +1454,7 @@ div[class*="go"] {
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-fast);
-  box-shadow: var(--shadow-md);
+  
 }
 
 .tooltip:hover::after {
@@ -1545,7 +1523,7 @@ div[class*="go"] {
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  
   z-index: var(--z-tooltip);
   animation: slideUp 0.15s ease;
   padding: 4px;
@@ -1589,7 +1567,7 @@ div[class*="go"] {
 .progress-bar-fill {
   height: 100%;
   border-radius: var(--radius-full);
-  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  background: var(--accent);
   transition: width var(--transition-normal);
 }
 
@@ -1677,7 +1655,7 @@ div[class*="go"] {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-lg);
+  
   animation: slideUp 0.2s ease;
 }
 
@@ -1768,7 +1746,7 @@ textarea.input {
 .select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+  
 }
 
 /* ─── Page Tabs (status filter) ─────────────────────────────── */
@@ -2098,7 +2076,7 @@ textarea.input {
   width: 210mm;
   min-height: 297mm;
   padding: 20mm;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  
   font-family: 'Inter', sans-serif;
   font-size: 10pt;
   line-height: 1.4;
@@ -2216,7 +2194,7 @@ textarea.input {
 .final-amount .value {
   font-size: 18pt;
   font-weight: 800;
-  color: #000;
+  color: var(--text-primary);
 }
 
 .doc-footer {
@@ -2240,6 +2218,7 @@ textarea.input {
   font-size: 8pt;
   color: #666;
 }
+
 /* ─── POS Specific Layout ──────────────────────────────────── */
 .pos-only .app-main {
   background: var(--bg-primary);
@@ -2360,3 +2339,5 @@ textarea.input {
   color: var(--accent-light);
   margin: 16px 0 24px;
 }
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }

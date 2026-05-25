@@ -6,17 +6,12 @@ import toast from 'react-hot-toast';
 
 const EMPTY = { sector: '', rack: '', shelf: '', description: '' };
 
-/**
- * Widok modułu LocationsPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Locations.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony LocationsPage
- */
+/* Zarządzanie słownikiem adresacji magazynowej (Sektor / Regał / Półka) wykorzystywanym m.in. w inwentaryzacji i wydaniach MM */
 export default function LocationsPage() {
+  /* Operacje odczytu i modyfikacji bazy danych lokalizacji pobrane ze StoreContext */
   const { warehouseLocations, saveWarehouseLocation, deleteWarehouseLocation, products } = useStore();
+  
+  /* Stany sterujące okienkiem modalnym i danymi formularza podczas dodawania lub edycji adresu */
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -38,6 +33,7 @@ export default function LocationsPage() {
     setShowModal(true);
   }
 
+  /* Zatwierdzenie formularza, walidacja i bezpieczny zapis/update na poziomie bazy danych */
   async function handleSave() {
     if (!form.sector) { toast.error('Podaj sektor'); return; }
     try {

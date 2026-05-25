@@ -6,11 +6,7 @@ import toast from 'react-hot-toast';
 
 const StoreContext = createContext(null);
 
-/**
- * Słownik (konfiguracja) grup cenowych.
- * Wykorzystywana do obliczania zniżek w module POS oraz panelu klienta.
- * Każda grupa posiada nazwę i przypisaną zniżkę wyrażoną w procentach.
- */
+/* Słownik konfiguracji grup cenowych używanych do obliczania zniżek w POS */
 const PRICE_GROUPS = {
   regular: { label: 'Klient detaliczny', discount: 0 },
   loyal: { label: 'Stały klient', discount: 5 },
@@ -18,36 +14,45 @@ const PRICE_GROUPS = {
   wholesale: { label: 'Cena hurtowa', discount: 15 },
 };
 
-/**
- * Słownik produktów powiązanych (Cross-Selling).
- * Pozwala zasugerować kasjerowi/klientowi produkty komplementarne podczas zakupów.
- */
+/* Słownik produktów powiązanych służący do sugestii komplementarnych podczas zakupów */
 const CROSS_SELL_MAP = {};
 
-/**
- * Centralny magazyn stanu aplikacji (State Provider).
- * 
- * Odpowiada za:
- * - Przechowywanie danych głównych (produkty, klienci, pracownicy, ustawienia sklepu).
- * - Zarządzanie cyklem życia transakcji (POS), dokumentów kasowych i inwentaryzacji.
- * - Komunikację dwustronną z bazą danych Supabase.
- * - Obsługę logiki trybu offline/demo za pomocą localStorage.
- * 
- * @param {Object} props Właściwości
- * @param {JSX.Element} props.children Komponenty potomne
- */
+/* Główny dostawca stanu aplikacji zarządzający danymi (produkty, klienci), transakcjami i komunikacją z Supabase */
 export function StoreProvider({ children }) {
+  /* Stan uwierzytelnienia pobierany z AuthContext */
   const { isAuthenticated, profile } = useAuth();
+  
+  /* Flaga określająca czy aplikacja jest połączona z instancją Supabase */
   const isSupabase = !!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co');
+  
+  /* Stan przechowujący listę wszystkich produktów */
   const [products, setProducts] = useState([]);
+  
+  /* Stan przechowujący listę kategorii asortymentu */
   const [categories, setCategories] = useState([]);
+  
+  /* Stan przechowujący bazę klientów */
   const [customers, setCustomers] = useState([]);
+  
+  /* Stan przechowujący listę dostawców zewnętrznych */
   const [suppliers, setSuppliers] = useState([]);
+  
+  /* Stan przechowujący listę pracowników sklepu */
   const [employees, setEmployees] = useState([]);
+  
+  /* Stan przechowujący zarejestrowane transakcje (paragony/faktury z POS) */
   const [transactions, setTransactions] = useState([]);
+  
+  /* Stan przechowujący wystawione dokumenty kasowe i handlowe */
   const [documents, setDocuments] = useState([]);
+  
+  /* Stan przechowujący zgłoszone zwroty towarów */
   const [returnsList, setReturnsList] = useState([]);
+  
+  /* Stan przechowujący logi rejestracji czasu pracy (wejścia/wyjścia) */
   const [attendance, setAttendance] = useState([]);
+  
+  /* Stan przechowujący lokalizacje magazynowe (regały/półki) */
   const [warehouseLocations, setWarehouseLocations] = useState([]);
   const [inventories, setInventories] = useState(() => {
     try {
@@ -132,6 +137,7 @@ export function StoreProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
 
+  /* Funkcja aktualizująca ustawienia sklepu i synchronizująca je z Supabase */
   const updateShopSettings = useCallback(async (newSettings) => {
     setShopSettings(newSettings);
     localStorage.setItem('shop_settings', JSON.stringify(newSettings));
@@ -161,6 +167,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase]);
 
+  /* Funkcja aktualizująca definicje ról i uprawnień pracowników */
   const updateRolePermissions = useCallback(async (newRoles, newLabels, newPermissions) => {
     for (const k in ROLES) delete ROLES[k];
     Object.assign(ROLES, newRoles);
@@ -206,6 +213,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, shopSettings]);
 
+  /* Funkcja dodająca wpis do dziennika logów audytu stanowiska POS */
   const addPosLog = useCallback(async (type, user, register, details, amount = null) => {
     const newLog = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
@@ -247,6 +255,59 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, employees]);
 
+  /* Funkcja asynchroniczna wymuszająca wyłączność logowania danego urządzenia (np. POS/Mobile) */
+  const enforceDeviceLogin = async (employeeId, appType) => {
+    if (!isSupabase) return { success: true };
+    try {
+      let deviceId = localStorage.getItem(`${appType}_device_id`);
+      if (!deviceId) {
+        deviceId = crypto.randomUUID();
+        localStorage.setItem(`${appType}_device_id`, deviceId);
+      }
+      
+      const { data: existingSessions } = await supabase
+        .from('active_sessions')
+        .select('id, device_id')
+        .eq('profile_id', employeeId)
+        .eq('app_type', appType);
+        
+      if (existingSessions && existingSessions.length > 0) {
+        const otherDevice = existingSessions.find(s => s.device_id !== deviceId);
+        if (otherDevice) {
+          return { success: false, error: `Użytkownik jest już zalogowany na innym urządzeniu (${appType}).` };
+        }
+      }
+      
+      const { error } = await supabase.from('active_sessions').upsert({
+        profile_id: employeeId,
+        device_id: deviceId,
+        app_type: appType,
+        last_seen_at: new Date().toISOString()
+      }, { onConflict: 'device_id,app_type' });
+      
+      if (error && (error.code === '42P01' || error.message?.includes('relation'))) {
+         console.warn('Tabela active_sessions nie istnieje. Logowanie kontynuowane offline.');
+      }
+      
+      return { success: true };
+    } catch (e) {
+      console.error(e);
+      // Fallback to success if table is missing
+      return { success: true };
+    }
+  };
+
+  /* Funkcja asynchroniczna rejestrująca wylogowanie i usuwająca sesję urządzenia */
+  const enforceDeviceLogout = async (appType) => {
+    if (!isSupabase) return;
+    const deviceId = localStorage.getItem(`${appType}_device_id`);
+    if (deviceId) {
+      try {
+        await supabase.from('active_sessions').delete().eq('device_id', deviceId).eq('app_type', appType);
+      } catch (e) {}
+    }
+  };
+
   const updatePosSession = useCallback((session) => {
     setPosSession(prev => {
       const next = { ...prev, ...session };
@@ -261,6 +322,7 @@ export function StoreProvider({ children }) {
   }, []);
 
   const logoutPosUser = useCallback(() => {
+    enforceDeviceLogout('pos');
     setPosSession(prev => {
       if (prev.posUser && prev.selectedRegister) {
         setTimeout(() => {
@@ -292,6 +354,7 @@ export function StoreProvider({ children }) {
   }, []);
 
   const logoutMobileUser = useCallback(() => {
+    enforceDeviceLogout('mobile');
     setMobileSession(prev => {
       if (prev.mobileUser) {
         setTimeout(() => {
@@ -310,11 +373,44 @@ export function StoreProvider({ children }) {
   }, [addPosLog]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    const isSpecialApp = window.location.pathname.startsWith('/mobile') || window.location.pathname.startsWith('/pos') || window.location.pathname.startsWith('/kiosk');
+    if (isAuthenticated || isSpecialApp) {
       loadData();
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    const isSpecialApp = window.location.pathname.startsWith('/mobile') || window.location.pathname.startsWith('/pos') || window.location.pathname.startsWith('/kiosk');
+    if ((!isAuthenticated && !isSpecialApp) || !isSupabase) return;
+
+    const channel = supabase.channel('store-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, async () => {
+        const { data } = await supabase.from('store_settings').select('*').limit(1);
+        if (data && data.length > 0) {
+          const s = data[0];
+          if (s.settings_json?.role_permissions) {
+            for (const k in ROLE_PERMISSIONS) delete ROLE_PERMISSIONS[k];
+            Object.assign(ROLE_PERMISSIONS, s.settings_json.role_permissions);
+            
+            setShopSettings(prev => ({
+              ...prev,
+              role_permissions: s.settings_json.role_permissions
+            }));
+          }
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, () => {
+        // We could selectively reload just inventory data here if needed
+        loadData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAuthenticated, isSupabase]);
+
+  /* Główna funkcja ładująca dane sklepu, produktów, klientów i dokumentów z Supabase */
   async function loadData() {
     setLoading(true);
     let supabaseWorks = false;
@@ -707,7 +803,11 @@ export function StoreProvider({ children }) {
         });
 
         const emp = loadedEmps.find(e => e.id === inv.created_by);
-        const frontendStatus = (inv.status === 'planned' && inv.created_by) ? 'assigned' : (inv.status === 'planned' ? 'planned' : inv.status);
+        const assignedUsers = inv.assigned_users || [];
+        const assignedEmps = loadedEmps.filter(e => assignedUsers.includes(e.id));
+        const assignedName = assignedEmps.length > 0 ? assignedEmps.map(e => e.name).join(', ') : (emp ? emp.name : 'Nieprzypisany');
+
+        const frontendStatus = (inv.status === 'planned' && (assignedUsers.length > 0 || inv.created_by)) ? 'assigned' : (inv.status === 'planned' ? 'planned' : inv.status);
         const countedItems = itemsList.filter(i => i.counted_qty !== null);
         const diffSum = countedItems.reduce((sum, i) => sum + (i.counted_qty - i.system_qty), 0);
 
@@ -723,7 +823,8 @@ export function StoreProvider({ children }) {
           diff: diffSum,
           date: inv.created_at ? inv.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
           assigned_to: inv.created_by,
-          assigned_name: emp ? emp.name : 'Nieprzypisany'
+          assigned_users: assignedUsers,
+          assigned_name: assignedName
         };
       });
 
@@ -1075,6 +1176,8 @@ export function StoreProvider({ children }) {
       const userLabel = profile ? profile.full_name : 'System';
       addPosLog(wasArchived ? 'update' : 'delete', userLabel, 'Admin', `${wasArchived ? 'Zarchiwizowano' : 'Usunięto'} pracownika ze sklepu: "${emp.full_name || emp.name}"`);
     }
+
+    return { archived: wasArchived, deleted: !wasArchived };
   }, [isSupabase, employees, addPosLog, profile]);
 
   const toggleEmployeeActive = useCallback(async (employeeId) => {
@@ -1136,11 +1239,18 @@ export function StoreProvider({ children }) {
       if (updateErr) throw updateErr;
 
       setAttendance(prev => prev.map(a => a.id === entryId ? updated : a));
+      
+      if (addPosLog) {
+        addPosLog('logout', employee.name || employee.full_name, 'Kiosk', 'Zakończenie zmiany (Wyjście z pracy)');
+      }
+      
       return { employee, type: 'clock_out', entry: updated };
     } else {
       // 3b. Wejście (Clock In)
-      // Walidacja: czy pracownik ma dzisiaj zmianę w grafiku?
-      const dzisiaj = new Date().toISOString().split('T')[0];
+      // Walidacja: czy pracownik ma dzisiaj zmianę w grafiku? (czas lokalny)
+      const localDate = new Date();
+      const dzisiaj = localDate.getFullYear() + '-' + String(localDate.getMonth() + 1).padStart(2, '0') + '-' + String(localDate.getDate()).padStart(2, '0');
+      
       const { data: shiftData, error: shiftErr } = await supabase
         .from('schedules')
         .select('*')
@@ -1176,6 +1286,11 @@ export function StoreProvider({ children }) {
       if (insertErr) throw insertErr;
 
       setAttendance(prev => [inserted, ...prev]);
+      
+      if (addPosLog) {
+        addPosLog('login', employee.name || employee.full_name, 'Kiosk', 'Rozpoczęcie zmiany (Wejście do pracy)');
+      }
+      
       return { employee, type: 'clock_in', entry: inserted };
     }
   }, [isSupabase, employees]);
@@ -1386,6 +1501,7 @@ export function StoreProvider({ children }) {
       scope: invData.scope,
       is_blind: invData.blind,
       created_by: correctEmpId,
+      assigned_users: invData.assigned_users || [],
       created_at: invData.date ? new Date(invData.date).toISOString() : new Date().toISOString()
     };
 
@@ -1594,6 +1710,66 @@ export function StoreProvider({ children }) {
   // ── Stare funkcje (zachowane dla kompatybilności) ─────────────────────────
   const addDocument = saveDocument;
 
+  
+  // ── DOSTAWCY ─────────────────────────────────────────────────────────────
+  const saveSupplier = useCallback(async (supData, existingId = null) => {
+    const row = {
+      name: supData.name,
+      nip: supData.nip || null,
+      address: supData.address || null,
+      city: supData.city || null,
+      postal_code: supData.postal_code || null,
+      contact_name: supData.contact_name || null,
+      contact_phone: supData.contact?.phone || supData.contact_phone || null,
+      contact_email: supData.contact?.email || supData.contact_email || null,
+      rating: parseFloat(supData.rating) || 0,
+      payment_terms: parseInt(supData.payment_terms) || 14
+    };
+
+    let result;
+    if (isSupabase) {
+      if (existingId) {
+        const { data, error } = await supabase.from('suppliers').update(row).eq('id', existingId).select().single();
+        if (error) throw error;
+        setSuppliers(prev => prev.map(s => s.id === existingId ? data : s));
+        result = data;
+      } else {
+        const { data, error } = await supabase.from('suppliers').insert(row).select().single();
+        if (error) throw error;
+        setSuppliers(prev => [...prev, data]);
+        result = data;
+      }
+    } else {
+      const sup = { ...row, id: existingId || crypto.randomUUID() };
+      if (existingId) setSuppliers(prev => prev.map(s => s.id === existingId ? sup : s));
+      else setSuppliers(prev => [...prev, sup]);
+      result = sup;
+    }
+
+    const userLabel = profile ? profile.full_name : 'System';
+    if (existingId) {
+      addPosLog('update', userLabel, 'Admin', `Zaktualizowano dostawcę: "${row.name}"`);
+    } else {
+      addPosLog('create', userLabel, 'Admin', `Dodano dostawcę: "${row.name}"`);
+    }
+
+    return result;
+  }, [isSupabase, addPosLog, profile]);
+
+  const deleteSupplier = useCallback(async (supplierId) => {
+    const sup = suppliers.find(s => s.id === supplierId);
+    if (isSupabase) {
+      const { error } = await supabase.from('suppliers').delete().eq('id', supplierId);
+      if (error) throw error;
+    }
+    setSuppliers(prev => prev.filter(s => s.id !== supplierId));
+
+    if (sup) {
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('delete', userLabel, 'Admin', `Usunięto dostawcę: "${sup.name}"`);
+    }
+  }, [isSupabase, suppliers, addPosLog, profile]);
+
   // ── KATEGORIE ─────────────────────────────────────────────────────────────
   const saveCategory = useCallback(async (catData, existingId = null) => {
     const row = {
@@ -1638,7 +1814,7 @@ export function StoreProvider({ children }) {
     saveCategory, deleteCategory,
     saveEmployee, deleteEmployee, toggleEmployeeActive, clockInOutEmployee,
     saveDocument, addDocument, updateDocumentStatus,
-    saveCustomer, deleteCustomer,
+    saveCustomer, deleteCustomer, saveSupplier, deleteSupplier,
     saveInventory,
     addTransaction,
     returnsList, saveReturn, updateReturnStatus,
@@ -1648,6 +1824,7 @@ export function StoreProvider({ children }) {
     setProducts, setCategories, setCustomers, setSuppliers, setEmployees, setTransactions,
     refreshData: loadData,
     isSupabase,
+    enforceDeviceLogin, enforceDeviceLogout,
     posSession, updatePosSession, clearPosSession, logoutPosUser,
     mobileSession, updateMobileSession, clearMobileSession, logoutMobileUser,
     posLogs, setPosLogs, addPosLog,

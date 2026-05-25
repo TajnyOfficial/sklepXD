@@ -8,15 +8,7 @@ const PRIORITIES = { urgent: '🔴 Pilne', high: '🟠 Wysokie', normal: '🔵 N
 const STATUSES = { pending: 'Oczekuje', in_progress: 'W trakcie', completed: 'Zakończone', cancelled: 'Anulowane' };
 const EMPTY = { title: '', description: '', priority: 'normal', assigned: '', requires_photo: false, due: '' };
 
-/**
- * Widok modułu TasksPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Tasks.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony TasksPage
- */
+/* Narzędzie Task Managementu (Todo) dla zespołu sklepu. Wyróżnia się opcją wymuszania dodania "foto-dowodu" przez pracownika po ukończeniu zadania */
 export default function TasksPage() {
   const [tasks, setTasks] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);
@@ -49,7 +41,7 @@ export default function TasksPage() {
       <div className="page-tabs">{[['all', 'Wszystkie'], ['pending', 'Oczekujące'], ['in_progress', 'W trakcie'], ['completed', 'Zakończone']].map(([k, v]) => <button key={k} className={`page-tab ${filter === k ? 'active' : ''}`} onClick={() => setFilter(k)}>{v} ({k === 'all' ? tasks.length : tasks.filter(t => t.status === k).length})</button>)}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {filtered.map(t => (
-          <div key={t.id} className="card" style={{ borderLeft: `4px solid ${t.priority === 'urgent' ? 'var(--danger)' : t.priority === 'high' ? 'var(--warning)' : t.priority === 'low' ? 'var(--text-muted)' : 'var(--accent)'}` }}>
+          <div key={t.id} className="card" style={{ border: ` 1px solid ${t.priority === 'urgent' ? 'var(--danger)' : t.priority === 'high' ? 'var(--warning)' : t.priority === 'low' ? 'var(--text-muted)' : 'var(--accent)'}` }}>
             <div className="flex-between mb-4">
               <div className="flex gap-8" style={{ alignItems: 'center' }}>
                 <h4 style={{ margin: 0, textDecoration: t.status === 'completed' ? 'line-through' : 'none', opacity: t.status === 'completed' ? 0.6 : 1 }}>{t.title}</h4>

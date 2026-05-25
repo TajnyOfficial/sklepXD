@@ -1,46 +1,39 @@
 import { useState, useMemo, Fragment } from 'react';
 import { useStore } from '../../contexts/StoreContext';
-import { 
-  startOfWeek, 
-  addWeeks, 
-  subWeeks, 
-  format, 
-  addDays, 
-  isSameDay, 
+import {
+  startOfWeek,
+  addWeeks,
+  subWeeks,
+  format,
+  addDays,
+  isSameDay,
   parseISO,
   isToday
 } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { 
-  FiCalendar, 
-  FiPlus, 
-  FiRefreshCw, 
-  FiChevronLeft, 
-  FiChevronRight, 
+import {
+  FiCalendar,
+  FiPlus,
+  FiRefreshCw,
+  FiChevronLeft,
+  FiChevronRight,
   FiX,
   FiTrash2,
   FiClock
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/**
- * Widok modułu SchedulePage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Schedule.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony SchedulePage
- */
+/* Graficzny kreator grafików (Harmonogram) oparty na kalendarzu tygodniowym: planowanie przypisanych zmian (od-do) dla każdego pracownika */
 export default function SchedulePage() {
+  /* Funkcje i zbiory danych dot. pracowników i ich wpisów w grafiku pobrane z globalnego stanu */
   const { employees, schedules, saveSchedule, deleteSchedule } = useStore();
-  
-  // Navigation state
+
+  /* Stan zarządzający "wstęgą czasu" (aktualnie oglądany tydzień, na bazie biblioteki date-fns) */
   const [currentDate, setCurrentDate] = useState(new Date());
-  
+
   // Start of the week (Monday)
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-  
+
   // Week days array
   const weekDays = useMemo(() => {
     return Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
@@ -51,7 +44,7 @@ export default function SchedulePage() {
   const [selectedShift, setSelectedShift] = useState(null);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [editingDate, setEditingDate] = useState(null);
-  
+
   // Form state
   const [startTime, setStartTime] = useState('08:00');
   const [endTime, setEndTime] = useState('16:00');
@@ -62,6 +55,7 @@ export default function SchedulePage() {
   const goToToday = () => setCurrentDate(new Date());
 
   // Modal handlers
+  /* Funkcja otwierająca okno modyfikacji pojedynczej komórki (dzień + pracownik). Rozpoznaje czy kliknięto w nową czy istniejącą zmianę */
   const openShiftModal = (employee, date, shift = null) => {
     setEditingEmployee(employee);
     setEditingDate(date);
@@ -77,6 +71,7 @@ export default function SchedulePage() {
     setIsModalOpen(true);
   };
 
+  /* Złożenie pakietu danych o godzinach i dacie zmiany, po czym przesłanie go do bazy w celu zapisania zaplanowanego grafiku */
   const handleSave = () => {
     const shiftData = {
       id: selectedShift?.id,
@@ -85,7 +80,7 @@ export default function SchedulePage() {
       startTime,
       endTime
     };
-    
+
     saveSchedule(shiftData);
     toast.success(selectedShift ? 'Zmiana zaktualizowana' : 'Zmiana dodana');
     setIsModalOpen(false);
@@ -125,15 +120,15 @@ export default function SchedulePage() {
       </div>
 
       <div className="schedule-container card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div className="schedule-grid" style={{ 
-          display: 'grid', 
+        <div className="schedule-grid" style={{
+          display: 'grid',
           gridTemplateColumns: '200px repeat(7, 1fr)',
           borderCollapse: 'collapse'
         }}>
           {/* Header Row */}
-          <div className="schedule-header-cell" style={{ 
-            padding: 16, 
-            background: 'var(--bg-tertiary)', 
+          <div className="schedule-header-cell" style={{
+            padding: 16,
+            background: 'var(--bg-tertiary)',
             borderBottom: '2px solid var(--border-primary)',
             borderRight: '1px solid var(--border-light)',
             fontWeight: 700,
@@ -144,11 +139,11 @@ export default function SchedulePage() {
           }}>
             Pracownik
           </div>
-          
+
           {weekDays.map(day => (
-            <div key={day.toString()} className="schedule-header-cell" style={{ 
-              padding: '12px 16px', 
-              background: isToday(day) ? 'var(--accent-bg)' : 'var(--bg-tertiary)', 
+            <div key={day.toString()} className="schedule-header-cell" style={{
+              padding: '12px 16px',
+              background: isToday(day) ? 'var(--accent-bg)' : 'var(--bg-tertiary)',
               borderBottom: '2px solid var(--border-primary)',
               borderRight: '1px solid var(--border-light)',
               textAlign: 'center',
@@ -161,24 +156,24 @@ export default function SchedulePage() {
                 {format(day, 'dd.MM')}
               </div>
               {isToday(day) && (
-                <div style={{ 
-                  position: 'absolute', 
-                  bottom: 0, 
-                  left: 0, 
-                  right: 0, 
-                  height: 3, 
-                  background: 'var(--accent)' 
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 3,
+                  background: 'var(--accent)'
                 }} />
               )}
             </div>
           ))}
 
           {/* Employee Rows */}
-          {employees.map(emp => (
+          {employees.filter(e => e.active !== false && e.is_active !== false).map(emp => (
             <Fragment key={emp.id}>
-              <div className="schedule-cell employee-cell" style={{ 
-                padding: '12px 16px', 
-                background: 'var(--bg-card)', 
+              <div className="schedule-cell employee-cell" style={{
+                padding: '12px 16px',
+                background: 'var(--bg-card)',
                 borderBottom: '1px solid var(--border-light)',
                 borderRight: '1px solid var(--border-light)',
                 display: 'flex',
@@ -192,14 +187,14 @@ export default function SchedulePage() {
               {weekDays.map(day => {
                 const dayStr = format(day, 'yyyy-MM-dd');
                 const shift = schedules.find(s => s.profile_id === emp.id && s.date === dayStr);
-                
+
                 return (
-                  <div 
-                    key={day.toString()} 
-                    className="schedule-cell day-cell" 
-                    style={{ 
-                      padding: 8, 
-                      background: 'var(--bg-card)', 
+                  <div
+                    key={day.toString()}
+                    className="schedule-cell day-cell"
+                    style={{
+                      padding: 8,
+                      background: 'var(--bg-card)',
                       borderBottom: '1px solid var(--border-light)',
                       borderRight: '1px solid var(--border-light)',
                       minHeight: 80,
@@ -214,11 +209,11 @@ export default function SchedulePage() {
                     onClick={() => openShiftModal(emp, day, shift)}
                   >
                     {shift ? (
-                      <div style={{ 
+                      <div style={{
                         width: '100%',
-                        padding: '8px', 
-                        background: 'var(--accent-bg)', 
-                        border: '1px solid var(--accent-border)', 
+                        padding: '8px',
+                        background: 'var(--accent-bg)',
+                        border: '1px solid var(--accent-border)',
                         borderRadius: 'var(--radius-sm)',
                         textAlign: 'center'
                       }}>
@@ -227,8 +222,8 @@ export default function SchedulePage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="add-shift-btn" style={{ 
-                        opacity: 0, 
+                      <div className="add-shift-btn" style={{
+                        opacity: 0,
                         color: 'var(--text-muted)',
                         display: 'flex',
                         alignItems: 'center',
@@ -276,9 +271,9 @@ export default function SchedulePage() {
                   <label>Początek</label>
                   <div style={{ position: 'relative' }}>
                     <FiClock style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input 
-                      type="time" 
-                      className="input" 
+                    <input
+                      type="time"
+                      className="input"
                       style={{ paddingLeft: 36 }}
                       value={startTime}
                       onChange={e => setStartTime(e.target.value)}
@@ -289,9 +284,9 @@ export default function SchedulePage() {
                   <label>Koniec</label>
                   <div style={{ position: 'relative' }}>
                     <FiClock style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input 
-                      type="time" 
-                      className="input" 
+                    <input
+                      type="time"
+                      className="input"
                       style={{ paddingLeft: 36 }}
                       value={endTime}
                       onChange={e => setEndTime(e.target.value)}

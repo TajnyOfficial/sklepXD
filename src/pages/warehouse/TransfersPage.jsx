@@ -7,17 +7,12 @@ import toast from 'react-hot-toast';
 
 const DEMO = [];
 
-/**
- * Widok modułu TransfersPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Transfers.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony TransfersPage
- */
+/* Rejestr Przesunięć Międzymagazynowych (MM) śledzący transport wewnętrzny pomiędzy różnymi lokalizacjami w sklepie */
 export default function TransfersPage() {
+  /* Odczyt struktury magazynowej w celu zasilenia listy wyboru lokalizacji 'od' i 'do' */
   const { products, warehouseLocations } = useStore();
+  
+  /* Tymczasowy lokalny stan dla dokumentów MM (docelowo powinien być zastąpiony tabelą Supabase tak jak Orders) */
   const [transfers, setTransfers] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ from: '', to: '', items: [{ product_name: '', qty: '' }], note: '' });
@@ -26,6 +21,7 @@ export default function TransfersPage() {
   function removeItem(i) { setForm(p => ({ ...p, items: p.items.filter((_, idx) => idx !== i) })); }
   function updateItem(i, field, val) { setForm(p => ({ ...p, items: p.items.map((item, idx) => idx === i ? { ...item, [field]: val } : item) })); }
 
+  /* Wygenerowanie i dodanie nowego dokumentu MM z poprawnym przeliczeniem statusu i weryfikacją pozycji dodanych przez użytkownika */
   function handleSave() {
     if (!form.from || !form.to) { toast.error('Podaj lokalizację źródłową i docelową'); return; }
     if (form.from === form.to) { toast.error('Lokalizacja docelowa musi być inna niż źródłowa'); return; }
@@ -67,7 +63,13 @@ export default function TransfersPage() {
                 <td className="font-mono text-sm" style={{ fontWeight: 600 }}>{t.number}</td>
                 <td>{t.from}</td>
                 <td>{t.to}</td>
-                <td className="text-sm">{t.items.map(i => `${i.name} (${i.qty})`).join(', ')}</td>
+                <td className="text-sm">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {t.items.map((i, idx) => (
+                      <div key={idx}>• {i.name} ({i.qty} szt.)</div>
+                    ))}
+                  </div>
+                </td>
                 <td className="text-sm text-muted">{t.date}</td>
                 <td><span className={`badge ${t.status === 'completed' ? 'badge-success' : 'badge-warning'}`}>{t.status === 'completed' ? 'Zakończone' : 'W transporcie'}</span></td>
                 <td>{t.status !== 'completed' && <button className="btn btn-success btn-sm" onClick={() => completeTransfer(t.id)}><FiCheck size={14} /> Potwierdź</button>}</td>
@@ -103,10 +105,20 @@ export default function TransfersPage() {
         </div>
         <h4 className="mb-8">Pozycje</h4>
         {form.items.map((item, i) => (
-          <div key={i} className="flex gap-8 mb-8" style={{ alignItems: 'flex-end' }}>
-            <div className="input-group" style={{ flex: 2 }}><label>Produkt</label><input className="input" value={item.product_name} onChange={e => updateItem(i, 'product_name', e.target.value)} placeholder="Nazwa produktu" list="products-list" /></div>
-            <div className="input-group" style={{ flex: 1 }}><label>Ilość</label><input className="input" type="number" value={item.qty} onChange={e => updateItem(i, 'qty', e.target.value)} /></div>
-            {form.items.length > 1 && <button className="btn btn-ghost btn-sm" onClick={() => removeItem(i)}>✕</button>}
+          <div key={i} style={{ background: 'var(--bg-tertiary)', padding: 12, borderRadius: 12, marginBottom: 12 }}>
+            <div className="input-group mb-8">
+              <label>Produkt</label>
+              <input className="input" value={item.product_name} onChange={e => updateItem(i, 'product_name', e.target.value)} placeholder="Nazwa produktu" list="products-list" />
+            </div>
+            <div className="flex gap-8" style={{ alignItems: 'flex-end' }}>
+              <div className="input-group" style={{ flex: 1 }}>
+                <label>Ilość</label>
+                <input className="input" type="number" min="1" value={item.qty} onChange={e => updateItem(i, 'qty', e.target.value)} />
+              </div>
+              {form.items.length > 1 && (
+                <button className="btn btn-ghost" style={{ color: 'var(--danger)', height: '42px', padding: '0 16px' }} onClick={() => removeItem(i)}>✕ Usuń</button>
+              )}
+            </div>
           </div>
         ))}
         <datalist id="products-list">{products.map(p => <option key={p.id} value={p.name} />)}</datalist>

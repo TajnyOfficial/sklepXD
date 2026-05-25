@@ -7,22 +7,15 @@ import { calculateInvoiceData } from '../../utils/invoiceUtils';
 import { useStore } from '../../contexts/StoreContext';
 import toast from 'react-hot-toast';
 
-/**
- * Reużywalny przycisk do pobierania dokumentu księgowego PDF (Faktury/Paragonu).
- * 
- * Wykorzystuje podejście "leniwego renderowania" (Lazy Rendering). Dokument PDF 
- * nie obciąża pamięci w tle przeglądarki, budowany jest dynamicznie dopiero po 
- * kliknięciu i walidacji danych wejściowych. Komponent samodzielnie obsługuje animację ładowania.
- * 
- * @param {Object} props - Właściwości komponentu
- * @param {Object} props.invoiceData - Surowe dane do faktury, które przed rysowaniem przejdą przez `calculateInvoiceData`
- * @param {string} [props.fileName] - Niestandardowa nazwa pliku z rozszerzeniem `.pdf`
- * @param {string} [props.className="btn btn-primary"] - Opcjonalne klasy stylizacyjne
- */
+/* Komponent przycisku inicjujący asynchroniczne generowanie pliku PDF i wywołujący pobieranie u klienta w oparciu o bibliotekę file-saver */
 export const InvoiceDownloadBtn = ({ invoiceData, fileName, className = "btn btn-primary" }) => {
+  /* Dostęp do globalnego stanu pobierający ustawienia sklepu z bazowymi informacjami o sprzedawcy (NIP, adres itp.) */
   const { shopSettings } = useStore();
+  
+  /* Flaga stanu wskazująca czy aktualnie trwa renderowanie pliku (blokuje podwójne kliknięcie w przycisk pobierania) */
   const [isGenerating, setIsGenerating] = useState(false);
 
+  /* Asynchroniczna funkcja przygotowująca obiekty z danymi, walidująca oraz renderująca dokument PDF do bloku BLOB */
   const handleDownload = async (e) => {
     e.preventDefault();
     e.stopPropagation();

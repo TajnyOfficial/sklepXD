@@ -6,17 +6,9 @@ import toast from 'react-hot-toast';
 
 const EMPTY = { name: '', nip: '', contact: { phone: '', email: '' }, rating: '4.0', address: '', payment_terms: '14' };
 
-/**
- * Widok modułu SuppliersPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Suppliers.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony SuppliersPage
- */
+/* Baza Kontrahentów (Dostawców B2B) - pozwala śledzić terminy płatności, oceniać współpracę (gwiazdki) oraz zarządzać danymi kontaktowymi */
 export default function SuppliersPage() {
-  const { suppliers, setSuppliers } = useStore();
+  const { suppliers, saveSupplier, deleteSupplier } = useStore();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -25,15 +17,40 @@ export default function SuppliersPage() {
   const filtered = suppliers.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.nip?.includes(search));
 
   function openAdd() { setEditing(null); setForm(EMPTY); setShowModal(true); }
-  function openEdit(s) { setEditing(s); setForm({ ...s, rating: String(s.rating), payment_terms: String(s.payment_terms || 14) }); setShowModal(true); }
-  function handleSave() {
+  function openEdit(s) { 
+    setEditing(s); 
+    setForm({ 
+      ...s, 
+      rating: String(s.rating), 
+      payment_terms: String(s.payment_terms || 14),
+      contact: { phone: s.contact_phone || '', email: s.contact_email || '' }
+    }); 
+    setShowModal(true); 
+  }
+  async function handleSave() {
     if (!form.name) { toast.error('Podaj nazwę dostawcy'); return; }
     const sup = { ...form, id: editing?.id || crypto.randomUUID(), rating: parseFloat(form.rating) || 0, payment_terms: parseInt(form.payment_terms) || 14, contact: { phone: form.contact?.phone || '', email: form.contact?.email || '' } };
-    if (editing) { setSuppliers(prev => prev.map(s => s.id === editing.id ? sup : s)); toast.success('Dostawca zaktualizowany'); }
-    else { setSuppliers(prev => [...prev, sup]); toast.success('Dostawca dodany'); }
+    
+    try {
+      await saveSupplier(sup, editing?.id);
+      toast.success(editing ? 'Dostawca zaktualizowany' : 'Dostawca dodany');
+    } catch(e) {
+      toast.error('Błąd zapisu dostawcy: ' + e.message);
+    }
+
     setShowModal(false);
   }
-  function handleDelete(s) { if (!confirm(`Usunąć dostawcę "${s.name}"?`)) return; setSuppliers(prev => prev.filter(x => x.id !== s.id)); toast.success('Dostawca usunięty'); }
+  
+  async function handleDelete(s) { 
+    if (!confirm(`Usunąć dostawcę "${s.name}"?`)) return; 
+    try {
+      await deleteSupplier(s.id); 
+      toast.success('Dostawca usunięty'); 
+    } catch(e) {
+      toast.error('Błąd: ' + e.message);
+    }
+  }
+
   const F = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
   const FC = (field) => (e) => setForm(prev => ({ ...prev, contact: { ...prev.contact, [field]: e.target.value } }));
 
@@ -55,7 +72,10 @@ export default function SuppliersPage() {
               <tr key={s.id}>
                 <td style={{ fontWeight: 500 }}>{s.name}</td>
                 <td className="font-mono text-sm text-muted">{s.nip || '—'}</td>
-                <td className="text-sm">{s.contact?.phone && <div><FiPhone size={10} /> {s.contact.phone}</div>}{s.contact?.email && <div><FiMail size={10} /> {s.contact.email}</div>}</td>
+                <td className="text-sm">
+                  {s.contact_phone && <div><FiPhone size={10} style={{ marginRight: 4 }}/> {s.contact_phone}</div>}
+                  {s.contact_email && <div><FiMail size={10} style={{ marginRight: 4 }}/> {s.contact_email}</div>}
+                </td>
                 <td><span className={`badge ${s.rating >= 4.5 ? 'badge-success' : s.rating >= 3.5 ? 'badge-warning' : 'badge-danger'}`}><FiStar size={10} /> {s.rating}</span></td>
                 <td className="text-sm">{s.payment_terms || 14} dni</td>
                 <td><div style={{ display: 'flex', gap: 4 }}><button className="btn btn-ghost btn-sm" onClick={() => openEdit(s)}><FiEdit size={14} /></button><button className="btn btn-ghost btn-sm" onClick={() => handleDelete(s)}><FiTrash2 size={14} /></button></div></td>

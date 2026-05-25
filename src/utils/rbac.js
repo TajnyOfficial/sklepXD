@@ -267,7 +267,7 @@ export function getNavItems(userRole) {
       icon: 'FiShoppingCart',
       path: '/sales',
       children: [
-        ...(hasPermission(userRole, PERMISSIONS.POS_ACCESS) ? [{ id: 'pos-history', label: 'Historia działań', path: '/pos/history' }] : []),
+        ...(hasPermission(userRole, PERMISSIONS.POS_ACCESS) ? [{ id: 'pos-history', label: 'Historia działań', path: '/sales/pos-history' }] : []),
         ...(hasPermission(userRole, PERMISSIONS.ORDERS_VIEW) ? [{ id: 'sales-orders', label: 'Zamówienia (C&C)', path: '/sales/orders' }] : []),
         ...(hasPermission(userRole, PERMISSIONS.RETURNS_VIEW) ? [{ id: 'sales-returns', label: 'Zwroty / RMA', path: '/sales/returns' }] : []),
       ],

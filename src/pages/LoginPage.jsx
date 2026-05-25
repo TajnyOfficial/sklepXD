@@ -1,23 +1,24 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FiLogIn, FiUser, FiLock } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/**
- * Zaktualizowany Ekran logowania do systemu głównego.
- * Formularz oparty na klasycznym nazwie użytkownika / emailu i haśle.
- * Posiada wbudowane konto awaryjne admin/admin.
- * 
- * @returns {JSX.Element} Widok strony logowania
- */
+/* Ekran autoryzacji do głównego systemu ERP oparty o formularz (login i hasło) łączący się z Supabase lub logowaniem awaryjnym */
 export default function LoginPage() {
+  /* Funkcja weryfikująca poświadczenia udostępniana przez kontekst uwierzytelniania */
   const { loginWithCredentials } = useAuth();
   
+  /* Zmienna routingu react-router-dom do przekierowywania np. po udanym logowaniu */
+  const navigate = useNavigate();
+  
+  /* Lokalne stany formularza kontrolujące inputy oraz stan procedury logowania (ładowanie, błędne hasło) */
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  /* Funkcja zatwierdzająca formularz z obsługą blokady podczas próby logowania (loading) */
   async function handleSubmit(e) {
     e.preventDefault();
     if (!username.trim() || !password) {
@@ -35,6 +36,7 @@ export default function LoginPage() {
         toast.error(result.error);
       } else {
         toast.success(`Zalogowano pomyślnie`);
+        navigate('/', { replace: true });
       }
     } catch (err) {
       setError('Wystąpił błąd podczas logowania');
@@ -45,6 +47,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page" style={{
+      width: '100%',
       minHeight: '100dvh',
       display: 'flex',
       alignItems: 'center',

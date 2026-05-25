@@ -23,22 +23,52 @@ import { FiClipboard, FiPackage, FiSearch, FiLogOut, FiTablet, FiTruck } from 'r
  * Identyfikuje osobę obsługującą skaner przed dopuszczeniem jej do pracy.
  */
 function MobilePinLogin() {
-  const { employees, updateMobileSession, addPosLog } = useStore();
+  const { employees, updateMobileSession, addPosLog, enforceDeviceLogin } = useStore();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (pin.length < 4) return;
-    if (!employees) {
-      setError('Brak listy pracowników');
-      setPin('');
-      return;
-    }
 
     setError('');
-    const employee = employees.find(emp => String(emp.pin) === String(pin) && (emp.active || emp.is_active));
+    let employee = null;
+
+    // Zapytanie bezpośrednio do bazy danych, aby ominąć problemy z ładowaniem kontekstu
+    if (!!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_ANON_KEY
+      );
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('pin', pin)
+        .single();
+
+      if (data) {
+        employee = { ...data, name: data.full_name, active: data.is_active };
+      }
+    } else {
+      if (employees) {
+        employee = employees.find(emp => String(emp.pin) === String(pin) && (emp.active || emp.is_active));
+      }
+    }
 
     if (employee) {
+      if (!employee.active && !employee.is_active) {
+        setError('Konto pracownika jest wyłączone (nieaktywne)');
+        setPin('');
+        return;
+      }
+
+      const authResult = await enforceDeviceLogin(employee.id, 'mobile');
+      if (!authResult.success) {
+        setError(authResult.error);
+        setPin('');
+        return;
+      }
+
       updateMobileSession({ mobileUser: employee });
       if (addPosLog) {
         addPosLog(
@@ -69,71 +99,69 @@ function MobilePinLogin() {
     <div style={{
       minHeight: '100dvh', display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(160deg, #0f172a 0%, #0c1446 100%)',
-      fontFamily: 'Inter, system-ui, sans-serif', padding: '24px 20px',
+      background: 'var(--bg-primary)',
+      fontFamily: 'var(--font-sans)', padding: '24px 20px',
     }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 36 }}>
         <div style={{
-          width: 60, height: 60, borderRadius: 18, margin: '0 auto 16px',
-          background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+          width: 60, height: 60, borderRadius: '4px', margin: '0 auto 16px',
+          background: 'var(--accent)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <FiTablet size={26} color="#fff" />
         </div>
-        <div style={{ color: '#f8fafc', fontWeight: 800, fontSize: '1.4rem' }}>SklepXD Mobile</div>
-        <div style={{ color: '#64748b', fontSize: '0.85rem', marginTop: 6 }}>
+        <div style={{ color: 'var(--text-heading)', fontWeight: 800, fontSize: '1.4rem' }}>SklepXD Mobile</div>
+        <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 6 }}>
           Logowanie PIN — Inwentaryzacja i Magazyn
         </div>
       </div>
 
       <div style={{
-        background: '#1e293b', border: '1px solid #334155', borderRadius: 24,
+        background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: '4px',
         padding: '32px 28px', width: '100%', maxWidth: 320,
-        boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
       }}>
-        {/* PIN dots */}
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 28 }}>
-          {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} style={{
-              width: 18, height: 18, borderRadius: '50%',
-              background: i < pin.length ? '#0ea5e9' : 'transparent',
-              border: `2px solid ${i < pin.length ? '#0ea5e9' : '#334155'}`,
-              transition: 'all 0.12s',
-              boxShadow: i < pin.length ? '0 0 10px rgba(14,165,233,0.5)' : 'none',
+      {/* PIN dots */}
+      <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 28 }}>
+        {Array.from({ length: 4 }, (_, i) => (
+          <div key={i} style={{
+            width: 18, height: 18, borderRadius: '4px',
+            background: i < pin.length ? 'var(--accent)' : 'transparent',
+            border: `1px solid ${i < pin.length ? 'var(--accent)' : 'var(--border-primary)'}`,
+            transition: 'all 0.12s',
             }} />
           ))}
-        </div>
+      </div>
 
-        {error && (
-          <div style={{ textAlign: 'center', color: '#f87171', fontSize: '0.85rem', marginBottom: 16 }}>
-            {error}
-          </div>
-        )}
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => (
-            <button key={d} onClick={() => pressDigit(d)} style={{
-              padding: '20px 8px', background: '#0f172a', border: '1px solid #334155',
-              borderRadius: 14, color: '#f8fafc', fontSize: '1.5rem', fontWeight: 700,
-              cursor: 'pointer', touchAction: 'manipulation',
-            }}>{d}</button>
-          ))}
-          <button onClick={() => setPin(p => p.slice(0, -1))} style={{
-            padding: '20px 8px', background: '#1c1917', border: '1px solid #7f1d1d',
-            borderRadius: 14, color: '#f87171', fontSize: '1.2rem', cursor: 'pointer',
-          }}>⌫</button>
-          <button onClick={() => pressDigit('0')} style={{
-            padding: '20px 8px', background: '#0f172a', border: '1px solid #334155',
-            borderRadius: 14, color: '#f8fafc', fontSize: '1.5rem', fontWeight: 700, cursor: 'pointer',
-          }}>0</button>
-          <button onClick={handleSubmit} style={{
-            padding: '20px 8px', background: '#0369a1', border: '1px solid #0ea5e9',
-            borderRadius: 14, color: '#fff', fontSize: '1.2rem', cursor: 'pointer',
-          }}>✓</button>
+      {error && (
+        <div style={{ textAlign: 'center', color: 'var(--danger)', fontSize: '0.85rem', marginBottom: 16 }}>
+          {error}
         </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => (
+          <button key={d} onClick={() => pressDigit(d)} style={{
+            padding: '20px 8px', background: 'var(--bg-primary)', border: '1px solid var(--border-primary)',
+            borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.5rem', fontWeight: 700,
+            cursor: 'pointer', touchAction: 'manipulation',
+          }}>{d}</button>
+        ))}
+        <button onClick={() => setPin(p => p.slice(0, -1))} style={{
+          padding: '20px 8px', background: 'var(--danger-bg)', border: '1px solid var(--danger-border)',
+          borderRadius: '4px', color: 'var(--danger)', fontSize: '1.2rem', cursor: 'pointer',
+        }}>⌫</button>
+        <button onClick={() => pressDigit('0')} style={{
+          padding: '20px 8px', background: 'var(--bg-primary)', border: '1px solid var(--border-primary)',
+          borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.5rem', fontWeight: 700, cursor: 'pointer',
+        }}>0</button>
+        <button onClick={handleSubmit} style={{
+          padding: '20px 8px', background: 'var(--accent)', border: '1px solid var(--accent)',
+          borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.2rem', cursor: 'pointer',
+        }}>✓</button>
       </div>
     </div>
+    </div >
   );
 }
 
@@ -158,11 +186,12 @@ function BottomNav() {
   return (
     <nav style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, height: 64,
-      background: '#0f172a', borderTop: '1px solid #1e293b',
+      background: 'var(--bg-sidebar)', borderTop: '1px solid var(--border-primary)',
       display: 'flex', alignItems: 'stretch',
-      fontFamily: 'Inter, system-ui, sans-serif',
+      fontFamily: 'var(--font-sans)',
       paddingBottom: 'env(safe-area-inset-bottom)',
       zIndex: 100,
+      maxWidth: '480px', margin: '0 auto'
     }}>
       {tabs.map(({ path, label, icon: Icon }) => {
         const active = location.pathname === path;
@@ -171,7 +200,7 @@ function BottomNav() {
             flex: 1, display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center', gap: 4,
             border: 'none', background: 'transparent',
-            color: active ? '#0ea5e9' : '#475569',
+            color: active ? 'var(--accent-light)' : 'var(--text-muted)',
             fontSize: '0.65rem', fontWeight: active ? 700 : 500,
             cursor: 'pointer', transition: 'color 0.15s',
           }}>
@@ -185,7 +214,7 @@ function BottomNav() {
       }} style={{
         width: 56, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 4,
-        border: 'none', background: 'transparent', color: '#475569',
+        border: 'none', background: 'transparent', color: 'var(--text-muted)',
         fontSize: '0.65rem', cursor: 'pointer',
       }}>
         <FiLogOut size={18} />
@@ -221,14 +250,22 @@ function MobileInner() {
   const session = mobileSession || { mobileUser: null };
   const isAuth = !!session.mobileUser;
 
-  if (!isAuth) return <MobilePinLogin />;
-  return <MobileLayout />;
+  return (
+    <div style={{
+      width: '100%',
+      maxWidth: '480px',
+      margin: '0 auto',
+      minHeight: '100dvh',
+      background: 'var(--bg)',
+      position: 'relative',
+      overflowX: 'hidden'
+    }}>
+      {!isAuth ? <MobilePinLogin /> : <MobileLayout />}
+    </div>
+  );
 }
 
-/**
- * Główny komponent (root) aplikacji Mobile.
- * Inicjalizuje wymagane konteksty oraz obsługuje routing dla bazy "/mobile".
- */
+/* Punkt startowy (Root) aplikacji mobilnej. Odpowiada za dostarczenie kontekstów (Store, Auth) i ustawienie bazowej ścieżki routingu na "/mobile" */
 export default function MobileApp() {
   return (
     <AuthProvider>
@@ -239,8 +276,8 @@ export default function MobileApp() {
             position="top-right"
             toastOptions={{
               style: {
-                background: '#1e293b', color: '#f8fafc',
-                border: '1px solid #334155', borderRadius: '12px',
+                background: 'var(--bg-card)', color: 'var(--text-heading)',
+                border: '1px solid var(--border-primary)', borderRadius: '4px',
               },
             }}
           />

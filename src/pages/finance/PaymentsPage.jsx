@@ -1,27 +1,11 @@
 import { formatCurrency } from '../../utils/helpers';
 import { FiDollarSign, FiArrowUpCircle, FiArrowDownCircle, FiCalendar, FiBell } from 'react-icons/fi';
 
-const RECEIVABLES = [
-  { id: 1, customer: 'ElektroMont S.A.', invoice: 'FV/2026/03/002', amount: 5670.00, due: '2026-03-25', daysLeft: 13 },
-  { id: 2, customer: 'Dom i Ogród Sp.j.', invoice: 'FV/2026/02/022', amount: 3420.00, due: '2026-03-06', daysLeft: -6 },
-];
+const RECEIVABLES = [];
 
-const PAYABLES = [
-  { id: 1, supplier: 'Dekoral Dystrybucja', invoice: 'FZ/2026/03/003', amount: 4200.00, due: '2026-03-28', daysLeft: 16 },
-  { id: 2, supplier: 'Drukarnia Express', invoice: 'FZ/2026/03/005', amount: 680.00, due: '2026-03-20', daysLeft: 8 },
-  { id: 3, supplier: 'ZUS', invoice: 'Składki 03/2026', amount: 3200.00, due: '2026-03-15', daysLeft: 3 },
-  { id: 4, supplier: 'Urząd Skarbowy', invoice: 'VAT-7 02/2026', amount: 4500.00, due: '2026-03-25', daysLeft: 13 },
-];
+const PAYABLES = [];
 
-/**
- * Widok modułu PaymentsPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Payments.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony PaymentsPage
- */
+/* Ekran kontroli przepływów pieniężnych (Cash Flow) monitorujący należności od klientów i zobowiązania wobec dostawców */
 export default function PaymentsPage() {
   return (
     <div className="page animate-fadeIn">

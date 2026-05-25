@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import { StoreProvider } from './contexts/StoreContext';
+import { StoreProvider, useStore } from './contexts/StoreContext';
 import toast from 'react-hot-toast';
-import { ROLE_LABELS } from './utils/rbac';
+import { ROLE_LABELS, getNavItems } from './utils/rbac';
 import { getInitials } from './utils/helpers';
 import {
   FiHome, FiShoppingCart, FiClipboard, FiRotateCcw, FiUsers,
@@ -73,41 +73,33 @@ import SecurityPage from './pages/admin/SecurityPage';
 // Dostępne pod URL-ami: /kiosk/  /pos/  /mobile/
 // (wbudowane multi-entry w vite.config.js)
 
-/**
- * Obiekt (Mapa) przypisujący nazwy ikon w postaci tekstowej do komponentów biblioteki react-icons.
- * Zastosowanie: Dynamiczne renderowanie ikon w panelu nawigacyjnym na podstawie 
- * konfiguracji dostępów i ról użytkownika zdefiniowanych w systemie (np. rbac).
- */
+/* Słownik mapujący tekstowe nazwy ikon z bazy danych na odpowiadające im komponenty biblioteki react-icons */
 const ICON_MAP = {
   FiHome, FiShoppingCart, FiClipboard, FiRotateCcw, FiUsers,
   FiFileText, FiPackage, FiTruck, FiCheckSquare, FiDollarSign,
   FiClock, FiMessageSquare, FiSettings, FiGrid, FiVideo
 };
 
-/**
- * Komponent bocznego paska nawigacyjnego (Sidebar).
- * 
- * Funkcjonalności:
- * - Generuje dynamiczne drzewo nawigacji na podstawie tablicy `navItems`.
- * - Obsługuje zwijanie i rozwijanie sekcji (wielopoziomowe menu).
- * - Prezentuje szybkie linki do osobnych aplikacji (Kiosk, Mobile, Kasa).
- * - Renderuje profil zalogowanego użytkownika (inicjały, ranga) wraz z opcją wylogowania.
- * 
- * @param {Object} props - Właściwości komponentu
- * @param {Array} props.navItems - Struktura nawigacji (obiekty ze ścieżkami i ikonami)
- * @param {boolean} props.collapsed - Stan zwinięcia całego paska (zminimalizowany / pełny)
- * @param {Function} props.onToggle - Funkcja wywoływana przy żądaniu przełączenia stanu zwinięcia
- */
+/* Komponent renderujący boczny pasek nawigacyjny z wielopoziomowym menu, szybkimi linkami oraz profilem pracownika */
 function Sidebar({ navItems, collapsed, onToggle }) {
+  /* Hook służący do programowej zmiany ścieżki routingu */
   const navigate = useNavigate();
+  
+  /* Hook przechowujący aktualną ścieżkę w przeglądarce */
   const location = useLocation();
+  
+  /* Zmienne autoryzacyjne: dane zalogowanego pracownika oraz funkcja wylogowywania */
   const { profile, logout } = useAuth();
+  
+  /* Stan mapujący ID węzłów menu na ich rozwinięcie/zwinięcie */
   const [expandedItems, setExpandedItems] = useState({});
 
+  /* Funkcja memoizowana do przełączania stanu rozwinięcia konkretnego elementu nadrzędnego w menu */
   const toggleExpand = useCallback((id) => {
     setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
   }, []);
 
+  /* Funkcja sprawdzająca czy dany element menu prowadzi do aktualnie odwiedzanej podstrony */
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
@@ -205,57 +197,21 @@ function Sidebar({ navItems, collapsed, onToggle }) {
   );
 }
 
-/**
- * Komponent górnego paska narzędziowego (TopBar).
- * 
- * Znajduje się na samej górze interfejsu (nagłówek).
- * Zawiera:
- * - Globalną, zunifikowaną wyszukiwarkę systemową.
- * - Moduł powiadomień i dzwonek alertów (ze wskaźnikiem nieprzeczytanych powiadomień).
- * - Przycisk włączania tzw. "Trybu kryzysowego".
- * 
- * @param {Object} props - Właściwości komponentu
- * @param {Function} props.onMenuToggle - Funkcja do przełączania widoczności paska bocznego (na urządzeniach mobilnych)
- */
-function TopBar({ onMenuToggle }) {
-  const { profile } = useAuth();
-
-  return (
-    <header className="app-topbar">
-      <div className="topbar-left">
-        <button className="topbar-btn" onClick={onMenuToggle} style={{ display: 'none' }}>
-          <FiMenu size={20} />
-        </button>
-        <div className="topbar-search">
-          <FiSearch />
-          <input type="text" placeholder="Szukaj produktów, klientów, zamówień..." />
-        </div>
-      </div>
-      <div className="topbar-right">
-        <button className="topbar-btn">
-          <FiBell size={18} />
-          <span className="notification-dot"></span>
-        </button>
-        <button className="topbar-btn" title="Tryb kryzysowy" style={{ color: 'var(--text-muted)' }}>
-          <FiAlertTriangle size={18} />
-        </button>
-      </div>
-    </header>
-  );
-}
-
-/**
- * Główny kontener (Layout) całej aplikacji dla zalogowanego pracownika.
- * 
- * Opis:
- * Jest to "szkielet", który umieszcza pasek boczny (`Sidebar`) i pasek górny (`TopBar`), 
- * a w ich środku (jako zawartość główna `app-content`) osadza router React (`Routes`).
- * Właśnie w tym komponencie zdefiniowane są wszystkie **Drogi (Routes)** i ścieżki
- * prowadzące do poszczególnych widoków całego systemu klasy ERP (finanse, magazyn, pracownicy).
- */
+/* Główny kontener strukturalny systemu dla zalogowanego użytkownika definiujący wszystkie kluczowe routingi (widoki ERP) */
 function AppLayout() {
-  const { navItems } = useAuth();
+  /* Stan autoryzacji używany do odczytania roli bieżącego pracownika */
+  const { profile } = useAuth();
+  
+  /* Pobranie globalnych ustawień w celu nasłuchiwania na ewentualne zmiany uprawnień w konfiguracji */
+  const { shopSettings } = useStore();
+  
+  /* Zmienna memoizowana zawierająca wygenerowaną strukturę elementów nawigacji dostępnych dla danej roli */
+  const navItems = useMemo(() => getNavItems(profile?.role), [profile?.role, shopSettings?.role_permissions]);
+
+  /* Stan określający widoczność i rozmiar bocznego paska nawigacyjnego (Sidebar) */
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  /* Funkcja do nawigowania programowego w ramach react-router */
   const navigate = useNavigate();
 
   return (
@@ -268,12 +224,12 @@ function AppLayout() {
       <main className="app-main" style={{
         marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)'
       }}>
-        <TopBar onMenuToggle={() => setSidebarCollapsed(p => !p)} />
+
         <div className="app-content">
           <Routes>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/pos" element={<Navigate to="/pos/history" replace />} />
-            <Route path="/pos/history" element={<POSHistoryPage />} />
+            <Route path="/pos" element={<Navigate to="/sales/pos-history" replace />} />
+            <Route path="/sales/pos-history" element={<POSHistoryPage />} />
 
             {/* Sales */}
             <Route path="/sales/orders" element={<OrdersPage />} />
@@ -329,17 +285,9 @@ function AppLayout() {
   );
 }
 
-/**
- * Główny komponent wejściowy dla platformy administracyjnej i zarządzania biznesem.
- * 
- * Działanie:
- * 1. Sprawdza status uwierzytelnienia z kontekstu `AuthContext`.
- * 2. Prezentuje ekran ładowania podczas autoryzacji sesji.
- * 3. Jeżeli użytkownik nie jest autoryzowany -> wczytuje widok logowania (`LoginPage`).
- * 4. Jeżeli logowanie przebiegło pomyślnie -> osadza `StoreProvider` z głównymi danymi 
- *    stanu aplikacji, po czym ładuje docelowy układ `AppLayout`.
- */
+/* Nadrzędny komponent weryfikujący sesję i decydujący pomiędzy widokiem logowania a załadowaniem reszty systemu */
 export default function App() {
+  /* Stany pochodzące z kontekstu autoryzacji informujące o ważności sesji oraz procesie jej wczytywania */
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {

@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 export default function AdditionalSettingsPage() {
   const { categories, saveCategory, deleteCategory, shopSettings, updateShopSettings } = useStore();
-  
+
   // Category management
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
@@ -93,7 +93,7 @@ export default function AdditionalSettingsPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
-        
+
         {/* Integracje */}
         <div className="card">
           <div className="flex-between mb-16">
@@ -105,34 +105,34 @@ export default function AdditionalSettingsPage() {
 
           <div className="input-group mb-16">
             <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FiKey /> Token KSeF (Krajowy System e-Faktur)</label>
-            <input 
-              className="input font-mono text-sm" 
-              type="password" 
-              value={integrations.ksef} 
-              onChange={F_INT('ksef')} 
-              placeholder="Wprowadź token autoryzacyjny KSeF..." 
+            <input
+              className="input font-mono text-sm"
+              type="password"
+              value={integrations.ksef}
+              onChange={F_INT('ksef')}
+              placeholder="Wprowadź token autoryzacyjny KSeF..."
             />
           </div>
 
           <div className="input-group mb-16">
             <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FiMessageCircle /> Bramka SMS (API Key)</label>
-            <input 
-              className="input font-mono text-sm" 
-              type="password" 
-              value={integrations.sms} 
-              onChange={F_INT('sms')} 
-              placeholder="Klucz API bramki SMS (np. SMSAPI)..." 
+            <input
+              className="input font-mono text-sm"
+              type="password"
+              value={integrations.sms}
+              onChange={F_INT('sms')}
+              placeholder="Klucz API bramki SMS (np. SMSAPI)..."
             />
           </div>
 
           <div className="input-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FiBriefcase /> Integracja Bankowa (Open Banking API)</label>
-            <input 
-              className="input font-mono text-sm" 
-              type="password" 
-              value={integrations.bank} 
-              onChange={F_INT('bank')} 
-              placeholder="Wprowadź token API dla Twojego banku..." 
+            <input
+              className="input font-mono text-sm"
+              type="password"
+              value={integrations.bank}
+              onChange={F_INT('bank')}
+              placeholder="Wprowadź token API dla Twojego banku..."
             />
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function AdditionalSettingsPage() {
               <FiPlus size={14} /> Nowa kategoria
             </button>
           </div>
-          
+
           <div className="table-container" style={{ maxHeight: 300, overflowY: 'auto' }}>
             <table>
               <thead>
@@ -185,9 +185,9 @@ export default function AdditionalSettingsPage() {
 
       </div>
 
-      <Modal 
-        isOpen={showModal} 
-        onClose={() => setShowModal(false)} 
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
         title={editingCategory ? 'Edytuj kategorię' : 'Dodaj kategorię'}
         footer={
           <>
@@ -198,21 +198,21 @@ export default function AdditionalSettingsPage() {
       >
         <div className="input-group mb-16">
           <label>Nazwa kategorii *</label>
-          <input 
-            className="input" 
-            value={form.name} 
-            onChange={e => setForm(p => ({ ...p, name: e.target.value }))} 
-            placeholder="np. Elektronarzędzia" 
+          <input
+            className="input"
+            value={form.name}
+            onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+            placeholder="np. Elektronarzędzia"
             autoFocus
           />
         </div>
         <div className="input-group">
           <label>Kolejność wyświetlania (im niższa wartość, tym wyżej)</label>
-          <input 
-            className="input" 
-            type="number" 
-            value={form.sort_order} 
-            onChange={e => setForm(p => ({ ...p, sort_order: e.target.value }))} 
+          <input
+            className="input"
+            type="number"
+            value={form.sort_order}
+            onChange={e => setForm(p => ({ ...p, sort_order: e.target.value }))}
           />
         </div>
       </Modal>

@@ -7,6 +7,7 @@ import { pl } from 'date-fns/locale';
 
 const DAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
 
+/* Harmonogram graficzny dostawców (stałe okna dostaw) nałożony na kalendarz tygodniowy - ułatwia planowanie pracy magazynierów */
 export default function DeliverySchedulePage() {
   const { isSupabase } = useStore();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -18,11 +19,11 @@ export default function DeliverySchedulePage() {
   
   const weekDays = useMemo(() => {
     return Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
-  }, [weekStart]);
+  }, [weekStart.getTime()]);
 
   useEffect(() => {
     fetchScheduleData();
-  }, [isSupabase, weekStart]);
+  }, [isSupabase, weekStart.getTime()]);
 
   async function fetchScheduleData() {
     if (!isSupabase) return;

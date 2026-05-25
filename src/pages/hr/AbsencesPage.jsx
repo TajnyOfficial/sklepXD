@@ -7,15 +7,7 @@ const DEMO = [];
 const TYPES = { vacation: 'Urlop wypocz.', sick_leave: 'L4', on_demand: 'Na żądanie', personal: 'Okolicznościowy', other: 'Inny' };
 const EMPTY = { name: '', type: 'vacation', from: '', to: '', note: '' };
 
-/**
- * Widok modułu AbsencesPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Absences.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony AbsencesPage
- */
+/* Moduł ewidencji nieobecności pracowniczych: urlopy, zwolnienia (L4), wnioski na żądanie. Zawiera prosty workflow akceptacji (Zatwierdź/Odrzuć) */
 export default function AbsencesPage() {
   const [absences, setAbsences] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);

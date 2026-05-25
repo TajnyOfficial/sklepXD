@@ -8,21 +8,15 @@ import {
   FiArrowUpRight, FiArrowDownRight
 } from 'react-icons/fi';
 
-/**
- * Ekran powitalny panelu administracyjnego (Dashboard).
- * 
- * Prezentuje kluczowe statystyki z całego dnia roboczego:
- * - Dzienny obrót, ilość zrealizowanych transakcji POS.
- * - Alerty dotyczące niskich stanów magazynowych (z możliwością kliknięcia).
- * - Ostatnie operacje sprzedażowe (podgląd na żywo).
- * - Zależny od ról (widoczność sekcji kontrolowana przez RBAC).
- * 
- * @returns {JSX.Element} Widok ekranu głównego (Dashboard)
- */
+/* Ekran powitalny panelu administracyjnego (Dashboard) wyświetlający dzisiejsze statystyki i ostrzeżenia magazynowe */
 export default function DashboardPage() {
+  /* Odczytanie z głównego stanu sklepu list: produktów, transakcji z kasy POS oraz dokumentów, a także helpera do sprawdzania braków na magazynie */
   const { products, transactions, documents, getLowStockProducts } = useStore();
+  
+  /* Pobranie profilu aktualnego użytkownika wraz z funkcją weryfikującą dostęp na bazie ról (RBAC) */
   const { profile, can } = useAuth();
 
+  /* Filtrowanie wszystkich transakcji tylko do tych wygenerowanych dzisiaj w celu stworzenia statystyk dobowych */
   const todayTransactions = transactions.filter(t => {
     if (!t.created_at) return false;
     const localTxDate = new Date(t.created_at).toLocaleDateString('en-CA');
@@ -30,8 +24,13 @@ export default function DashboardPage() {
     return localTxDate === localToday;
   });
 
+  /* Zsumowanie łącznego dochodu (Obrót dzisiaj) z przefiltrowanych transakcji dobowych */
   const todayRevenue = todayTransactions.reduce((sum, t) => sum + (parseFloat(t.total) || 0), 0);
+  
+  /* Odczyt ilości wszystkich zarejestrowanych zwrotów towarowych z bazy dokumentów */
   const totalReturns = documents ? documents.filter(d => d.type === 'return').length : 0;
+  
+  /* Pobranie tablicy produktów, których aktualny stan (stock_qty) zszedł poniżej określonego minimum (min_stock) */
   const lowStock = getLowStockProducts();
 
   return (
@@ -151,7 +150,7 @@ export default function DashboardPage() {
                   padding: '10px 12px',
                   background: 'var(--bg-tertiary)',
                   borderRadius: 'var(--radius-md)',
-                  borderLeft: `3px solid ${p.stock_qty <= 0 ? 'var(--danger)' : 'var(--warning)'}`
+                  border: ` 1px solid ${p.stock_qty <= 0 ? 'var(--danger)' : 'var(--warning)'}`
                 }}>
                   <div>
                     <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>{p.name}</div>

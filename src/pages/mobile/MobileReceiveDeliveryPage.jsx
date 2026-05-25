@@ -4,7 +4,9 @@ import { useStore } from '../../contexts/StoreContext';
 import { supabase } from '../../lib/supabase';
 import { FiArrowLeft, FiCheck, FiSearch, FiPackage } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import MobileHeader from '../../components/mobile/MobileHeader';
 
+/* Interfejs weryfikacji i odbierania dostawy (PZ) na urządzeniu mobilnym. Pozwala wpisać faktyczną odebraną ilość per produkt i zgłosić ewentualną rozbieżność */
 export default function MobileReceiveDeliveryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -87,8 +89,9 @@ export default function MobileReceiveDeliveryPage() {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--bg)' }}>
-      {/* Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--bg-primary)', fontFamily: 'var(--font-sans)', color: 'var(--text-heading)' }}>
+      <MobileHeader title="Sklep Mobile" subtitle="Odbiór Dostawy" />
+      {/* Sub-Header */}
       <div style={{ 
         padding: '16px 12px', background: 'var(--bg-card)', 
         borderBottom: '1px solid var(--border-primary)',

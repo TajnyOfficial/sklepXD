@@ -26,31 +26,33 @@ function injectScanAnimation() {
   document.head.appendChild(style);
 }
 
-/**
- * Główny interfejs skanowania kodów (wizjer kamery).
- * 
- * Ostrzeżenie dotyczące cyklu życia (Lifecycle): Komponent MUSI wywołać `stopCamera()` 
- * przy odmontowywaniu, w przeciwnym wypadku na telefonach z iOS wciąż będzie się 
- * palić zielona kropka użycia aparatu w tle.
- * 
- * @param {Object} props - Właściwości komponentu
- * @param {Function} props.onConfirm - Wywołanie zwrotne (Callback), otrzymuje string po poprawnym odczycie kodu
- * @param {string} [props.title='Skanuj kod kreskowy'] - Etykieta górnego paska (TopBar)
- * @param {Function} [props.onClose] - Opcjonalna funkcja zamykająca (np. skaner używany jako Modal)
- */
+/* Główny komponent skanera kodów kreskowych zarządzający cyklem życia strumienia wideo z kamery urządzenia */
 export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy', onClose }) {
+  /* Stan przechowujący aktualnie zeskanowany lub wpisany kod kreskowy */
   const [code, setCode]               = useState('');
-  const [cameraError, setCameraError] = useState(null);  // null | 'permission' | 'not_found' | 'in_use' | 'not_supported' | 'unknown'
+  
+  /* Stan określający rodzaj błędu podczas inicjalizacji kamery (brak uprawnień, brak kamery, itp.) */
+  const [cameraError, setCameraError] = useState(null);
+  
+  /* Flaga informująca, czy aktualnie trwa nasłuch obrazu i dekodowanie wideo w poszukiwaniu kodu */
   const [isScanning, setIsScanning]   = useState(false);
-  const [scanned, setScanned]         = useState(false); // true po pomyślnym odczycie
+  
+  /* Flaga określająca, czy w danej sesji udało się pomyślnie zdekodować kod kreskowy */
+  const [scanned, setScanned]         = useState(false);
+  
+  /* Stan określający czy ręczne pole do wpisywania kodu posiada aktualnie focus użytkownika */
   const [inputFocused, setInputFocused] = useState(false);
 
+  /* Referencja do elementu <video> w DOM służąca do wyświetlania obrazu na żywo z kamery */
   const videoRef  = useRef(null);
+  
+  /* Referencja do dekodera zXing przetwarzającego poszczególne klatki wideo na wartości tekstowe */
   const readerRef = useRef(null);
+  
+  /* Referencja do aktywnego strumienia multimedialnego (MediaStream), używana do jego zamykania przy wychodzeniu z komponentu */
   const streamRef = useRef(null);
 
-  // ── Sprzątanie zasobów kamery ─────────────────────────────────────────────
-  // Kluczowe: bez tego wskaźnik kamery w przeglądarce nie gaśnie
+  /* Funkcja zwalniająca i wyłączająca dostęp do kamery urządzenia (czyszczenie torów MediaStream) */
   const stopCamera = useCallback(() => {
     // 1. Zatrzymaj reader (pętla dekodowania)
     if (readerRef.current) {
@@ -69,7 +71,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
     setIsScanning(false);
   }, []);
 
-  // ── Inicjalizacja kamery i skanowania ────────────────────────────────────
+  /* Funkcja asynchroniczna inicjująca dostęp do fizycznego aparatu oraz pętlę ciągłego skanowania w zXing */
   const startCamera = useCallback(async () => {
     setCameraError(null);
     setScanned(false);
@@ -181,16 +183,18 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
     };
   }, [startCamera, stopCamera]);
 
-  // ── Handlery ─────────────────────────────────────────────────────────────
+  /* Funkcja obsługująca zmianę wartości w ręcznym polu wprowadzenia kodu EAN */
   function handleManualInput(e) {
     setCode(e.target.value);
     if (scanned) setScanned(false);
   }
 
+  /* Funkcja resetująca stan udanego skanowania i uruchamiająca kamerę na nowo */
   function handleReset() {
     startCamera();
   }
 
+  /* Funkcja zatwierdzająca zeskanowany lub wpisany kod, wyzwalająca przekazany callback onConfirm */
   function handleConfirm() {
     const trimmed = code.trim();
     if (!trimmed) return;

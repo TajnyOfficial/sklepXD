@@ -11,22 +11,9 @@ import KioskApp from './apps/KioskApp';
 import POSApp from './apps/POSApp';
 import MobileApp from './apps/MobileApp';
 
-/**
- * Główny router (brama wejściowa) dla całej platformy.
- * 
- * Funkcja ta działa jako punkt decyzyjny (router na poziomie najwyższym).
- * Analizuje aktualną ścieżkę URL przeglądarki i na jej podstawie decyduje, 
- * którą główną aplikację (moduł) zamontować w drzewie DOM.
- * 
- * Dostępne ścieżki (drogi):
- * - `/kiosk`  -> Ładuje aplikację trybu Kiosk (rejestracja czasu pracy)
- * - `/pos`    -> Ładuje aplikację kasy fiskalnej/punktu sprzedaży (POS)
- * - `/mobile` -> Ładuje aplikację mobilną (inwentaryzacja)
- * - domyślnie -> Ładuje główną aplikację administracyjną i dashboard (`App.jsx`)
- * 
- * @returns {JSX.Element} Główny węzeł React ładujący odpowiednią aplikację
- */
+/* Główna brama routingu decydująca, którą z sub-aplikacji (Kiosk, POS, Mobile, Panel) załadować na podstawie URL */
 function RootGateway() {
+  /* Aktualna ścieżka z paska adresu przeglądarki */
   const path = window.location.pathname;
 
   if (path.startsWith('/kiosk')) {

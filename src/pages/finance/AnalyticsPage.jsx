@@ -2,28 +2,13 @@ import { formatCurrency } from '../../utils/helpers';
 import { FiTrendingUp, FiBarChart2, FiPieChart, FiUsers, FiDownload } from 'react-icons/fi';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 
-const MONTHLY_DATA = [
-  { month: 'Sty', revenue: 45000, costs: 32000, profit: 13000 },
-  { month: 'Lut', revenue: 52000, costs: 35000, profit: 17000 },
-  { month: 'Mar', revenue: 48000, costs: 31000, profit: 17000 },
-];
+const MONTHLY_DATA = [];
 
-const CATEGORY_MARGIN = [
-  { name: 'Elektronarzędzia', margin: 37.5, revenue: 12000 },
-  { name: 'Farby i lakiery', margin: 40.2, revenue: 8500 },
-  { name: 'Materiały budowlane', margin: 33.8, revenue: 15000 },
-  { name: 'Śruby i złączki', margin: 60.7, revenue: 3200 },
-  { name: 'Elektryka', margin: 38.1, revenue: 6800 },
-  { name: 'Podłogi', margin: 43.3, revenue: 5200 },
-];
+const CATEGORY_MARGIN = [];
 
-const VAT_SUMMARY = { output: 11040, input: 7250, toPay: 3790 };
+const VAT_SUMMARY = { output: 0, input: 0, toPay: 0 };
 
-const SELLER_RANKING = [
-  { name: 'Katarzyna Dąbrowska', sales: 32500, transactions: 45, avgTicket: 722.22 },
-  { name: 'Piotr Wiśniewski', sales: 24800, transactions: 62, avgTicket: 400.00 },
-  { name: 'Anna Nowak', sales: 18200, transactions: 38, avgTicket: 478.95 },
-];
+const SELLER_RANKING = [];
 
 const COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#a855f7'];
 
@@ -37,15 +22,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-/**
- * Widok modułu AnalyticsPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Analytics.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony AnalyticsPage
- */
+/* Zaawansowany moduł analityczny prezentujący dane finansowe (P&L, marże, podatki) w formie interaktywnych wykresów (Recharts) */
 export default function AnalyticsPage() {
   return (
     <div className="page animate-fadeIn">
@@ -103,7 +80,7 @@ export default function AnalyticsPage() {
               <span>VAT naliczony (zakupy)</span>
               <span style={{ fontWeight: 600 }}>{formatCurrency(VAT_SUMMARY.input)}</span>
             </div>
-            <div className="flex-between" style={{ padding: 16, background: 'var(--danger-bg)', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--danger)' }}>
+            <div className="flex-between" style={{ padding: 16, background: 'var(--danger-bg)', borderRadius: 'var(--radius-md)', border: ' 1px solid var(--danger)' }}>
               <span style={{ fontWeight: 600 }}>VAT do zapłaty</span>
               <span style={{ fontWeight: 700, fontSize: '1.25rem', color: 'var(--danger)' }}>{formatCurrency(VAT_SUMMARY.toPay)}</span>
             </div>

@@ -30,15 +30,15 @@ function RegisterSelection() {
   return (
     <div style={{
       height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-      fontFamily: 'Inter, system-ui, sans-serif'
+      background: 'var(--bg-primary)',
+      fontFamily: 'var(--font-sans)'
     }}>
-      <div className="card animate-fadeIn" style={{ width: 500, textAlign: 'center', padding: 56, background: '#1e293b', border: '1px solid #334155', borderRadius: 32, boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}>
-        <div style={{ width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+      <div className="card animate-fadeIn" style={{ width: 500, textAlign: 'center', padding: 56, background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: '4px' }}>
+        <div style={{ width: 64, height: 64, borderRadius: '4px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
           <FiMonitor size={32} color="#fff" />
         </div>
-        <h1 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 800, marginBottom: 12 }}>System POS</h1>
-        <p style={{ color: '#94a3b8', marginBottom: 40, fontSize: '1rem' }}>Wybierz stanowisko kasowe, aby rozpocząć sprzedaż</p>
+        <h1 style={{ color: 'var(--text-heading)', fontSize: '1.8rem', fontWeight: 800, marginBottom: 12 }}>System POS</h1>
+        <p style={{ color: 'var(--text-muted)', marginBottom: 40, fontSize: '1rem' }}>Wybierz stanowisko kasowe, aby rozpocząć sprzedaż</p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
           {registers.map(reg => (
@@ -47,7 +47,7 @@ function RegisterSelection() {
               className="btn btn-secondary"
               style={{
                 height: 140, flexDirection: 'column', gap: 16, fontSize: '1.2rem', fontWeight: 600,
-                background: '#0f172a', border: '1px solid #334155', color: '#f8fafc'
+                background: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)'
               }}
               onClick={() => updatePosSession({ selectedRegister: reg })}
             >
@@ -69,14 +69,59 @@ function RegisterSelection() {
  * @param {string} props.selectedRegister - Nazwa aktualnie wybranego stanowiska kasowego
  */
 function POSPinLogin({ selectedRegister }) {
-  const { updatePosSession, clearPosSession, employees, addPosLog } = useStore();
+  const { updatePosSession, clearPosSession, employees, addPosLog, enforceDeviceLogin } = useStore();
   const [pin, setPin] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e?.preventDefault();
-    if (!employees) return;
-    const employee = employees.find(emp => String(emp.pin) === String(pin) && (emp.active || emp.is_active));
+    if (!pin || pin.length < 4) return;
+
+    let employee = null;
+    
+    // Zapytanie bezpośrednio do bazy danych, aby ominąć problemy z ładowaniem kontekstu
+    if (!!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_ANON_KEY
+      );
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('pin', pin)
+        .single();
+        
+      if (data) {
+        employee = { ...data, name: data.full_name, active: data.is_active };
+      }
+    } else {
+      // Fallback na kontekst dla trybu offline
+      if (employees) {
+        employee = employees.find(emp => String(emp.pin) === String(pin) && (emp.active || emp.is_active));
+      }
+    }
+
     if (employee) {
+      if (!employee.active && !employee.is_active) {
+        toast.error('Konto pracownika jest wyłączone (nieaktywne)');
+        setPin('');
+        return;
+      }
+
+      const allowedRoles = ['admin', 'shift_manager', 'sales_manager', 'cashier'];
+      if (!allowedRoles.includes(employee.role)) {
+        toast.error('Odmowa dostępu: Brak uprawnień do obsługi kasy');
+        setPin('');
+        return;
+      }
+      
+      const authResult = await enforceDeviceLogin(employee.id, 'pos');
+      if (!authResult.success) {
+        toast.error(authResult.error);
+        setPin('');
+        return;
+      }
+
       updatePosSession({ posUser: employee });
       if (addPosLog) {
         addPosLog(
@@ -103,22 +148,22 @@ function POSPinLogin({ selectedRegister }) {
   return (
     <div style={{
       height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-      fontFamily: 'Inter, system-ui, sans-serif'
+      background: 'var(--bg-primary)',
+      fontFamily: 'var(--font-sans)'
     }}>
       <div className="card animate-fadeIn" style={{ width: 420, textAlign: 'center', padding: 56, background: '#1e293b', border: '1px solid #334155', borderRadius: 32, boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}>
-        <div className="badge badge-info mb-16" style={{ fontSize: '0.9rem', padding: '8px 20px', background: '#334155', color: '#6366f1', fontWeight: 700 }}>{selectedRegister}</div>
-        <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, marginBottom: 8 }}>Zaloguj się</h2>
-        <p style={{ color: '#94a3b8', marginBottom: 40 }}>Wprowadź swój PIN kasjera</p>
+        <div className="badge badge-info mb-16" style={{ fontSize: '0.9rem', padding: '8px 20px', background: 'var(--bg-primary)', color: 'var(--info)', fontWeight: 700 }}>{selectedRegister}</div>
+        <h2 style={{ color: 'var(--text-heading)', fontSize: '1.6rem', fontWeight: 800, marginBottom: 8 }}>Zaloguj się</h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: 40 }}>Wprowadź swój PIN kasjera</p>
 
         <form onSubmit={handleLogin}>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginBottom: 32 }}>
             {[0, 1, 2, 3].map(i => (
               <div key={i} style={{
-                width: 20, height: 20, borderRadius: '50%',
-                background: i < pin.length ? '#6366f1' : 'transparent',
-                border: `2px solid ${i < pin.length ? '#6366f1' : '#334155'}`,
-                boxShadow: i < pin.length ? '0 0 12px rgba(99,102,241,0.5)' : 'none',
+                width: 20, height: 20, borderRadius: '4px',
+                background: i < pin.length ? 'var(--accent)' : 'transparent',
+                border: `1px solid ${i < pin.length ? 'var(--accent)' : 'var(--border-primary)'}`,
+                
                 transition: 'all 0.1s'
               }} />
             ))}
@@ -126,14 +171,14 @@ function POSPinLogin({ selectedRegister }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-              <button key={n} type="button" className="btn btn-secondary" style={{ height: 70, fontSize: '1.6rem', fontWeight: 700, background: '#0f172a', border: '1px solid #334155', color: '#f8fafc' }} onClick={() => pressDigit(n)}>{n}</button>
+              <button key={n} type="button" className="btn btn-secondary" style={{ height: 70, fontSize: '1.6rem', fontWeight: 700, background: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }} onClick={() => pressDigit(n)}>{n}</button>
             ))}
-            <button type="button" className="btn btn-ghost" style={{ height: 70, color: '#94a3b8', fontSize: '1.2rem' }} onClick={() => setPin('')}>C</button>
-            <button type="button" className="btn btn-secondary" style={{ height: 70, fontSize: '1.6rem', fontWeight: 700, background: '#0f172a', border: '1px solid #334155', color: '#f8fafc' }} onClick={() => pressDigit('0')}>0</button>
-            <button type="submit" className="btn btn-primary" style={{ height: 70, background: '#4f46e5' }}><FiChevronRight size={24} /></button>
+            <button type="button" className="btn btn-ghost" style={{ height: 70, color: 'var(--text-muted)', fontSize: '1.2rem' }} onClick={() => setPin('')}>C</button>
+            <button type="button" className="btn btn-secondary" style={{ height: 70, fontSize: '1.6rem', fontWeight: 700, background: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }} onClick={() => pressDigit('0')}>0</button>
+            <button type="submit" className="btn btn-primary" style={{ height: 70, background: 'var(--accent)' }}><FiChevronRight size={24} /></button>
           </div>
 
-          <button type="button" className="btn btn-ghost w-full" style={{ color: '#64748b' }} onClick={() => clearPosSession()}>Zmień stanowisko</button>
+          <button type="button" className="btn btn-ghost w-full" style={{ color: 'var(--text-muted)' }} onClick={() => clearPosSession()}>Zmień stanowisko</button>
         </form>
       </div>
     </div>
@@ -155,10 +200,10 @@ function POSTopbar({ session }) {
 
   return (
     <header style={{
-      background: '#0f172a',
+      background: 'var(--bg-sidebar)',
       padding: '0 32px',
       height: 64,
-      borderBottom: '1px solid #1e293b',
+      borderBottom: '1px solid var(--border-primary)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -166,21 +211,21 @@ function POSTopbar({ session }) {
     }}>
       <div style={{ display: 'flex', gap: 40, alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900 }}>S</div>
+          <div style={{ width: 32, height: 32, borderRadius: '4px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900 }}>S</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Kasjer</span>
-            <span style={{ fontWeight: 700, color: '#f8fafc', fontSize: '1rem' }}>{session.posUser?.name || session.posUser?.full_name}</span>
+            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Kasjer</span>
+            <span style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '1rem' }}>{session.posUser?.name || session.posUser?.full_name}</span>
           </div>
         </div>
 
-        <nav style={{ display: 'flex', gap: 8, background: '#1e293b', padding: 6, borderRadius: 12 }}>
+        <nav style={{ display: 'flex', gap: 8, background: 'var(--bg-primary)', padding: 6, borderRadius: '4px' }}>
           <button
             className={`btn ${location.pathname === '/' ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => navigate('/')}
             style={{
-              padding: '8px 20px', fontSize: '0.9rem', borderRadius: 8,
+              padding: '8px 20px', fontSize: '0.9rem', borderRadius: '4px',
               background: location.pathname === '/' ? '#4f46e5' : 'transparent',
-              color: location.pathname === '/' ? '#fff' : '#94a3b8'
+              color: location.pathname === '/' ? 'var(--text-heading)' : 'var(--text-muted)'
             }}
           >
             <FiShoppingCart size={16} /> Kasa
@@ -189,9 +234,9 @@ function POSTopbar({ session }) {
             className={`btn ${location.pathname === '/cash' ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => navigate('/cash')}
             style={{
-              padding: '8px 20px', fontSize: '0.9rem', borderRadius: 8,
+              padding: '8px 20px', fontSize: '0.9rem', borderRadius: '4px',
               background: location.pathname === '/cash' ? '#4f46e5' : 'transparent',
-              color: location.pathname === '/cash' ? '#fff' : '#94a3b8'
+              color: location.pathname === '/cash' ? 'var(--text-heading)' : 'var(--text-muted)'
             }}
           >
             <FiDollarSign size={16} /> Szuflada
@@ -201,10 +246,10 @@ function POSTopbar({ session }) {
 
       <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase' }}>Stanowisko</div>
-          <div style={{ fontWeight: 700, color: '#f8fafc' }}>{session.selectedRegister}</div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Stanowisko</div>
+          <div style={{ fontWeight: 700, color: 'var(--text-heading)' }}>{session.selectedRegister}</div>
         </div>
-        <button className="btn btn-ghost" style={{ color: '#f87171', border: '1px solid #7f1d1d', borderRadius: 10, padding: '8px 16px' }} onClick={() => {
+        <button className="btn btn-ghost" style={{ color: 'var(--danger)', border: '1px solid var(--danger-border)', borderRadius: '4px', padding: '8px 16px' }} onClick={() => {
           if (confirm('Czy chcesz się wylogować?')) logoutPosUser();
         }}>
           <FiLogOut size={18} /> Wyloguj
@@ -231,7 +276,7 @@ function POSInner() {
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', fontFamily: 'var(--font-sans)' }}>
       <POSTopbar session={session} />
       <main style={{ flex: 1, paddingTop: 64, overflowY: 'auto' }}>
         <Routes>
@@ -244,10 +289,7 @@ function POSInner() {
   );
 }
 
-/**
- * Główny komponent (root) aplikacji POS.
- * Podłącza dostawców stanu, autoryzacji oraz definiuje nadrzędny router (basename="/pos").
- */
+/* Punkt startowy (Root) stanowiska kasowego POS. Podłącza dostawców stanu, autoryzację PIN i definiuje izolowany router (basename="/pos") */
 export default function POSApp() {
   return (
     <AuthProvider>
@@ -258,8 +300,8 @@ export default function POSApp() {
             position="top-right"
             toastOptions={{
               style: {
-                background: '#0f172a', color: '#f8fafc',
-                border: '1px solid #1e293b', borderRadius: '12px', fontSize: '0.875rem',
+                background: 'var(--bg-sidebar)', color: 'var(--text-heading)',
+                border: '1px solid var(--border-primary)', borderRadius: '4px', fontSize: '0.875rem',
               },
             }}
           />

@@ -75,18 +75,12 @@ const PERMISSION_LABELS = {
   'kiosk.access': 'Dostęp do kiosku RCP (kod PIN)'
 };
 
-/**
- * Widok modułu RolesPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Roles.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony RolesPage
- */
+/* Zaawansowany panel administracyjny do kompleksowego zarządzania Rolami (RBAC) i dynamicznego przypisywania poszczególnych uprawnień w systemie */
 export default function RolesPage() {
+  /* Funkcja z kontekstu pozwalająca na globalne zaktualizowanie macierzy ról i uprawnień w głównej bazie danych (Supabase) */
   const { updateRolePermissions } = useStore();
 
+  /* Lokalne kopie słowników: definicje kluczy ról, ludzkie nazwy ról, oraz aktualne mapowania uprawnień do danej roli */
   const [roles, setRoles] = useState(() => ({ ...ROLES }));
   const [labels, setLabels] = useState(() => ({ ...ROLE_LABELS }));
   const [permissions, setPermissions] = useState(() => {
@@ -97,19 +91,22 @@ export default function RolesPage() {
     return copy;
   });
 
+  /* Identyfikator roli, której "karta" jest w danej chwili otwarta w celu podglądu szczegółów i pól wyboru */
   const [expandedRole, setExpandedRole] = useState(null);
   
-  // Modals state
+  /* Stany obsługujące nakładki modalne (Modal) używane do tworzenia nowej roli (wpisywanie nazwy i kodu) */
   const [showAddModal, setShowAddModal] = useState(false);
   const [newRoleName, setNewRoleName] = useState('');
   const [newRoleCode, setNewRoleCode] = useState('');
 
+  /* Stany obsługujące nakładki modalne (Modal) używane do edytowania istniejącej roli */
   const [editRoleKey, setEditRoleKey] = useState(null);
   const [editRoleName, setEditRoleName] = useState('');
 
-  // Critical built-in roles that cannot be deleted
+  /* Tablica ról wbudowanych w system, które objęte są ścisłą ochroną (nie można ich usunąć, a admin ma nałożoną niemodyfikowalność) */
   const criticalRoles = ['admin', 'shift_manager', 'cashier'];
 
+  /* Handler służący do odznaczania/zaznaczania i asynchronicznego zapisywania pojedynczego uprawnienia dla określonej roli */
   async function handleTogglePermission(roleKey, permValue) {
     if (roleKey === 'admin') {
       toast.error('Rola Administratora posiada pełne i niemodyfikowalne uprawnienia.');
@@ -134,6 +131,7 @@ export default function RolesPage() {
     toast.success('Uprawnienie zaktualizowane pomyślnie!', { duration: 1500 });
   }
 
+  /* Helper pozwalający za pomocą jednego kliknięcia nadać/zabrać cały zestaw uprawnień danej kategorii tematycznej */
   async function handleToggleAllInGroup(roleKey, groupName, permList) {
     if (roleKey === 'admin') {
       toast.error('Rola Administratora posiada pełne i niemodyfikowalne uprawnienia.');
@@ -164,6 +162,7 @@ export default function RolesPage() {
     toast.success(`Grupa "${groupName}" zaktualizowana!`, { duration: 1500 });
   }
 
+  /* Funkcja odpowiedzialna za rejestrację całkowicie nowej, niestandardowej roli w systemie i odświeżenie konfiguracji */
   async function handleAddRole(e) {
     e.preventDefault();
     const code = newRoleCode.trim().toLowerCase().replace(/\s+/g, '_');
@@ -207,6 +206,7 @@ export default function RolesPage() {
     toast.success(`Rola "${name}" została pomyślnie dodana!`);
   }
 
+  /* Funkcja odpowiedzialna za edycję etykiety dla wybranej wariacji roli (nie dotyka kodu bazowego) */
   async function handleEditRole(e) {
     e.preventDefault();
     const name = editRoleName.trim();
@@ -225,6 +225,7 @@ export default function RolesPage() {
     toast.success('Nazwa roli zaktualizowana!');
   }
 
+  /* Funkcja obsługująca bezpieczne usunięcie wybranej roli z systemu, pomijająca krytyczne definicje wbudowane (criticalRoles) */
   async function handleDeleteRole(roleKey) {
     if (criticalRoles.includes(roleKey)) {
       toast.error(`Rola systemowa "${labels[roleKey]}" nie może zostać usunięta.`);

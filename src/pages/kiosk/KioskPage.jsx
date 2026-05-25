@@ -1,12 +1,3 @@
-/**
- * Interfejs terminala Kiosku (Rejestracja Czasu Pracy).
- * 
- * Ekran przeznaczony stricte pod tablety zamontowane na stałe przy wejściu do firmy.
- * Posiada wbudowany duży zegar czasu rzeczywistego i dedykowaną klawiaturę numeryczną
- * do wpisywania PIN-u w celu zarejestrowania godziny rozpoczęcia/zakończenia pracy.
- * 
- * @returns {JSX.Element}
- */
 import { useState, useEffect } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import toast from 'react-hot-toast';
@@ -24,10 +15,10 @@ function LiveClock() {
 
   return (
     <div style={{ textAlign: 'center', marginBottom: 32 }}>
-      <div style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', fontWeight: 700, letterSpacing: '-0.02em', color: '#f8fafc', lineHeight: 1 }}>
+      <div style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-heading)', lineHeight: 1 }}>
         {timeStr}
       </div>
-      <div style={{ fontSize: '1rem', color: '#64748b', marginTop: 6, textTransform: 'capitalize' }}>
+      <div style={{ fontSize: '1rem', color: 'var(--text-muted)', marginTop: 6, textTransform: 'capitalize' }}>
         {dateStr}
       </div>
     </div>
@@ -48,11 +39,11 @@ function PinDisplay({ value }) {
           key={key}
           style={{
             width: 18, height: 18,
-            borderRadius: '50%',
-            background: filled ? '#6366f1' : 'transparent',
-            border: `2px solid ${filled ? '#6366f1' : '#334155'}`,
+            borderRadius: '4px',
+            background: filled ? 'var(--accent)' : 'transparent',
+            border: `1px solid ${filled ? 'var(--accent)' : 'var(--border-primary)'}`,
             transition: 'all 0.15s',
-            boxShadow: filled ? '0 0 10px rgba(99,102,241,0.5)' : 'none',
+            
           }}
         />
       ))}
@@ -72,11 +63,11 @@ function NumKey({ label, sub, onClick, danger, wide }) {
         gridColumn: wide ? 'span 2' : undefined,
         padding: '22px 8px',
         background: danger
-          ? (pressed ? '#7f1d1d' : '#1c1917')
-          : (pressed ? '#4338ca' : '#1e293b'),
-        border: `1px solid ${danger ? '#7f1d1d' : pressed ? '#6366f1' : '#334155'}`,
-        borderRadius: 14,
-        color: danger ? '#f87171' : '#f8fafc',
+          ? (pressed ? 'var(--danger)' : 'transparent')
+          : (pressed ? 'var(--accent)' : 'transparent'),
+        border: `1px solid ${danger ? 'var(--danger)' : pressed ? 'var(--accent)' : 'var(--border-primary)'}`,
+        borderRadius: '4px',
+        color: danger ? 'var(--danger)' : 'var(--text-heading)',
         fontSize: '1.5rem',
         fontWeight: 700,
         cursor: 'pointer',
@@ -90,19 +81,21 @@ function NumKey({ label, sub, onClick, danger, wide }) {
       }}
     >
       {label}
-      {sub && <span style={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 400, letterSpacing: '0.05em' }}>{sub}</span>}
+      {sub && <span style={{ fontSize: '0.55rem', color: 'var(--text-muted)', fontWeight: 400, letterSpacing: '0.05em' }}>{sub}</span>}
     </button>
   );
 }
 
 // ── Status po wpisaniu PIN ────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  idle: { bg: '#111827', color: '#f8fafc', icon: '', text: '' },
-  checking: { bg: '#1e293b', color: '#94a3b8', icon: '⏳', text: 'Weryfikacja...' },
-  success: { bg: '#064e3b', color: '#34d399', icon: '✅', text: 'Witaj!' },
-  error: { bg: '#7f1d1d', color: '#fca5a5', icon: '❌', text: 'Błąd' },
+  idle: { bg: 'var(--bg-primary)', color: 'var(--text-primary)', icon: '', text: '' },
+  checking: { bg: 'var(--bg-card)', color: 'var(--text-muted)', icon: '⏳', text: 'Weryfikacja...' },
+  success_in:  { bg: 'var(--success-bg)', color: 'var(--success)', icon: '✅', text: 'Witaj!' },
+  success_out: { bg: 'var(--info-bg)', color: 'var(--info)', icon: '👋', text: 'Żegnaj!' },
+  error: { bg: 'var(--danger-bg)', color: 'var(--danger)', icon: '❌', text: 'Błąd' },
 };
 
+/* Statyczny ekran powitalny terminala (Rejestracja Czasu Pracy) z wbudowanym zegarem i klawiaturą PIN umożliwiającą rozpoczęcie oraz zakończenie zmiany pracownika */
 export default function KioskPage() {
   const { clockInOutEmployee } = useStore();
   const [pin, setPin] = useState('');
@@ -122,7 +115,8 @@ export default function KioskPage() {
     try {
       const result = await clockInOutEmployee(pin);
       const { employee, type } = result;
-      setStatus('success');
+      const newStatus = type === 'clock_in' ? 'success_in' : 'success_out';
+      setStatus(newStatus);
       setEmpName(`${employee.name} — ${type === 'clock_in' ? '▶ Wejście' : '⏹ Wyjście'}`);
       setTimeout(() => { setStatus('idle'); setPin(''); setEmpName(''); }, 4000);
     } catch (err) {
@@ -136,7 +130,7 @@ export default function KioskPage() {
   const pressBackspace = () => setPin(p => p.slice(0, -1));
   const pressClear = () => setPin('');
 
-  const statusCfg = STATUS_CONFIG[status];
+  const statusCfg = STATUS_CONFIG[status] || STATUS_CONFIG['idle'];
 
   return (
     <div style={{
@@ -146,13 +140,13 @@ export default function KioskPage() {
       alignItems: 'center', justifyContent: 'center',
       padding: '20px 16px',
       transition: 'background 0.4s',
-      fontFamily: 'Inter, system-ui, sans-serif',
+      fontFamily: 'var(--font-sans)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', color: '#fff' }}>S</div>
+        <div style={{ width: 44, height: 44, borderRadius: '4px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', color: '#fff' }}>S</div>
         <div>
-          <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '1.1rem' }}>SklepXD HR</div>
-          <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Terminal rejestracji czasu pracy</div>
+          <div style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '1.1rem' }}>SklepXD HR</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Terminal rejestracji czasu pracy</div>
         </div>
       </div>
 
@@ -160,20 +154,20 @@ export default function KioskPage() {
 
       <div style={{
         width: '100%', maxWidth: 360,
-        background: '#0f172a', borderRadius: 24,
-        border: `1px solid ${status === 'error' ? '#7f1d1d' : status === 'success' ? '#14532d' : '#1e293b'}`,
+        background: 'var(--bg-card)', borderRadius: '4px',
+        border: `1px solid ${status === 'error' ? 'var(--danger)' : status === 'success' ? 'var(--success)' : 'var(--border-primary)'}`,
         padding: '28px 24px 24px',
-        boxShadow: '0 12px 48px rgba(0,0,0,0.5)',
+        
       }}>
         {status !== 'idle' ? (
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>{statusCfg.icon}</div>
             <div style={{ color: statusCfg.color, fontWeight: 600, fontSize: '1.1rem' }}>{status === 'error' ? errorMsg : statusCfg.text}</div>
-            {empName && <div style={{ color: '#94a3b8', fontSize: '0.95rem', marginTop: 8 }}>{empName}</div>}
+            {empName && <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginTop: 8 }}>{empName}</div>}
           </div>
         ) : (
           <>
-            <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.8rem', marginBottom: 16, textTransform: 'uppercase' }}>Wpisz PIN</div>
+            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: 16, textTransform: 'uppercase' }}>Wpisz PIN</div>
             <PinDisplay value={pin} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
               {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => <NumKey key={d} label={d} onClick={() => pressDigit(d)} />)}

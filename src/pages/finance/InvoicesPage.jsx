@@ -8,17 +8,12 @@ import { InvoiceDownloadBtn } from '../../components/Invoice/InvoiceDownloadBtn'
 
 const EMPTY = { customer: '', nip: '', net: '', vat_rate: '23', due_days: '14', items: [{ name: '', qty: '1', price: '' }] };
 
-/**
- * Widok modułu InvoicesPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Invoices.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony InvoicesPage
- */
+/* Rozbudowany moduł ewidencji i wystawiania Faktur VAT: integruje bazę dokumentów, wysyłkę e-mail i generowanie PDF */
 export default function InvoicesPage() {
+  /* Odczyt konfiguracji firmy (do PDF) oraz funkcji operujących na dokumentach finansowych */
   const { shopSettings, documents = [], saveDocument, updateDocumentStatus, addPosLog, profile } = useStore();
+  
+  /* Filtrowanie i normalizacja danych - wyciągamy tylko faktury z ogólnej puli dokumentów i wyrównujemy ich strukturę */
   const invoices = documents.filter(d => d.type === 'invoice' || d.id?.startsWith('FV') || d.document_number?.startsWith('FV')).map(d => ({
     ...d,
     id: d.id,
@@ -42,6 +37,7 @@ export default function InvoicesPage() {
   function updateItem(i, f, v) { setForm(p => ({ ...p, items: p.items.map((it, idx) => idx === i ? { ...it, [f]: v } : it) })); }
   function removeItem(i) { setForm(p => ({ ...p, items: p.items.filter((_, idx) => idx !== i) })); }
 
+  /* Przeliczanie kwot na podstawie wierszy, wyliczanie terminów płatności i wysłanie pełnej struktury faktury do bazy dokumentów */
   async function handleSave() {
     if (!form.customer) { toast.error('Podaj kontrahenta'); return; }
     const validItems = form.items.filter(i => i.name && i.price);
@@ -77,6 +73,7 @@ export default function InvoicesPage() {
     }
   }
 
+  /* Oznaczenie dokumentu jako 'Opłacony' po wpłynięciu środków, odnotowywane także w logach systemu */
   async function markPaid(id) { 
     try {
       await updateDocumentStatus(id, 'paid'); 
@@ -89,7 +86,7 @@ export default function InvoicesPage() {
   }
   function sendEmail(inv) { toast.success(`E-mail wysłany do: ${inv.customer}`); }
 
-  // Mapowanie danych z tabeli do formatu faktury
+  /* Funkcja budująca pełny obiekt danych wymagany przez generator PDF (InvoiceTemplate) uwzględniając dane sprzedawcy z ustawień */
   const getInvoiceData = (inv) => ({
     ...inv,
     seller: {

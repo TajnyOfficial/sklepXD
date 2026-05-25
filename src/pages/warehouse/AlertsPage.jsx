@@ -4,24 +4,20 @@ import { formatCurrency } from '../../utils/helpers';
 import { FiAlertTriangle, FiShoppingCart, FiCheck, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/**
- * Widok modułu AlertsPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Alerts.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony AlertsPage
- */
+/* Moduł alertów magazynowych monitorujący produkty poniżej minimum z możliwością szybkiego generowania i druku zamówień */
 export default function AlertsPage() {
+  /* Pobranie produktów i wyłonienie tablicy tylko tych, które przekroczyły próg minimalny (braków) */
   const { products, categories } = useStore();
   const lowStock = products.filter(p => p.stock_qty <= p.min_stock && p.min_stock > 0);
+  
+  /* Lokalny stan przechowujący zbiór identyfikatorów produktów zaznaczonych przez użytkownika do zamówienia/wydruku */
   const [selected, setSelected] = useState(lowStock.map(p => p.id));
 
   function toggle(id) { setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]); }
   function selectAll() { setSelected(lowStock.map(p => p.id)); }
   function selectNone() { setSelected([]); }
 
+  /* Funkcja obliczająca ile sztuk brakuje (do max_stock) i generująca dokument HTML z gotową listą zakupową do druku */
   function generatePurchaseList() {
     const items = lowStock.filter(p => selected.includes(p.id));
     if (items.length === 0) { toast.error('Zaznacz produkty do zamówienia'); return; }
@@ -47,7 +43,7 @@ export default function AlertsPage() {
         </div>
       </div>
       <div className="grid-3 mb-24">
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--danger)' }}><span className="stat-label">Poniżej minimum</span><span className="stat-value">{lowStock.length}</span></div>
+        <div className="stat-card" style={{ border: ' 1px solid var(--danger)' }}><span className="stat-label">Poniżej minimum</span><span className="stat-value">{lowStock.length}</span></div>
         <div className="stat-card"><span className="stat-label">Szac. koszt uzupełnienia</span><span className="stat-value">{formatCurrency(lowStock.reduce((s, p) => s + p.purchase_price * Math.max(0, (p.max_stock || p.min_stock * 2) - p.stock_qty), 0))}</span></div>
         <div className="stat-card"><span className="stat-label">Zaznaczono</span><span className="stat-value">{selected.length} / {lowStock.length}</span></div>
       </div>

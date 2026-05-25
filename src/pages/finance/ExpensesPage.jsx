@@ -4,27 +4,13 @@ import { FiPlus, FiCamera, FiEdit, FiTrash2 } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-const INIT = [
-  { id: '1', category: 'Zaopatrzenie', supplier: 'Hurtownia Śrub Polskie', desc: 'FZ/2026/03/001 — Śruby i złączki', amount: 2450.00, vat: 563.50, date: '2026-03-12', paid: true },
-  { id: '2', category: 'Stałe opłaty', supplier: 'PGE Energia', desc: 'Faktura za energię 02/2026', amount: 1850.00, vat: 425.50, date: '2026-03-05', paid: true },
-  { id: '3', category: 'Stałe opłaty', supplier: 'Właściciel lokalu', desc: 'Czynsz marzec 2026', amount: 4500.00, vat: 1035.00, date: '2026-03-01', paid: true },
-  { id: '4', category: 'Marketing', supplier: 'Drukarnia Express', desc: 'Gazetka promocyjna marzec', amount: 680.00, vat: 156.40, date: '2026-03-08', paid: false },
-  { id: '5', category: 'Serwis urządzeń', supplier: 'IT-Serwis Sp. z o.o.', desc: 'Serwis drukarki fiskalnej', amount: 350.00, vat: 80.50, date: '2026-03-10', paid: true },
-  { id: '6', category: 'Zaopatrzenie', supplier: 'Dekoral Dystrybucja', desc: 'FZ/2026/03/003 — Farby i lakiery', amount: 4200.00, vat: 966.00, date: '2026-03-14', paid: false },
-];
+const INIT = [];
 const CATS = ['Zaopatrzenie', 'Stałe opłaty', 'Marketing', 'Serwis urządzeń', 'Wynagrodzenia', 'Podatki', 'Inne'];
 const EMPTY = { category: 'Zaopatrzenie', supplier: '', desc: '', amount: '', vat_rate: '23', date: new Date().toISOString().split('T')[0] };
 
-/**
- * Widok modułu ExpensesPage.
- * 
- * Komponent prezentacyjny (Page) w strukturze aplikacji SklepXD.
- * Odpowiada za wyświetlanie interfejsu powiązanego z Expenses.
- * Zawiera standardową logikę zarządzania stanem oraz interakcję z globalnym StoreContext/AuthContext.
- * 
- * @returns {JSX.Element} Widok strony ExpensesPage
- */
+/* Moduł "Wydatki i Koszty" rejestrujący faktury zakupowe, przypisujący je do kategorii i śledzący statusy ich płatności */
 export default function ExpensesPage() {
+  /* Lokalne stany trzymające historię wydatków oraz sterujące widocznością i danymi formularza edycyjnego */
   const [expenses, setExpenses] = useState(INIT);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -32,6 +18,7 @@ export default function ExpensesPage() {
 
   function openAdd() { setEditing(null); setForm(EMPTY); setShowModal(true); }
   function openEdit(e) { setEditing(e); setForm({ category: e.category, supplier: e.supplier, desc: e.desc, amount: String(e.amount), vat_rate: e.vat ? String(Math.round(e.vat / e.amount * 100)) : '23', date: e.date }); setShowModal(true); }
+  /* Walidacja danych o kosztach, przeliczenie wartości podatku VAT na podstawie wybranej stawki i zapisanie wydatku */
   function handleSave() {
     if (!form.supplier || !form.amount) { toast.error('Wypełnij dostawcę i kwotę'); return; }
     const amt = parseFloat(form.amount); const vat = amt * (parseFloat(form.vat_rate) / 100);
@@ -56,7 +43,7 @@ export default function ExpensesPage() {
         </div>
       </div>
       <div className="grid-2 mb-24" style={{ gap: 24 }}>
-        <div className="stat-card" style={{ borderLeft: '4px solid var(--danger)' }}><span className="stat-label">Koszty łącznie (miesiąc)</span><span className="stat-value">{formatCurrency(total)}</span></div>
+        <div className="stat-card" style={{ border: ' 1px solid var(--danger)' }}><span className="stat-label">Koszty łącznie (miesiąc)</span><span className="stat-value">{formatCurrency(total)}</span></div>
         <div className="card">
           <h4 className="mb-8">Podział na kategorie</h4>
           {[...new Set(expenses.map(e => e.category))].map(cat => {

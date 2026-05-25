@@ -13,7 +13,9 @@ const EMPTY_PRODUCT = {
   barcodes: '', attributes: '{}', cross_sell_products: [] 
 };
 
+/* Główna kartoteka magazynowa (PIM) obsługująca kody kreskowe, powiązania Cross-Sell i złożone atrybuty (JSON) */
 export default function ProductCatalogPage() {
+  /* Odczytanie kompletnego środowiska operacyjnego: asortyment, kategorie, strefy magazynowe oraz API bazy */
   const { products, categories, warehouseLocations, saveProduct, deleteProduct, isSupabase } = useStore();
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('all');
@@ -30,6 +32,7 @@ export default function ProductCatalogPage() {
   // Tabs w modalu edycji (0 = Podstawowe, 1 = Warianty, 2 = Powiązane)
   const [activeTab, setActiveTab] = useState(0);
 
+  /* Pętla odfiltrowująca produkty niepasujące do wybranej w UI kategorii lub słowa kluczowego (SKU/Nazwa) */
   const filtered = products.filter(p => {
     if (catFilter !== 'all' && p.category_id !== catFilter) return false;
     if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.sku.toLowerCase().includes(search.toLowerCase())) return false;
@@ -43,6 +46,7 @@ export default function ProductCatalogPage() {
     setShowModal(true);
   }
 
+  /* Otwarcie modala edycji z jednoczesnym (asynchronicznym) dociągnięciem relacji "Cross-Sell" przypisanych do tego produktu w bazie */
   async function openEdit(product) {
     setEditingProduct(product);
     setActiveTab(0);
@@ -79,6 +83,7 @@ export default function ProductCatalogPage() {
     setShowViewModal(true);
   }
 
+  /* Walidacja poprawności formatu JSON, wymagalności pól (np. SKU) i docelowy zapis zmian do Supabase */
   async function handleSave() {
     if (!form.name || !form.sku || !form.sell_price) {
       toast.error('Wypełnij wymagane pola: Nazwa, SKU, Cena sprzedaży');
@@ -116,6 +121,7 @@ export default function ProductCatalogPage() {
     setSelectedForLabels(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
 
+  /* Generowanie dynamicznego kodu HTML z etykietami cenowymi uwzględniającego kod EAN dla wszystkich zaznaczonych pozycji */
   function printLabels() {
     const prods = products.filter(p => selectedForLabels.includes(p.id));
     const labelHtml = prods.map(p => `<div style="border:1px solid #ccc;padding:12px;margin:4px;display:inline-block;width:200px;font-family:monospace;text-align:center"><strong>${p.name}</strong><br/>${p.sku}<br/><span style="font-size:24px;font-weight:bold">${formatCurrency(p.sell_price)}</span><br/>${p.barcodes?.[0] || '—'}</div>`).join('');
@@ -128,6 +134,7 @@ export default function ProductCatalogPage() {
     toast.success(`Drukowanie ${prods.length} etykiet`);
   }
 
+  /* Callback wywoływany przez komponent skanera obrazu (kamery), dodający kod do wyszukiwarki lub edytowanego produktu */
   function handleScan(code) {
     setShowScanner(false);
     if (scannerMode === 'search') {

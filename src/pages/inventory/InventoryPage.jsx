@@ -23,7 +23,7 @@ export default function InventoryPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [assignInv, setAssignInv] = useState(null);
   const [detailsInv, setDetailsInv] = useState(null);
-  const [selectedEmp, setSelectedEmp] = useState('');
+  const [selectedEmps, setSelectedEmps] = useState([]);
   const [form, setForm] = useState({ type: 'partial', scope: '', blind: false });
   const [activeInv, setActiveInv] = useState(null);
   const [counts, setCounts] = useState([]);
@@ -49,6 +49,7 @@ export default function InventoryPage() {
       diff: 0,
       date: new Date().toISOString().split('T')[0],
       assigned_to: null,
+      assigned_users: [],
       assigned_name: 'Nieprzypisany'
     };
     saveInventory(inv);
@@ -59,25 +60,26 @@ export default function InventoryPage() {
 
   function openAssignModal(inv) {
     setAssignInv(inv);
-    setSelectedEmp('');
+    setSelectedEmps(inv.assigned_users || (inv.assigned_to ? [inv.assigned_to] : []));
     setShowAssign(true);
   }
 
   function confirmAssignment() {
-    if (!selectedEmp) {
-      toast.error('Wybierz pracownika');
+    if (selectedEmps.length === 0) {
+      toast.error('Wybierz przynajmniej jednego pracownika');
       return;
     }
-    const emp = employees.find(e => e.id === selectedEmp);
-    if (!emp) return;
+    const emps = employees.filter(e => selectedEmps.includes(e.id));
+    if (emps.length === 0) return;
 
     saveInventory({
       ...assignInv,
-      assigned_to: emp.id,
-      assigned_name: emp.name,
+      assigned_to: emps[0].id, // backward compatibility
+      assigned_users: emps.map(e => e.id),
+      assigned_name: emps.map(e => e.name).join(', '),
       status: 'assigned'
     });
-    toast.success(`Zlecono inwentaryzację ${assignInv.number} pracownikowi: ${emp.name}`);
+    toast.success(`Zlecono inwentaryzację ${assignInv.number} pracownikom: ${emps.map(e => e.name).join(', ')}`);
     setShowAssign(false);
   }
 
@@ -321,13 +323,22 @@ export default function InventoryPage() {
         }
       >
         <div className="input-group">
-          <label>Wybierz pracownika odpowiedzialnego</label>
-          <select className="select" value={selectedEmp} onChange={e => setSelectedEmp(e.target.value)}>
-            <option value="">Wybierz z listy...</option>
+          <label>Wybierz pracowników odpowiedzialnych</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 200, overflowY: 'auto', background: 'var(--bg-secondary)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)' }}>
             {employees.filter(e => e.active).map(e => (
-              <option key={e.id} value={e.id}>{e.name} ({e.role})</option>
+              <label key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0, cursor: 'pointer' }}>
+                <input 
+                  type="checkbox" 
+                  checked={selectedEmps.includes(e.id)}
+                  onChange={(ev) => {
+                    if (ev.target.checked) setSelectedEmps(prev => [...prev, e.id]);
+                    else setSelectedEmps(prev => prev.filter(id => id !== e.id));
+                  }}
+                />
+                {e.name} ({e.role})
+              </label>
             ))}
-          </select>
+          </div>
         </div>
       </Modal>
 

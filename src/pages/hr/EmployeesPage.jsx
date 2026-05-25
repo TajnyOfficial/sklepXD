@@ -64,11 +64,17 @@ function normalizeEmployee(e) {
   };
 }
 
+/* Zaawansowany moduł zarządzania bazą personelu: role (RBAC), stawki godzinowe, kody PIN (do Kiosku) oraz obsługa cyfrowych "Akt Osobowych" (skany umów z Supabase) */
 export default function EmployeesPage() {
+  /* Pobranie narzędzi do manipulacji danymi pracownika z globalnego kontekstu */
   const { employees, saveEmployee, deleteEmployee, toggleEmployeeActive, isSupabase } = useStore();
+  
+  /* Rozbudowane stany UI kontrolujące modale (edycja/usuwanie), filtry (np. pokaż zarchiwizowanych) oraz formularze */
   const [showModal, setShowModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(null);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
+  const [showInactive, setShowInactive] = useState(false);
   
   const [activeTab, setActiveTab] = useState(0); // 0 = Dane, 1 = Akta
   const [employeeFiles, setEmployeeFiles] = useState([]);
@@ -85,6 +91,7 @@ export default function EmployeesPage() {
     setShowModal(true);
   }
 
+  /* Inicjalizacja modalu edycji - ładuje dane pracownika oraz wykonuje asynchroniczne zapytanie do Supabase w celu pobrania przypisanych do niego plików (Akt) */
   async function openEdit(emp) {
     setEditing(emp);
     setForm({
@@ -114,6 +121,7 @@ export default function EmployeesPage() {
     }
   }
 
+  /* Główne przesłanie formularza: waliduje PIN, upewnia się że podano nazwisko i zleca zapis/update do bazy */
   async function handleSave() {
     if (!form.name.trim()) { toast.error('Podaj imię i nazwisko'); return; }
     if (form.pin && (form.pin.length !== 4 || !/^\d+$/.test(form.pin))) {
@@ -128,11 +136,32 @@ export default function EmployeesPage() {
     }
   }
 
-  async function handleDelete(emp) {
-    if (!confirm(`Usunąć pracownika "${emp.name}"?`)) return;
+  function handleDeleteClick(emp) {
+    setDeleteModal(emp);
+  }
+
+  /* Bezpieczna metoda usuwania: nie kasuje rekordu, a jedynie odcina dostęp i chowa z list (tzw. Soft Delete / Archiwizacja) */
+  async function handleArchive(emp) {
     try {
-      await deleteEmployee(emp.id);
-      toast.success('Pracownik usunięty');
+      if (emp.active) {
+        await toggleEmployeeActive(emp.id);
+      }
+      toast.success('Pracownik został zarchiwizowany (zmieniono status na nieaktywny)');
+      setDeleteModal(null);
+    } catch (err) {
+      toast.error(`Błąd archiwizacji: ${err.message}`);
+    }
+  }
+
+  /* Trwałe i bezpowrotne usunięcie danych osobowych pracownika z bazy, zgodne z wymogami RODO (jeśli nie chcemy archiwizować) */
+  async function handlePermanentDelete(emp) {
+    if (!confirm(`Czy na pewno chcesz bezpowrotnie usunąć pracownika "${emp.name}" i wszystkie jego dane? Tej operacji nie można cofnąć.`)) return;
+    try {
+      const res = await deleteEmployee(emp.id);
+      if (!res || !res.archived) {
+        toast.success('Pracownik trwale usunięty');
+      }
+      setDeleteModal(null);
     } catch (err) {
       toast.error(`Błąd usunięcia: ${err.message}`);
     }
@@ -185,17 +214,28 @@ export default function EmployeesPage() {
   const F = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }));
 
   const activeCount = normalized.filter(e => e.active).length;
+  const displayEmployees = showInactive ? normalized : normalized.filter(e => e.active);
 
   return (
     <div className="page animate-fadeIn">
       <div className="page-header">
         <div className="page-header-left">
           <h1>Pracownicy</h1>
-          <p>{normalized.length} pracowników · {activeCount} aktywnych</p>
+          <p>{normalized.length} wszystkich · {activeCount} aktywnych</p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd} id="btn-add-employee">
-          <FiPlus size={16} /> Dodaj pracownika
-        </button>
+        <div className="page-header-right" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <button 
+            className="btn btn-ghost" 
+            onClick={() => setShowInactive(!showInactive)}
+            style={{ fontWeight: 600, color: showInactive ? 'var(--primary)' : 'var(--text-muted)' }}
+          >
+            {showInactive ? <FiToggleRight size={18} /> : <FiToggleLeft size={18} />} 
+            Pokaż zarchiwizowanych
+          </button>
+          <button className="btn btn-primary" onClick={openAdd} id="btn-add-employee">
+            <FiPlus size={16} /> Dodaj pracownika
+          </button>
+        </div>
       </div>
 
       {normalized.length === 0 ? (
@@ -206,7 +246,7 @@ export default function EmployeesPage() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: 14 }}>
-          {normalized.map(emp => {
+          {displayEmployees.map(emp => {
             const roleKey = emp.role;
             const roleLabel = ROLE_LABELS[roleKey] || roleKey;
             const color = ROLE_COLORS[roleKey] || 'var(--accent)';
@@ -218,7 +258,7 @@ export default function EmployeesPage() {
                 className="card"
                 style={{
                   opacity: emp.active ? 1 : 0.55,
-                  borderLeft: `3px solid ${color}`,
+                  border: ` 1px solid ${color}`,
                   transition: 'opacity 0.2s',
                 }}
               >
@@ -229,7 +269,7 @@ export default function EmployeesPage() {
                       background: `linear-gradient(135deg, ${color}88, ${color})`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontWeight: 700, color: '#fff', fontSize: '0.9rem', flexShrink: 0,
-                      boxShadow: `0 2px 8px ${color}40`,
+                      
                     }}>
                       {initials}
                     </div>
@@ -242,7 +282,7 @@ export default function EmployeesPage() {
                     <button className="btn btn-ghost btn-sm" onClick={() => openEdit(emp)} title="Edytuj">
                       <FiEdit size={14} />
                     </button>
-                    <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(emp)} title="Usuń" style={{ color: 'var(--danger)' }}>
+                    <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteClick(emp)} title="Usuń" style={{ color: 'var(--danger)' }}>
                       <FiTrash2 size={14} />
                     </button>
                   </div>
@@ -485,6 +525,47 @@ export default function EmployeesPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={!!deleteModal}
+        onClose={() => setDeleteModal(null)}
+        title="Opcje usuwania pracownika"
+        footer={
+          <button className="btn btn-secondary" onClick={() => setDeleteModal(null)}>Anuluj</button>
+        }
+      >
+        {deleteModal && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '10px 0' }}>
+            <p style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+              Wybierz, co chcesz zrobić z pracownikiem <strong>{deleteModal.name}</strong>:
+            </p>
+            
+            <div 
+              style={{ border: '1px solid var(--border-light)', padding: 16, borderRadius: 12, background: 'var(--bg-card)', cursor: 'pointer', transition: 'all 0.2s' }}
+              onClick={() => handleArchive(deleteModal)}
+            >
+              <h4 style={{ color: 'var(--warning)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FiToggleLeft /> Archiwizuj (Zalecane)
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+                Pracownik straci dostęp do systemu i Kiosku, ale jego dane, przepracowane godziny i historia sprzedaży zostaną zachowane w archiwum.
+              </p>
+            </div>
+
+            <div 
+              style={{ border: '1px solid var(--danger-border, #991b1b)', padding: 16, borderRadius: 12, background: 'var(--danger-bg, #fee2e2)', cursor: 'pointer', transition: 'all 0.2s' }}
+              onClick={() => handlePermanentDelete(deleteModal)}
+            >
+              <h4 style={{ color: '#991b1b', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FiTrash2 /> Usuń trwale z danymi
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#991b1b', opacity: 0.8, margin: 0 }}>
+                Pracownik zostanie bezpowrotnie skasowany ze wszystkimi powiązanymi danymi z bazy. Tej operacji nie można cofnąć.
+              </p>
             </div>
           </div>
         )}
