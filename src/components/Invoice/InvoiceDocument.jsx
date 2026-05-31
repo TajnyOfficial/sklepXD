@@ -1,7 +1,7 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import { formatPDFCurrency } from '../../utils/invoiceUtils';
 
-// Rejestracja fontu z obsługą polskich znaków (Roboto)
+// Rejestracja fontu z obsługą polskich znaków
 Font.register({
   family: 'Roboto',
   fonts: [
@@ -12,205 +12,288 @@ Font.register({
   ]
 });
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontFamily: 'Roboto',
-    fontSize: 9,
-    color: '#1a1a1a',
-    lineHeight: 1.5,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 40,
-    borderBottom: 1,
-    borderBottomColor: '#eeeeee',
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: '#000',
-    marginBottom: 4,
-  },
-  section: {
-    marginBottom: 20,
-    flexDirection: 'row',
-    gap: 40,
-  },
-  sectionTitle: {
-    fontSize: 10,
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    color: '#666',
-    marginBottom: 6,
-    borderBottom: 1,
-    borderBottomColor: '#eee',
-    paddingBottom: 2,
-  },
-  partyBox: {
-    flex: 1,
-  },
-  table: {
-    marginTop: 20,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#f8f9fa',
-    borderBottom: 1,
-    borderBottomColor: '#dee2e6',
-    fontWeight: 700,
-    padding: 6,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottom: 0.5,
-    borderBottomColor: '#eee',
-    padding: 6,
-    alignItems: 'center',
-  },
-  summarySection: {
-    marginTop: 30,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  summaryBox: {
-    width: 200,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  totalRow: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTop: 2,
-    borderTopColor: '#000',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    fontSize: 14,
-    fontWeight: 700,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 40,
-    right: 40,
-    textAlign: 'center',
-    fontSize: 8,
-    color: '#999',
-    borderTop: 0.5,
-    borderTopColor: '#eee',
-    paddingTop: 10,
+// Funkcja zamieniająca liczby na słowa (np. 123.45 -> sto dwadzieścia trzy i 45/100 PLN)
+const kwotaSlownie = (kwota) => {
+  if (!kwota || isNaN(kwota)) return 'zero PLN';
+  const jednosci = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
+  const nastki = ["", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+  const dziesiatki = ["", "dziesięć", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
+  const setki = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewięćset"];
+  const rzedy = [ ["", "", ""], ["tysiąc", "tysiące", "tysięcy"], ["milion", "miliony", "milionów"] ];
+
+  let calkowite = Math.floor(kwota);
+  const grosze = Math.round((kwota - calkowite) * 100);
+  
+  if (calkowite === 0) return `zero i ${grosze}/100 PLN`;
+
+  let slowa = [];
+  let rzad = 0;
+
+  while (calkowite > 0) {
+    let reszta = calkowite % 1000;
+    calkowite = Math.floor(calkowite / 1000);
+
+    if (reszta > 0) {
+      let s = setki[Math.floor(reszta / 100)];
+      let d = 0;
+      let j = 0;
+      let reszta100 = reszta % 100;
+
+      if (reszta100 >= 11 && reszta100 <= 19) {
+        d = nastki[reszta100 - 10];
+      } else {
+        d = dziesiatki[Math.floor(reszta100 / 10)];
+        j = jednosci[reszta100 % 10];
+      }
+
+      let czesc = [s, d, j].filter(x => x).join(" ");
+      let formaRzedu = rzedy[rzad][2];
+      if (reszta === 1) formaRzedu = rzedy[rzad][0];
+      else if ((reszta % 10 >= 2 && reszta % 10 <= 4) && (reszta % 100 < 10 || reszta % 100 > 20)) formaRzedu = rzedy[rzad][1];
+
+      slowa.unshift(`${czesc} ${formaRzedu}`.trim());
+    }
+    rzad++;
   }
+  return `${slowa.join(" ")} i ${grosze.toString().padStart(2, '0')}/100 PLN`.trim();
+};
+
+const styles = StyleSheet.create({
+  page: { padding: 40, fontFamily: 'Roboto', fontSize: 8.5, color: '#000', lineHeight: 1.4 },
+  
+  // Top Header
+  topDate: { marginBottom: 20 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
+  logoBox: { flex: 1 },
+  logoText: { fontSize: 24, fontWeight: 700, color: '#3b82f6', letterSpacing: 1 },
+  infoBox: { width: 220 },
+  infoTitle: { fontSize: 12, fontWeight: 700, marginBottom: 5 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+  
+  // Parties
+  partiesRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
+  partyCol: { width: '45%' },
+  partyTitle: { fontSize: 10, fontWeight: 700, marginBottom: 5 },
+  partyName: { fontWeight: 700, marginBottom: 2 },
+
+  // Korekta ramka
+  correctionBox: { marginBottom: 20, padding: 10, backgroundColor: '#fffbe6', borderLeftWidth: 3, borderLeftColor: '#f59e0b' },
+
+  // Table
+  sectionTitle: { fontSize: 10, fontWeight: 700, marginBottom: 6, textTransform: 'uppercase' },
+  table: { width: '100%', marginBottom: 20 },
+  trHead: { flexDirection: 'row', borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#000', backgroundColor: '#f8f9fa', paddingVertical: 4 },
+  tr: { flexDirection: 'row', borderBottomWidth: 0.5, borderColor: '#e5e7eb', paddingVertical: 4 },
+
+  // Table columns
+  col1: { width: '5%', textAlign: 'center' },
+  col2: { width: '35%', paddingLeft: 4 },
+  col3: { width: '8%', textAlign: 'center' },
+  col4: { width: '12%', textAlign: 'right' },
+  col5: { width: '12%', textAlign: 'right' },
+  col6: { width: '8%', textAlign: 'center' },
+  col7: { width: '10%', textAlign: 'right' },
+  col8: { width: '10%', textAlign: 'right', paddingRight: 4 },
+
+  summaryTable: { flexDirection: 'column', width: '100%', border: 1, borderColor: '#ccc' },
+  sumTrHead: { flexDirection: 'row', backgroundColor: '#eee', borderBottom: 1, borderColor: '#ccc' },
+  sumTr: { flexDirection: 'row', borderBottom: 0.5, borderColor: '#ccc' },
+  sumTotalRow: { flexDirection: 'row', backgroundColor: '#e5e7eb', fontWeight: 'bold' },
+
+  // JEDEN zestaw kolumn dla całej tabeli podsumowania:
+  sumCol1: { width: '20%', textAlign: 'left', padding: 5 }, 
+  sumCol2: { width: '20%', textAlign: 'right', padding: 5 },
+  sumCol3: { width: '20%', textAlign: 'center', padding: 5 },
+  sumCol4: { width: '20%', textAlign: 'right', padding: 5 },
+  sumCol5: { width: '20%', textAlign: 'right', padding: 5 },
+
+  sumTotalRow: { flexDirection: 'row', backgroundColor: '#e5e7eb', paddingVertical: 4, fontWeight: 700, marginTop: 4 },
+  
+  detailsRow: { flexDirection: 'row', paddingVertical: 3, borderBottomWidth: 0.5, borderColor: '#eee' },
+  detailsLabel: { width: '35%', textAlign: 'right', fontWeight: 700, paddingRight: 8 },
+  detailsValue: { width: '65%', textAlign: 'right' },
+
+  // Signatures
+  signatures: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 40, paddingHorizontal: 20 },
+  signBox: { width: 200, textAlign: 'center' },
+  signLine: { borderTopWidth: 0.5, borderColor: '#000', marginTop: 40, paddingTop: 4 },
+  
+  // Footer
+  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 0.5, borderColor: '#000', paddingTop: 4, fontSize: 7 }
 });
 
-/* Główny układ strony faktury VAT używający węzłów i komponentów react-pdf/renderer gotowych do eksportu */
 export const InvoiceDocument = ({ data }) => {
   if (!data) return null;
 
+  const isCorrection = data.documentType === 'correction' || data.type === 'correction';
+  const docTitle = isCorrection ? 'Faktura Korygująca nr' : 'Faktura VAT nr';
+  const paidAmount = parseFloat(data.paid) || 0;
+  const grossTotal = parseFloat(data.totalGross || data.gross || 0) || 0;
+  const leftToPay = Math.max(0, grossTotal - paidAmount);
+
   return (
-    <Document title={`Faktura_${data.number}`}>
+    <Document title={`${isCorrection ? 'Korekta' : 'Faktura'}_${data.number}`}>
       <Page size="A4" style={styles.page}>
-        {/* NAGŁÓWEK */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>Faktura VAT</Text>
-            <Text>Nr: {data.number}</Text>
+        
+        {/* Wystawiono dnia */}
+        <View style={styles.topDate}>
+          <Text>Wystawiono dnia: {data.dateIssue}, {data.place || 'Katowice'}</Text>
+        </View>
+
+        {/* Header: Logo i Metryka */}
+        <View style={styles.headerRow}>
+          <View style={styles.logoBox}>
+            <Text style={styles.logoText}>[{data.seller?.name || 'SklepXD.pl'}]</Text>
           </View>
-          <View style={{ textAlign: 'right' }}>
-            <Text>Data wystawienia: {data.dateIssue}</Text>
-            <Text>Data sprzedaży: {data.dateSale}</Text>
-            <Text>Miejsce wystawienia: {data.place || 'Warszawa'}</Text>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoTitle}>{docTitle} {data.number}</Text>
+            <View style={styles.infoRow}><Text>Data sprzedaży:</Text><Text>{data.dateSale}</Text></View>
+            <View style={styles.infoRow}><Text>Sposób zapłaty:</Text><Text>{data.paymentMethod}</Text></View>
+            <View style={styles.infoRow}><Text>Termin płatności:</Text><Text>{data.dueDate}</Text></View>
           </View>
         </View>
 
-        {/* STRONY TRANSAKCJI */}
-        <View style={styles.section}>
-          <View style={styles.partyBox}>
-            <Text style={styles.sectionTitle}>Sprzedawca</Text>
-            <Text style={{ fontWeight: 700 }}>{data.seller?.name || '—'}</Text>
+        {/* Ramka korekty */}
+        {isCorrection && (
+          <View style={styles.correctionBox}>
+            <Text style={{ fontWeight: 700, color: '#b45309', marginBottom: 4 }}>Dotyczy dokumentu: {data.correctedDocNumber}</Text>
+            <Text>Przyczyna korekty: {data.correctionReason}</Text>
+          </View>
+        )}
+
+        {/* Sprzedawca i Nabywca */}
+        <View style={styles.partiesRow}>
+          <View style={styles.partyCol}>
+            <Text style={styles.partyTitle}>Sprzedawca:</Text>
+            <Text style={styles.partyName}>{data.seller?.name || '—'}</Text>
             <Text>{data.seller?.address || '—'}</Text>
             <Text>NIP: {data.seller?.nip || '—'}</Text>
+            {data.seller?.email && <Text>{data.seller.email}</Text>}
           </View>
-          <View style={styles.partyBox}>
-            <Text style={styles.sectionTitle}>Nabywca</Text>
-            <Text style={{ fontWeight: 700 }}>{data.buyer?.name || data.customer || '—'}</Text>
+          <View style={styles.partyCol}>
+            <Text style={styles.partyTitle}>Nabywca:</Text>
+            <Text style={styles.partyName}>{data.buyer?.name || data.customer || '—'}</Text>
             <Text>{data.buyer?.address || '—'}</Text>
             <Text>NIP: {data.buyer?.nip || data.nip || '—'}</Text>
           </View>
         </View>
 
         {/* TABELA POZYCJI */}
+        <Text style={styles.sectionTitle}>POZYCJE FAKTURY</Text>
         <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={{ flex: 0.5 }}>Lp.</Text>
-            <Text style={{ flex: 3 }}>Nazwa towaru / usługi</Text>
-            <Text style={{ flex: 0.8, textAlign: 'center' }}>Ilość</Text>
-            <Text style={{ flex: 1.2, textAlign: 'right' }}>Cena netto</Text>
-            <Text style={{ flex: 0.8, textAlign: 'center' }}>VAT</Text>
-            <Text style={{ flex: 1.5, textAlign: 'right' }}>Wartość brutto</Text>
+          <View style={styles.trHead}>
+            <Text style={styles.col1}>LP</Text>
+            <Text style={styles.col2}>Nazwa towaru/usługi</Text>
+            <Text style={styles.col3}>Ilość</Text>
+            <Text style={styles.col4}>Cena netto</Text>
+            <Text style={styles.col5}>Wartość netto</Text>
+            <Text style={styles.col6}>VAT</Text>
+            <Text style={styles.col7}>Wartość VAT</Text>
+            <Text style={styles.col8}>Wartość brutto</Text>
           </View>
 
-          {data.items.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={{ flex: 0.5 }}>{index + 1}</Text>
-              <Text style={{ flex: 3 }}>{item.name}</Text>
-              <Text style={{ flex: 0.8, textAlign: 'center' }}>{item.qty} {item.unit || 'szt.'}</Text>
-              <Text style={{ flex: 1.2, textAlign: 'right' }}>{formatPDFCurrency(item.unitPriceNet)}</Text>
-              <Text style={{ flex: 0.8, textAlign: 'center' }}>{item.vatRate}%</Text>
-              <Text style={{ flex: 1.5, textAlign: 'right' }}>{formatPDFCurrency(item.totalGross)}</Text>
-            </View>
-          ))}
+          {data.items.map((item, index) => {
+            const itemNet = parseFloat(item.unitPriceNet || item.price || 0) || 0;
+            const qty = parseInt(item.qty || 1) || 1;
+            const totalNet = itemNet * qty;
+            const itemGross = parseFloat(item.totalGross || 0) || 0;
+            const totalVat = (itemGross - totalNet) || 0;
+            const vatLabel = isNaN(parseFloat(item.vatRate)) ? (item.vatRate || '0%') : `${item.vatRate}%`;
+
+            return (
+              <View key={index} style={styles.tr}>
+                <Text style={styles.col1}>{index + 1}</Text>
+                <Text style={styles.col2}>{item.name}</Text>
+                <Text style={styles.col3}>{qty} {item.unit || 'szt.'}</Text>
+                <Text style={styles.col4}>{itemNet.toFixed(2)}</Text>
+                <Text style={styles.col5}>{totalNet.toFixed(2)}</Text>
+                <Text style={styles.col6}>{vatLabel}</Text>
+                <Text style={styles.col7}>{totalVat.toFixed(2)}</Text>
+                <Text style={styles.col8}>{itemGross.toFixed(2)}</Text>
+              </View>
+            );
+          })}
         </View>
 
-        {/* PODSUMOWANIE VAT (Tabela podatkowa) */}
-        <View style={{ marginTop: 25, width: 250, alignSelf: 'flex-end' }}>
-          <View style={[styles.tableHeader, { backgroundColor: '#f1f3f5' }]}>
-            <Text style={{ flex: 1 }}>Stawka</Text>
-            <Text style={{ flex: 1.5, textAlign: 'right' }}>Netto</Text>
-            <Text style={{ flex: 1.5, textAlign: 'right' }}>VAT</Text>
-            <Text style={{ flex: 1.5, textAlign: 'right' }}>Brutto</Text>
-          </View>
-          {data.vatSummary.map((row, i) => (
-            <View key={i} style={styles.tableRow}>
-              <Text style={{ flex: 1 }}>{row.rate}%</Text>
-              <Text style={{ flex: 1.5, textAlign: 'right' }}>{formatPDFCurrency(row.net)}</Text>
-              <Text style={{ flex: 1.5, textAlign: 'right' }}>{formatPDFCurrency(row.vat)}</Text>
-              <Text style={{ flex: 1.5, textAlign: 'right' }}>{formatPDFCurrency(row.gross)}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* PODSUMOWANIE KOŃCOWE */}
-        <View style={styles.summarySection}>
-          <View style={styles.summaryBox}>
-            <View style={styles.summaryRow}>
-              <Text>Razem netto:</Text>
-              <Text>{formatPDFCurrency(data.totalNet)}</Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text>Kwota VAT:</Text>
-              <Text>{formatPDFCurrency(data.totalVat)}</Text>
-            </View>
-            <View style={styles.totalRow}>
-              <Text>DO ZAPŁATY:</Text>
-              <Text>{formatPDFCurrency(data.totalGross)}</Text>
-            </View>
+        {/* PODSUMOWANIE */}
+       <Text style={styles.sectionTitle}>PODSUMOWANIE</Text>
+        <View style={styles.summaryWrapper}>
+          <View style={styles.summaryTable}>
             
-            <View style={{ marginTop: 15, fontSize: 8 }}>
-              <Text style={{ fontWeight: 700 }}>Metoda płatności: {data.paymentMethod}</Text>
-              <Text>Termin płatności: {data.dueDate || data.dateIssue}</Text>
-              {data.bankAccount && <Text>Konto: {data.bankAccount}</Text>}
+            <View style={styles.sumTrHead}>
+              <Text style={styles.sumCol1}>Opis</Text>
+              <Text style={styles.sumCol2}>Netto</Text>
+              <Text style={styles.sumCol3}>VAT</Text>
+              <Text style={styles.sumCol4}>Kwota VAT</Text>
+              <Text style={styles.sumCol5}>Brutto</Text>
+            </View>
+
+            {(data.items || []).map((item, i) => {
+              const price = parseFloat(item.unitPriceNet || item.price || 0) || 0;
+              const qty = parseInt(item.qty || 1) || 1;
+              const net = (price * qty).toFixed(2);
+              const rate = parseFloat(item.vatRate) || 0;
+              const vat = (price * qty * (rate / 100)).toFixed(2);
+              const gross = (parseFloat(net) + parseFloat(vat)).toFixed(2);
+              
+              return (
+                <View key={i} style={styles.sumTr}>
+                  <Text style={styles.sumCol1}>Stawka {item.vatRate || '0'}%</Text>
+                  <Text style={styles.sumCol2}>{net}</Text>
+                  <Text style={styles.sumCol3}>{item.vatRate || '0'}%</Text>
+                  <Text style={styles.sumCol4}>{vat}</Text>
+                  <Text style={styles.sumCol5}>{gross}</Text>
+                </View>
+              );
+            })}
+
+            <View style={styles.sumTotalRow}>
+              <Text style={styles.sumCol1}>Razem:</Text>
+              <Text style={styles.sumCol2}>{parseFloat(data.net || 0).toFixed(2)}</Text>
+              <Text style={styles.sumCol3}></Text>
+              <Text style={styles.sumCol4}>{parseFloat(data.vat || 0).toFixed(2)}</Text>
+              <Text style={styles.sumCol5}>{parseFloat(data.gross || 0).toFixed(2)}</Text>
+            </View>
+
+            <View style={[styles.detailsRow, { backgroundColor: '#f9fafb', marginTop: 4 }]}>
+              <Text style={styles.detailsLabel}>Zapłacono:</Text>
+              <Text style={styles.detailsValue}>{parseFloat(data.paid || 0).toFixed(2)} PLN</Text>
+            </View>
+            <View style={[styles.detailsRow, { backgroundColor: '#e5e7eb' }]}>
+              <Text style={styles.detailsLabel}>Pozostało do zapłaty:</Text>
+              <Text style={[styles.detailsValue, { fontWeight: 700 }]}>{(Math.max(0, parseFloat(data.gross || 0) - parseFloat(data.paid || 0))).toFixed(2)} PLN</Text>
+            </View>
+            <View style={[styles.detailsRow, { backgroundColor: '#e5e7eb', marginTop: 5 }]}>
+              <Text style={styles.detailsLabel}>Konto bankowe:</Text>
+              <Text style={styles.detailsValue}>{data.seller?.bankAccount || 'Brak danych konta'}</Text>
+            </View>
+
+            <View style={[styles.detailsRow, { backgroundColor: '#f9fafb' }]}>
+              <Text style={styles.detailsLabel}>Uwagi:</Text>
+              <Text style={styles.detailsValue}>{data.note || 'Prosimy o terminową wpłatę.'}</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.footer}>
-          <Text>Wygenerowano automatycznie w systemie SklepXD</Text>
+        {/* Podpisy */}
+        <View style={styles.signatures}>
+          <View style={styles.signBox}>
+            <Text>Osoba upoważniona do otrzymania faktury</Text>
+            <Text style={styles.signLine}></Text>
+          </View>
+          <View style={styles.signBox}>
+            <Text>Osoba upoważniona do wystawienia faktury</Text>
+            <Text style={styles.signLine}>{data.seller?.name || 'Właściciel'}</Text>
+          </View>
         </View>
+
+        {/* Stopka */}
+        <View style={styles.footer} fixed>
+          <Text>Druk: System SklepXD</Text>
+          <Text>Dziękujemy za zakupy!</Text>
+          <Text render={({ pageNumber, totalPages }) => (`Strona: ${pageNumber} / ${totalPages}`)} />
+        </View>
+        
       </Page>
     </Document>
   );
