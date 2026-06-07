@@ -1,10 +1,5 @@
 /**
- * Szablon strukturalny faktury VAT dla modułu `@react-pdf/renderer`.
- * Wymusza rygorystyczny i prawnie akceptowalny w Polsce widok siatki transakcyjnej
- * wraz ze szczegółowym zgrupowaniem wartości VAT na dole dokumentu.
- * 
- * @param {Object} props Właściwości
- * @param {Object} props.invoice Dane źródłowe faktury/rachunku
+ * InvoiceTemplate.jsx — Szablon faktury VAT dla @react-pdf/renderer
  */
 import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer';
 import { calculateLineItem, groupVatRates, calculateInvoiceTotals, formatPLN } from '../../utils/invoiceUtils';
@@ -63,18 +58,10 @@ const s = StyleSheet.create({
   signLabel: { fontSize: 7, color: C.muted, marginTop: 4 },
 });
 
-/* Główny komponent widoku dokumentu faktury VAT generujący układ strony, tabele z wierszami i podsumowania dla formata PDF */
 export default function InvoiceTemplate({ invoice }) {
-  /* Tablica surowych pozycji na fakturze przypisana z przesłanych danych `invoice` */
   const items = invoice?.items || [];
-  
-  /* Tablica przetworzonych wierszy z obliczonymi wartościami cząstkowymi za pomocą `calculateLineItem` */
   const lineItems = items.map(calculateLineItem);
-  
-  /* Zgrupowane statystyki poszczególnych stawek podatku VAT obecnych na fakturze */
   const vatGroups = groupVatRates(items);
-  
-  /* Obliczone całkowite podsumowanie dokumentu uwzględniające łączną wartość Netto, VAT oraz Brutto */
   const totals = calculateInvoiceTotals(items);
 
   // Kolumny tabeli pozycji: [styl, nagłówek, getter]

@@ -1,5 +1,4 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-import { formatPDFCurrency } from '../../utils/invoiceUtils';
 
 // Rejestracja fontu z obsługą polskich znaków
 Font.register({
@@ -12,7 +11,7 @@ Font.register({
   ]
 });
 
-// Funkcja zamieniająca liczby na słowa (np. 123.45 -> sto dwadzieścia trzy i 45/100 PLN)
+// Funkcja zamieniająca liczby na słowa
 const kwotaSlownie = (kwota) => {
   if (!kwota || isNaN(kwota)) return 'zero PLN';
   const jednosci = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
@@ -24,7 +23,7 @@ const kwotaSlownie = (kwota) => {
   let calkowite = Math.floor(kwota);
   const grosze = Math.round((kwota - calkowite) * 100);
   
-  if (calkowite === 0) return `zero i ${grosze}/100 PLN`;
+  if (calkowite === 0) return `zero i ${grosze.toString().padStart(2, '0')}/100 PLN`;
 
   let slowa = [];
   let rzad = 0;
@@ -60,8 +59,6 @@ const kwotaSlownie = (kwota) => {
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: 'Roboto', fontSize: 8.5, color: '#000', lineHeight: 1.4 },
-  
-  // Top Header
   topDate: { marginBottom: 20 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
   logoBox: { flex: 1 },
@@ -69,23 +66,15 @@ const styles = StyleSheet.create({
   infoBox: { width: 220 },
   infoTitle: { fontSize: 12, fontWeight: 700, marginBottom: 5 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
-  
-  // Parties
   partiesRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
   partyCol: { width: '45%' },
   partyTitle: { fontSize: 10, fontWeight: 700, marginBottom: 5 },
   partyName: { fontWeight: 700, marginBottom: 2 },
-
-  // Korekta ramka
   correctionBox: { marginBottom: 20, padding: 10, backgroundColor: '#fffbe6', borderLeftWidth: 3, borderLeftColor: '#f59e0b' },
-
-  // Table
   sectionTitle: { fontSize: 10, fontWeight: 700, marginBottom: 6, textTransform: 'uppercase' },
   table: { width: '100%', marginBottom: 20 },
   trHead: { flexDirection: 'row', borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#000', backgroundColor: '#f8f9fa', paddingVertical: 4 },
   tr: { flexDirection: 'row', borderBottomWidth: 0.5, borderColor: '#e5e7eb', paddingVertical: 4 },
-
-  // Table columns
   col1: { width: '5%', textAlign: 'center' },
   col2: { width: '35%', paddingLeft: 4 },
   col3: { width: '8%', textAlign: 'center' },
@@ -94,31 +83,21 @@ const styles = StyleSheet.create({
   col6: { width: '8%', textAlign: 'center' },
   col7: { width: '10%', textAlign: 'right' },
   col8: { width: '10%', textAlign: 'right', paddingRight: 4 },
-
-  summaryTable: { flexDirection: 'column', width: '100%', border: 1, borderColor: '#ccc' },
-  sumTrHead: { flexDirection: 'row', backgroundColor: '#eee', borderBottom: 1, borderColor: '#ccc' },
-  sumTr: { flexDirection: 'row', borderBottom: 0.5, borderColor: '#ccc' },
-  sumTotalRow: { flexDirection: 'row', backgroundColor: '#e5e7eb', fontWeight: 'bold' },
-
-  // JEDEN zestaw kolumn dla całej tabeli podsumowania:
+  summaryTable: { flexDirection: 'column', width: '100%', borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#ccc' },
+  sumTrHead: { flexDirection: 'row', backgroundColor: '#eee', borderBottomWidth: 1, borderColor: '#ccc' },
+  sumTr: { flexDirection: 'row', borderBottomWidth: 0.5, borderColor: '#ccc' },
+  sumTotalRow: { flexDirection: 'row', backgroundColor: '#e5e7eb', paddingVertical: 4, fontWeight: 700, borderBottomWidth: 1, borderColor: '#ccc' },
   sumCol1: { width: '20%', textAlign: 'left', padding: 5 }, 
   sumCol2: { width: '20%', textAlign: 'right', padding: 5 },
   sumCol3: { width: '20%', textAlign: 'center', padding: 5 },
   sumCol4: { width: '20%', textAlign: 'right', padding: 5 },
   sumCol5: { width: '20%', textAlign: 'right', padding: 5 },
-
-  sumTotalRow: { flexDirection: 'row', backgroundColor: '#e5e7eb', paddingVertical: 4, fontWeight: 700, marginTop: 4 },
-  
   detailsRow: { flexDirection: 'row', paddingVertical: 3, borderBottomWidth: 0.5, borderColor: '#eee' },
   detailsLabel: { width: '35%', textAlign: 'right', fontWeight: 700, paddingRight: 8 },
   detailsValue: { width: '65%', textAlign: 'right' },
-
-  // Signatures
   signatures: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 40, paddingHorizontal: 20 },
   signBox: { width: 200, textAlign: 'center' },
   signLine: { borderTopWidth: 0.5, borderColor: '#000', marginTop: 40, paddingTop: 4 },
-  
-  // Footer
   footer: { position: 'absolute', bottom: 30, left: 40, right: 40, flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 0.5, borderColor: '#000', paddingTop: 4, fontSize: 7 }
 });
 
@@ -127,20 +106,40 @@ export const InvoiceDocument = ({ data }) => {
 
   const isCorrection = data.documentType === 'correction' || data.type === 'correction';
   const docTitle = isCorrection ? 'Faktura Korygująca nr' : 'Faktura VAT nr';
-  const paidAmount = parseFloat(data.paid) || 0;
-  const grossTotal = parseFloat(data.totalGross || data.gross || 0) || 0;
-  const leftToPay = Math.max(0, grossTotal - paidAmount);
+
+  // W 100% BEZPIECZNE GENEROWANIE PODSUMOWANIA
+  const summaryObj = (data.items || []).reduce((acc, item) => {
+    const rate = item.vatRate !== undefined && item.vatRate !== null ? String(item.vatRate) : '0';
+    const net = parseFloat(item.unitPriceNet || item.price || 0) || 0;
+    const qty = parseInt(item.qty || 1) || 1;
+    const totalNet = net * qty;
+    
+    // Zabezpieczenie przed tekstem: ZW, OO, NP = vat 0
+    const vatMultiplier = isNaN(parseFloat(rate)) ? 0 : parseFloat(rate) / 100;
+    const totalVat = totalNet * vatMultiplier;
+    
+    if (!acc[rate]) acc[rate] = { rate, net: 0, vat: 0, gross: 0 };
+    
+    acc[rate].net += totalNet;
+    acc[rate].vat += totalVat;
+    acc[rate].gross += (totalNet + totalVat);
+    
+    return acc;
+  }, {});
+  
+  const generatedVatSummary = Object.values(summaryObj);
+  const invoiceGross = parseFloat(data.gross_amount || data.totalGross || data.gross || 0) || 0;
+  const invoiceNet = parseFloat(data.net_amount || data.net || 0) || 0;
+  const invoiceVat = parseFloat(data.vat_amount || data.vat || 0) || 0;
 
   return (
     <Document title={`${isCorrection ? 'Korekta' : 'Faktura'}_${data.number}`}>
       <Page size="A4" style={styles.page}>
         
-        {/* Wystawiono dnia */}
         <View style={styles.topDate}>
           <Text>Wystawiono dnia: {data.dateIssue}, {data.place || 'Katowice'}</Text>
         </View>
 
-        {/* Header: Logo i Metryka */}
         <View style={styles.headerRow}>
           <View style={styles.logoBox}>
             <Text style={styles.logoText}>[{data.seller?.name || 'SklepXD.pl'}]</Text>
@@ -153,22 +152,19 @@ export const InvoiceDocument = ({ data }) => {
           </View>
         </View>
 
-        {/* Ramka korekty */}
-        {isCorrection && (
+        {isCorrection ? (
           <View style={styles.correctionBox}>
             <Text style={{ fontWeight: 700, color: '#b45309', marginBottom: 4 }}>Dotyczy dokumentu: {data.correctedDocNumber}</Text>
             <Text>Przyczyna korekty: {data.correctionReason}</Text>
           </View>
-        )}
+        ) : null}
 
-        {/* Sprzedawca i Nabywca */}
         <View style={styles.partiesRow}>
           <View style={styles.partyCol}>
             <Text style={styles.partyTitle}>Sprzedawca:</Text>
             <Text style={styles.partyName}>{data.seller?.name || '—'}</Text>
             <Text>{data.seller?.address || '—'}</Text>
             <Text>NIP: {data.seller?.nip || '—'}</Text>
-            {data.seller?.email && <Text>{data.seller.email}</Text>}
           </View>
           <View style={styles.partyCol}>
             <Text style={styles.partyTitle}>Nabywca:</Text>
@@ -178,7 +174,6 @@ export const InvoiceDocument = ({ data }) => {
           </View>
         </View>
 
-        {/* TABELA POZYCJI */}
         <Text style={styles.sectionTitle}>POZYCJE FAKTURY</Text>
         <View style={styles.table}>
           <View style={styles.trHead}>
@@ -192,13 +187,15 @@ export const InvoiceDocument = ({ data }) => {
             <Text style={styles.col8}>Wartość brutto</Text>
           </View>
 
-          {data.items.map((item, index) => {
+          {(data.items || []).map((item, index) => {
             const itemNet = parseFloat(item.unitPriceNet || item.price || 0) || 0;
             const qty = parseInt(item.qty || 1) || 1;
             const totalNet = itemNet * qty;
-            const itemGross = parseFloat(item.totalGross || 0) || 0;
-            const totalVat = (itemGross - totalNet) || 0;
-            const vatLabel = isNaN(parseFloat(item.vatRate)) ? (item.vatRate || '0%') : `${item.vatRate}%`;
+            const rateStr = String(item.vatRate || '0');
+            const vatMultiplier = isNaN(parseFloat(rateStr)) ? 0 : parseFloat(rateStr) / 100;
+            const totalVat = totalNet * vatMultiplier;
+            const itemGross = totalNet + totalVat;
+            const vatLabel = isNaN(parseFloat(rateStr)) ? rateStr : `${rateStr}%`;
 
             return (
               <View key={index} style={styles.tr}>
@@ -215,67 +212,59 @@ export const InvoiceDocument = ({ data }) => {
           })}
         </View>
 
-        {/* PODSUMOWANIE */}
-       <Text style={styles.sectionTitle}>PODSUMOWANIE</Text>
+        <Text style={styles.sectionTitle}>PODSUMOWANIE WEDŁUG STAWEK VAT</Text>
         <View style={styles.summaryWrapper}>
           <View style={styles.summaryTable}>
-            
             <View style={styles.sumTrHead}>
-              <Text style={styles.sumCol1}>Opis</Text>
-              <Text style={styles.sumCol2}>Netto</Text>
+              <Text style={styles.sumCol1}>Stawka VAT</Text>
+              <Text style={styles.sumCol2}>Wartość netto</Text>
               <Text style={styles.sumCol3}>VAT</Text>
               <Text style={styles.sumCol4}>Kwota VAT</Text>
-              <Text style={styles.sumCol5}>Brutto</Text>
+              <Text style={styles.sumCol5}>Wartość brutto</Text>
             </View>
 
-            {(data.items || []).map((item, i) => {
-              const price = parseFloat(item.unitPriceNet || item.price || 0) || 0;
-              const qty = parseInt(item.qty || 1) || 1;
-              const net = (price * qty).toFixed(2);
-              const rate = parseFloat(item.vatRate) || 0;
-              const vat = (price * qty * (rate / 100)).toFixed(2);
-              const gross = (parseFloat(net) + parseFloat(vat)).toFixed(2);
-              
+            {generatedVatSummary.map((group, i) => {
+              const vatLabel = isNaN(parseFloat(group.rate)) ? group.rate : `${group.rate}%`;
               return (
                 <View key={i} style={styles.sumTr}>
-                  <Text style={styles.sumCol1}>Stawka {item.vatRate || '0'}%</Text>
-                  <Text style={styles.sumCol2}>{net}</Text>
-                  <Text style={styles.sumCol3}>{item.vatRate || '0'}%</Text>
-                  <Text style={styles.sumCol4}>{vat}</Text>
-                  <Text style={styles.sumCol5}>{gross}</Text>
+                  <Text style={styles.sumCol1}>Stawka {vatLabel}</Text>
+                  <Text style={styles.sumCol2}>{group.net.toFixed(2)}</Text>
+                  <Text style={styles.sumCol3}>{vatLabel}</Text>
+                  <Text style={styles.sumCol4}>{group.vat.toFixed(2)}</Text>
+                  <Text style={styles.sumCol5}>{group.gross.toFixed(2)}</Text>
                 </View>
               );
             })}
 
             <View style={styles.sumTotalRow}>
               <Text style={styles.sumCol1}>Razem:</Text>
-              <Text style={styles.sumCol2}>{parseFloat(data.net || 0).toFixed(2)}</Text>
+              <Text style={styles.sumCol2}>{invoiceNet.toFixed(2)}</Text>
               <Text style={styles.sumCol3}></Text>
-              <Text style={styles.sumCol4}>{parseFloat(data.vat || 0).toFixed(2)}</Text>
-              <Text style={styles.sumCol5}>{parseFloat(data.gross || 0).toFixed(2)}</Text>
+              <Text style={styles.sumCol4}>{invoiceVat.toFixed(2)}</Text>
+              <Text style={styles.sumCol5}>{invoiceGross.toFixed(2)}</Text>
             </View>
 
-            <View style={[styles.detailsRow, { backgroundColor: '#f9fafb', marginTop: 4 }]}>
-              <Text style={styles.detailsLabel}>Zapłacono:</Text>
-              <Text style={styles.detailsValue}>{parseFloat(data.paid || 0).toFixed(2)} PLN</Text>
+            <View style={[styles.detailsRow, { backgroundColor: '#e5e7eb', marginTop: 4 }]}>
+              <Text style={styles.detailsLabel}>Razem do zapłaty:</Text>
+              <Text style={[styles.detailsValue, { fontWeight: 700 }]}>{invoiceGross.toFixed(2)} PLN</Text>
             </View>
-            <View style={[styles.detailsRow, { backgroundColor: '#e5e7eb' }]}>
-              <Text style={styles.detailsLabel}>Pozostało do zapłaty:</Text>
-              <Text style={[styles.detailsValue, { fontWeight: 700 }]}>{(Math.max(0, parseFloat(data.gross || 0) - parseFloat(data.paid || 0))).toFixed(2)} PLN</Text>
+            <View style={[styles.detailsRow, { backgroundColor: '#f9fafb' }]}>
+              <Text style={styles.detailsLabel}>Słownie:</Text>
+              <Text style={styles.detailsValue}>{kwotaSlownie(invoiceGross)}</Text>
             </View>
-            <View style={[styles.detailsRow, { backgroundColor: '#e5e7eb', marginTop: 5 }]}>
+            <View style={[styles.detailsRow, { backgroundColor: '#f9fafb' }]}>
               <Text style={styles.detailsLabel}>Konto bankowe:</Text>
               <Text style={styles.detailsValue}>{data.seller?.bankAccount || 'Brak danych konta'}</Text>
             </View>
-
             <View style={[styles.detailsRow, { backgroundColor: '#f9fafb' }]}>
               <Text style={styles.detailsLabel}>Uwagi:</Text>
-              <Text style={styles.detailsValue}>{data.note || 'Prosimy o terminową wpłatę.'}</Text>
+              <Text style={[styles.detailsValue, data.note?.includes('Mechanizm podzielonej płatności') ? { fontWeight: 700, color: '#b45309' } : {}]}>
+                {data.note || 'Prosimy o terminową wpłatę.'}
+              </Text>
             </View>
           </View>
         </View>
 
-        {/* Podpisy */}
         <View style={styles.signatures}>
           <View style={styles.signBox}>
             <Text>Osoba upoważniona do otrzymania faktury</Text>
@@ -287,7 +276,6 @@ export const InvoiceDocument = ({ data }) => {
           </View>
         </View>
 
-        {/* Stopka */}
         <View style={styles.footer} fixed>
           <Text>Druk: System SklepXD</Text>
           <Text>Dziękujemy za zakupy!</Text>
