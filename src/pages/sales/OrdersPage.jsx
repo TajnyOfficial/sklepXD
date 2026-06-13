@@ -185,7 +185,7 @@ export default function OrdersPage() {
                     </td>
                     <td>
                       <select
-                        className={`select select-sm ${o.status === 'completed' ? 'border-success text-success' : ''}`}
+                        className="select select-sm"
                         value={o.status}
                         onChange={(e) => handleStatusChange(o.id, e.target.value)}
                         style={{ width: 'auto' }}
@@ -195,7 +195,7 @@ export default function OrdersPage() {
                         <option value="picking">Kompletowane</option>
                         <option value="ready">Gotowe do odbioru</option>
                         <option value="partial">Wydanie częściowe</option>
-                        <option value="completed">Zakończone (Wydane)</option>
+                        <option value="issued">Zakończone (Wydane)</option>
                         <option value="cancelled">Anulowane</option>
                       </select>
                     </td>
@@ -240,7 +240,7 @@ export default function OrdersPage() {
               <option value="new">Nowe</option>
               <option value="ready">Gotowe do odbioru</option>
               <option value="partial">Wydanie częściowe</option>
-              <option value="completed">Wydane w całości</option>
+              <option value="issued">Wydane w całości</option>
             </select>
           </div>
         </div>
