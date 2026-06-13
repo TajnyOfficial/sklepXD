@@ -21,7 +21,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [monthlyData, setMonthlyData] = useState([]);
   const [vatSummary, setVatSummary] = useState({ output: 0, input: 0, toPay: 0 });
   const [sellerRanking, setSellerRanking] = useState([]);
@@ -56,16 +56,16 @@ export default function AnalyticsPage() {
       console.log("Pobrane koszty:", expenses.length);
 
       const monthlyMap = {};
-      
+
       // --- 1. PRZETWARZANIE SPRZEDAŻY ---
       invoices.forEach(inv => {
         // Szukamy daty gdziekolwiek (sale_date, issue_date, created_at)
         const docDate = inv.sale_date || inv.issue_date || inv.created_at;
         if (!docDate) return;
-        
-        const month = docDate.substring(0, 7); 
+
+        const month = docDate.substring(0, 7);
         if (!monthlyMap[month]) monthlyMap[month] = { month, revenue: 0, costs: 0, profit: 0 };
-        
+
         monthlyMap[month].revenue += Number(inv.net_amount) || Number(inv.gross_amount) || 0;
       });
 
@@ -73,10 +73,10 @@ export default function AnalyticsPage() {
       expenses.forEach(exp => {
         const docDate = exp.date || exp.created_at;
         if (!docDate) return;
-        
+
         const month = docDate.substring(0, 7);
         if (!monthlyMap[month]) monthlyMap[month] = { month, revenue: 0, costs: 0, profit: 0 };
-        
+
         monthlyMap[month].costs += Number(exp.net_amount) || Number(exp.gross_amount) || 0;
       });
 
@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
 
       // --- 3. PODSUMOWANIE VAT (Bieżący miesiąc - czerwiec 2026) ---
       const currentMonth = new Date().toISOString().substring(0, 7);
-      
+
       const currentMonthInvoices = invoices.filter(i => (i.sale_date || i.created_at || '').startsWith(currentMonth));
       const currentMonthExpenses = expenses.filter(e => (e.date || e.created_at || '').startsWith(currentMonth));
 
@@ -101,13 +101,13 @@ export default function AnalyticsPage() {
         // Strzelamy do wszystkich najpopularniejszych nazw kolumn, jakich mogłeś użyć:
         const sellerId = inv.issuer_name || inv.seller_name || inv.created_by || inv.author || 'Brak danych w bazie!';
         if (!sellersMap[sellerId]) sellersMap[sellerId] = { name: sellerId, sales: 0, transactions: 0 };
-        
+
         sellersMap[sellerId].sales += Number(inv.gross_amount) || 0;
         sellersMap[sellerId].transactions += 1;
       });
 
       const sellersData = Object.values(sellersMap).map(s => ({
-        name: s.name === 'Konto Główne' ? 'Konto Główne' : s.name.substring(0,15),
+        name: s.name === 'Konto Główne' ? 'Konto Główne' : s.name.substring(0, 15),
         sales: s.sales,
         transactions: s.transactions,
         avgTicket: s.sales / s.transactions
@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
   };
 
   if (isLoading) {
-    return <div className="page" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh'}}><h3>Przeliczanie wskaźników finansowych...</h3></div>;
+    return <div className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}><h3>Przeliczanie wskaźników finansowych...</h3></div>;
   }
 
   return (
@@ -162,19 +162,19 @@ export default function AnalyticsPage() {
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
               <XAxis dataKey="month" stroke="#6b7280" />
-              <YAxis stroke="#6b7280" tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+              <YAxis stroke="#6b7280" tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Bar dataKey="revenue" name="Przychody netto" fill="#6366f1" radius={[4,4,0,0]} />
-              <Bar dataKey="costs" name="Koszty netto" fill="#ef4444" radius={[4,4,0,0]} opacity={0.7} />
-              <Bar dataKey="profit" name="Zysk operacyjny" fill="#22c55e" radius={[4,4,0,0]} />
+              <Bar dataKey="revenue" name="Przychody netto" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="costs" name="Koszty netto" fill="#ef4444" radius={[4, 4, 0, 0]} opacity={0.7} />
+              <Bar dataKey="profit" name="Zysk operacyjny" fill="#22c55e" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
       </div>
 
       <div className="grid-2 mb-24" style={{ gap: 24 }}>
-        
+
         <div className="card">
           <h3 className="mb-16"><FiBarChart2 size={18} style={{ marginRight: 8 }} />Podsumowanie VAT (Bieżący miesiąc)</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -195,7 +195,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="card">
+        {/* <div className="card">
           <h3 className="mb-16"><FiUsers size={18} style={{ marginRight: 8 }} />Ranking efektywności</h3>
           <div className="table-container">
             {sellerRanking.length === 0 ? (
@@ -217,7 +217,7 @@ export default function AnalyticsPage() {
               </table>
             )}
           </div>
-        </div>
+        </div> */}
 
       </div>
     </div>

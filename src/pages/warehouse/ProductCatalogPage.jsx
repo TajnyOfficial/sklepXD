@@ -85,8 +85,10 @@ export default function ProductCatalogPage() {
 
   /* Walidacja poprawności formatu JSON, wymagalności pól (np. SKU) i docelowy zapis zmian do Supabase */
   async function handleSave() {
-    if (!form.name || !form.sku || !form.sell_price) {
-      toast.error('Wypełnij wymagane pola: Nazwa, SKU, Cena sprzedaży');
+    const isOutlet = categories.find(c => c.id === form.category_id)?.name.toLowerCase() === 'wyprzedaż';
+    
+    if (!form.name || !form.sku || (!isOutlet && (form.sell_price === '' || form.sell_price === null || form.sell_price === undefined))) {
+      toast.error(isOutlet ? 'Wypełnij wymagane pola: Nazwa, SKU' : 'Wypełnij wymagane pola: Nazwa, SKU, Cena sprzedaży');
       return;
     }
     
@@ -208,13 +210,20 @@ export default function ProductCatalogPage() {
             {filtered.map(p => {
               const cat = categories.find(c => c.id === p.category_id);
               const loc = warehouseLocations.find(l => l.id === p.location_id);
-              const margin = p.purchase_price > 0 ? ((p.sell_price - p.purchase_price) / p.sell_price * 100).toFixed(1) : '—';
+              const hasNoPrice = p.sell_price === null || p.sell_price === 0 || isNaN(p.sell_price);
+              const margin = !hasNoPrice && p.purchase_price > 0 ? ((p.sell_price - p.purchase_price) / p.sell_price * 100).toFixed(1) : '—';
+              
               return (
-                <tr key={p.id}>
+                <tr key={p.id} style={{ background: hasNoPrice ? 'rgba(239, 68, 68, 0.03)' : '' }}>
                   <td className="font-mono text-sm">{p.sku}</td>
                   <td style={{ fontWeight: 500 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <span>{p.name}</span>
+                      {hasNoPrice && (
+                        <span className="badge badge-danger" style={{ fontSize: '0.7rem', padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5' }}>
+                          Brak ceny
+                        </span>
+                      )}
                       {loc && (
                         <span className="badge badge-success text-xs" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
                           Sektor {loc.sector}
@@ -226,8 +235,22 @@ export default function ProductCatalogPage() {
                   <td><span className="badge badge-ghost">{cat?.name || '—'}</span></td>
                   <td>{p.unit}</td>
                   <td className="text-muted">{formatCurrency(p.purchase_price)}</td>
-                  <td style={{ fontWeight: 600 }}>{formatCurrency(p.sell_price)}</td>
-                  <td><span className={`badge ${parseFloat(margin) > 30 ? 'badge-success' : parseFloat(margin) > 15 ? 'badge-warning' : 'badge-danger'}`}>{margin}%</span></td>
+                  <td style={{ fontWeight: 600 }}>
+                    {hasNoPrice ? (
+                      <span className="badge badge-danger" style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', fontWeight: 700, fontSize: '0.75rem' }}>
+                        BRAK CENY!
+                      </span>
+                    ) : (
+                      formatCurrency(p.sell_price)
+                    )}
+                  </td>
+                  <td>
+                    {hasNoPrice ? (
+                      <span className="text-muted">—</span>
+                    ) : (
+                      <span className={`badge ${parseFloat(margin) > 30 ? 'badge-success' : parseFloat(margin) > 15 ? 'badge-warning' : 'badge-danger'}`}>{margin}%</span>
+                    )}
+                  </td>
                   <td><span style={{ fontWeight: 600, color: p.stock_qty <= p.min_stock ? 'var(--danger)' : 'var(--text-primary)' }}>{p.stock_qty}</span><span className="text-xs text-muted"> / min {p.min_stock}</span></td>
                   <td>
                     <div style={{ display: 'flex', gap: 4 }}>

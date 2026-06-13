@@ -302,6 +302,7 @@ export function getNavItems(userRole) {
         { id: 'warehouse-locations', label: 'Lokalizacje', path: '/warehouse/locations' },
         { id: 'warehouse-alerts', label: 'Alerty', path: '/warehouse/alerts' },
         { id: 'warehouse-transfers', label: 'Przesunięcia', path: '/warehouse/transfers' },
+        { id: 'warehouse-packaging', label: 'Opakowania', path: '/warehouse/packaging' },
         ...(hasPermission(userRole, PERMISSIONS.INVENTORY_VIEW) ? [{ id: 'warehouse-inventory', label: 'Inwentaryzacja', path: '/warehouse/inventory' }] : []),
       ],
     });

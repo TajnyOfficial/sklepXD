@@ -111,7 +111,7 @@ function MobilePinLogin() {
         }}>
           <FiTablet size={26} color="#fff" />
         </div>
-        <div style={{ color: 'var(--text-heading)', fontWeight: 800, fontSize: '1.4rem' }}>SklepXD Mobile</div>
+        <div style={{ color: 'var(--text-heading)', fontWeight: 800, fontSize: '1.4rem' }}>Sklep Mobile</div>
         <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 6 }}>
           Logowanie PIN — Inwentaryzacja i Magazyn
         </div>
@@ -121,46 +121,46 @@ function MobilePinLogin() {
         background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: '4px',
         padding: '32px 28px', width: '100%', maxWidth: 320,
       }}>
-      {/* PIN dots */}
-      <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 28 }}>
-        {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} style={{
-            width: 18, height: 18, borderRadius: '4px',
-            background: i < pin.length ? 'var(--accent)' : 'transparent',
-            border: `1px solid ${i < pin.length ? 'var(--accent)' : 'var(--border-primary)'}`,
-            transition: 'all 0.12s',
+        {/* PIN dots */}
+        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 28 }}>
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} style={{
+              width: 18, height: 18, borderRadius: '4px',
+              background: i < pin.length ? 'var(--accent)' : 'transparent',
+              border: `1px solid ${i < pin.length ? 'var(--accent)' : 'var(--border-primary)'}`,
+              transition: 'all 0.12s',
             }} />
           ))}
-      </div>
-
-      {error && (
-        <div style={{ textAlign: 'center', color: 'var(--danger)', fontSize: '0.85rem', marginBottom: 16 }}>
-          {error}
         </div>
-      )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => (
-          <button key={d} onClick={() => pressDigit(d)} style={{
+        {error && (
+          <div style={{ textAlign: 'center', color: 'var(--danger)', fontSize: '0.85rem', marginBottom: 16 }}>
+            {error}
+          </div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => (
+            <button key={d} onClick={() => pressDigit(d)} style={{
+              padding: '20px 8px', background: 'var(--bg-primary)', border: '1px solid var(--border-primary)',
+              borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.5rem', fontWeight: 700,
+              cursor: 'pointer', touchAction: 'manipulation',
+            }}>{d}</button>
+          ))}
+          <button onClick={() => setPin(p => p.slice(0, -1))} style={{
+            padding: '20px 8px', background: 'var(--danger-bg)', border: '1px solid var(--danger-border)',
+            borderRadius: '4px', color: 'var(--danger)', fontSize: '1.2rem', cursor: 'pointer',
+          }}>⌫</button>
+          <button onClick={() => pressDigit('0')} style={{
             padding: '20px 8px', background: 'var(--bg-primary)', border: '1px solid var(--border-primary)',
-            borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.5rem', fontWeight: 700,
-            cursor: 'pointer', touchAction: 'manipulation',
-          }}>{d}</button>
-        ))}
-        <button onClick={() => setPin(p => p.slice(0, -1))} style={{
-          padding: '20px 8px', background: 'var(--danger-bg)', border: '1px solid var(--danger-border)',
-          borderRadius: '4px', color: 'var(--danger)', fontSize: '1.2rem', cursor: 'pointer',
-        }}>⌫</button>
-        <button onClick={() => pressDigit('0')} style={{
-          padding: '20px 8px', background: 'var(--bg-primary)', border: '1px solid var(--border-primary)',
-          borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.5rem', fontWeight: 700, cursor: 'pointer',
-        }}>0</button>
-        <button onClick={handleSubmit} style={{
-          padding: '20px 8px', background: 'var(--accent)', border: '1px solid var(--accent)',
-          borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.2rem', cursor: 'pointer',
-        }}>✓</button>
+            borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.5rem', fontWeight: 700, cursor: 'pointer',
+          }}>0</button>
+          <button onClick={handleSubmit} style={{
+            padding: '20px 8px', background: 'var(--accent)', border: '1px solid var(--accent)',
+            borderRadius: '4px', color: 'var(--text-heading)', fontSize: '1.2rem', cursor: 'pointer',
+          }}>✓</button>
+        </div>
       </div>
-    </div>
     </div >
   );
 }

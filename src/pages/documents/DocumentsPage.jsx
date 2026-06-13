@@ -25,7 +25,7 @@ function emptyDoc(profile) {
     date_due: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
     payment_method: 'transfer',
     seller: {
-      name: 'SklepXD Sp. z o.o.',
+      name: 'Sklep Sp. z o.o.',
       address: 'ul. Przykładowa 1, 00-001 Warszawa',
       nip: '1234567890',
       bank: 'Bank Polski S.A.',
@@ -519,8 +519,8 @@ export default function DocumentsPage() {
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                 <div>Sposób płatności: <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
                   {previewDoc.payment_method === 'cash' ? 'Gotówka' :
-                   previewDoc.payment_method === 'card' ? 'Karta' :
-                   previewDoc.payment_method === 'transfer' ? 'Przelew bankowy' : 'Kredyt'}
+                    previewDoc.payment_method === 'card' ? 'Karta' :
+                      previewDoc.payment_method === 'transfer' ? 'Przelew bankowy' : 'Kredyt'}
                 </span></div>
                 {previewDoc.seller && (
                   <div style={{ marginTop: 4 }}>Wystawca: <span style={{ color: 'var(--text-primary)' }}>{previewDoc.seller}</span></div>

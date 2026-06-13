@@ -197,9 +197,13 @@ export default function POSPage() {
     // Omijamy CORS używając lokalnego proxy skonfigurowanego w vite.config.js
     try {
       const today = new Date().toISOString().split('T')[0];
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
       const response = await fetch(`/api-proxy/mf/${cleanNip}?date=${today}`, {
-        signal: AbortSignal.timeout(8000)
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
@@ -224,6 +228,10 @@ export default function POSPage() {
       }
     } catch (error) {
       console.error('MF API Error:', error);
+      toast.dismiss(statusToast);
+      toast.error('Błąd zapytania: ' + (error.message || 'Brak danych'));
+      setIsSearchingNip(false);
+      return;
     }
 
     toast.dismiss(statusToast);

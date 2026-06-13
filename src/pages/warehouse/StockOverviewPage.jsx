@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { formatCurrency } from '../../utils/helpers';
 import { FiDatabase, FiEdit, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import Modal from '../../components/Modal';
@@ -8,19 +9,20 @@ import toast from 'react-hot-toast';
 /* Podgląd stanu magazynu w czasie rzeczywistym, pozwalający na ręczne operacje "Przyjęcia" i "Wydania" (korekta stocku) */
 export default function StockOverviewPage() {
   /* Dostęp do globalnej listy asortymentu i API do inwentaryzacji/korekt na bazie */
-  const { products, categories, updateProductStock } = useStore();
+  const { products, categories, stockMovements, recordStockMovement } = useStore();
+  const { profile } = useAuth();
   
   /* Stany odpowiadające za wyświetlanie i obsługę formularza korekty magazynowej dla wybranego SKU */
   const [showAdjust, setShowAdjust] = useState(false);
   const [adjustProduct, setAdjustProduct] = useState(null);
   const [adjustQty, setAdjustQty] = useState('');
-  const [adjustType, setAdjustType] = useState('add');
+  const [adjustType, setAdjustType] = useState('in'); // 'in' (wniesienie) | 'out' (wyniesienie)
   const [adjustNote, setAdjustNote] = useState('');
 
-  function openAdjust(p) {
+  function openAdjust(p, type) {
     setAdjustProduct(p);
     setAdjustQty('');
-    setAdjustType('add');
+    setAdjustType(type);
     setAdjustNote('');
     setShowAdjust(true);
   }
@@ -29,11 +31,14 @@ export default function StockOverviewPage() {
   async function handleAdjust() {
     const qty = parseFloat(adjustQty);
     if (!qty || qty <= 0) { toast.error('Podaj poprawną ilość'); return; }
-    const delta = adjustType === 'add' ? qty : -qty;
+    if (!adjustNote.trim()) { toast.error('Wpisanie komentarza (powodu) jest obowiązkowe!'); return; }
+    
+    // 'in' (wniesienie) zwiększa stan (+), 'out' (wyniesienie) zmniejsza stan (-)
+    const delta = adjustType === 'in' ? qty : -qty;
 
     try {
-      await updateProductStock(adjustProduct.id, delta);
-      toast.success(`Stan ${adjustProduct.name}: ${adjustType === 'add' ? '+' : '-'}${qty} ${adjustProduct.unit}`);
+      await recordStockMovement(adjustProduct.id, adjustType, delta, adjustNote);
+      toast.success(`Zarejestrowano ${adjustType === 'in' ? 'wniesienie' : 'wyniesienie'}: ${qty} ${adjustProduct.unit}`);
       setShowAdjust(false);
     } catch (error) {
       console.error('Error updating stock in Supabase:', error);
@@ -41,7 +46,7 @@ export default function StockOverviewPage() {
     }
   }
 
-  const totalValue = products.reduce((s, p) => s + p.sell_price * p.stock_qty, 0);
+  const totalValue = products.reduce((s, p) => s + (p.sell_price || 0) * p.stock_qty, 0);
   const lowStockCount = products.filter(p => p.stock_qty <= p.min_stock && p.min_stock > 0).length;
 
   return (
@@ -49,9 +54,10 @@ export default function StockOverviewPage() {
       <div className="page-header">
         <div className="page-header-left">
           <h1>Stany magazynowe</h1>
-          <p>Real-time: stan całkowity, ostrzeżenia o niskich stanach</p>
+          <p>Real-time: wnoszenie, wynoszenie oraz kontrola logów ruchu towarów</p>
         </div>
       </div>
+      
       <div className="grid-3 mb-24">
         <div className="stat-card">
           <div className="stat-icon"><FiDatabase /></div>
@@ -69,6 +75,7 @@ export default function StockOverviewPage() {
           <span className="stat-value">{lowStockCount}</span>
         </div>
       </div>
+
       <div className="table-container">
         <table>
           <thead>
@@ -78,7 +85,7 @@ export default function StockOverviewPage() {
               <th>Stan magazynowy</th>
               <th>Min.</th>
               <th>Status</th>
-              <th></th>
+              <th style={{ textAlign: 'right' }}>Akcje szybkie</th>
             </tr>
           </thead>
           <tbody>
@@ -96,9 +103,42 @@ export default function StockOverviewPage() {
                     </span>
                   </td>
                   <td>
-                    <button className="btn btn-ghost btn-sm" onClick={() => openAdjust(p)} title="Koryguj stan">
-                      <FiEdit size={14} />
-                    </button>
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button 
+                        className="btn btn-sm" 
+                        onClick={() => openAdjust(p, 'in')} 
+                        title="Wnieś towar"
+                        style={{ 
+                          background: 'var(--success-bg, rgba(22, 163, 74, 0.1))', 
+                          color: 'var(--success, #16a34a)', 
+                          border: 'none', 
+                          padding: '6px 12px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 4, 
+                          fontWeight: 600 
+                        }}
+                      >
+                        <FiArrowUp size={14} /> Wnieś
+                      </button>
+                      <button 
+                        className="btn btn-sm" 
+                        onClick={() => openAdjust(p, 'out')} 
+                        title="Wynieś towar"
+                        style={{ 
+                          background: 'var(--danger-bg, rgba(220, 38, 38, 0.1))', 
+                          color: 'var(--danger, #dc2626)', 
+                          border: 'none', 
+                          padding: '6px 12px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 4, 
+                          fontWeight: 600 
+                        }}
+                      >
+                        <FiArrowDown size={14} /> Wynieś
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -106,39 +146,78 @@ export default function StockOverviewPage() {
           </tbody>
         </table>
       </div>
+
+
+      {/* Modal Wnoszenia / Wynoszenia */}
       <Modal
         isOpen={showAdjust}
         onClose={() => setShowAdjust(false)}
-        title={`Korekta stanu — ${adjustProduct?.name}`}
+        title={adjustType === 'in' ? `Wnoszenie towaru — ${adjustProduct?.name}` : `Wynoszenie towaru — ${adjustProduct?.name}`}
         footer={
           <>
             <button className="btn btn-secondary" onClick={() => setShowAdjust(false)}>Anuluj</button>
-            <button className="btn btn-primary" onClick={handleAdjust}>Zastosuj</button>
+            <button 
+              className="btn" 
+              onClick={handleAdjust}
+              style={{
+                background: adjustType === 'in' ? 'var(--success, #16a34a)' : 'var(--danger, #dc2626)',
+                color: '#fff'
+              }}
+            >
+              Zatwierdź
+            </button>
           </>
         }
       >
         {adjustProduct && (
           <div>
-            <div className="flex-between mb-16" style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-              <span className="text-muted">Aktualny stan:</span>
-              <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>{adjustProduct.stock_qty} {adjustProduct.unit}</span>
+            <div className="flex-between mb-16" style={{ padding: '12px', background: 'var(--bg-tertiary)', borderRadius: 8 }}>
+              <span className="text-muted">Aktualny stan w magazynie:</span>
+              <span style={{ fontWeight: 700, fontSize: '1.2rem', color: 'var(--primary)' }}>{adjustProduct.stock_qty} {adjustProduct.unit}</span>
             </div>
+            
             <div className="input-row mb-16">
               <div className="input-group">
-                <label>Operacja</label>
-                <select className="select" value={adjustType} onChange={e => setAdjustType(e.target.value)}>
-                  <option value="add">➕ Przyjęcie</option>
-                  <option value="sub">➖ Wydanie / Korekta</option>
-                </select>
+                <label>Typ operacji</label>
+                <input 
+                  className="input" 
+                  value={adjustType === 'in' ? '➕ Wnoszenie (Przyjęcie)' : '➖ Wynoszenie (Wydanie)'} 
+                  disabled 
+                  style={{ fontWeight: 600, color: adjustType === 'in' ? 'var(--success)' : 'var(--danger)', background: 'var(--bg-secondary)' }}
+                />
               </div>
               <div className="input-group">
-                <label>Ilość</label>
-                <input className="input" type="number" value={adjustQty} onChange={e => setAdjustQty(e.target.value)} autoFocus />
+                <label>Ilość *</label>
+                <input 
+                  className="input" 
+                  type="number" 
+                  placeholder="0"
+                  value={adjustQty} 
+                  onChange={e => setAdjustQty(e.target.value)} 
+                  autoFocus 
+                />
               </div>
             </div>
+
+            <div className="input-group mb-16">
+              <label>Pracownik realizujący (Z sesji)</label>
+              <input 
+                className="input" 
+                value={profile?.full_name || 'System'} 
+                disabled 
+                style={{ fontWeight: 500, background: 'var(--bg-secondary)' }}
+              />
+            </div>
+
             <div className="input-group">
-              <label>Notatka (powód)</label>
-              <input className="input" value={adjustNote} onChange={e => setAdjustNote(e.target.value)} placeholder="np. Korekta po inwentaryzacji" />
+              <label>Komentarz / Powód operacji *</label>
+              <textarea 
+                className="input" 
+                rows="3"
+                value={adjustNote} 
+                onChange={e => setAdjustNote(e.target.value)} 
+                placeholder="Napisz szczegółowo powód (np. Zwrot uszkodzonego opakowania do producenta, Korekta stanów z dnia...)" 
+              />
             </div>
           </div>
         )}

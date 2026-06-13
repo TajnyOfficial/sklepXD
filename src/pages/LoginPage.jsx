@@ -8,10 +8,10 @@ import toast from 'react-hot-toast';
 export default function LoginPage() {
   /* Funkcja weryfikująca poświadczenia udostępniana przez kontekst uwierzytelniania */
   const { loginWithCredentials } = useAuth();
-  
+
   /* Zmienna routingu react-router-dom do przekierowywania np. po udanym logowaniu */
   const navigate = useNavigate();
-  
+
   /* Lokalne stany formularza kontrolujące inputy oraz stan procedury logowania (ładowanie, błędne hasło) */
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -64,11 +64,11 @@ export default function LoginPage() {
         boxShadow: '0 20px 40px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.05)',
         border: '1px solid var(--border-light)'
       }}>
-        
-        <div className="login-logo" style={{ marginBottom: '32px' }}>
-          <div className="sidebar-logo" style={{ 
-            width: 56, 
-            height: 56, 
+
+        {/* <div className="login-logo" style={{ marginBottom: '32px' }}>
+          <div className="sidebar-logo" style={{
+            width: 56,
+            height: 56,
             fontSize: '1.8rem',
             margin: '0 auto',
             background: 'linear-gradient(135deg, var(--primary), var(--accent))',
@@ -79,9 +79,9 @@ export default function LoginPage() {
             justifyContent: 'center',
             fontWeight: 800
           }}>S</div>
-        </div>
-        
-        <h2 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.5rem', fontWeight: 700 }}>SklepXD ERP</h2>
+        </div> */}
+
+        <h2 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.5rem', fontWeight: 700 }}>Sklep ERP</h2>
         <p className="login-subtitle" style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-muted)' }}>
           Zaloguj się do panelu zarządzania
         </p>
@@ -106,11 +106,11 @@ export default function LoginPage() {
             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Nazwa użytkownika</label>
             <div style={{ position: 'relative' }}>
               <FiUser style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
-              <input 
-                type="text" 
-                className="input" 
+              <input
+                type="text"
+                className="input"
                 style={{ paddingLeft: 42, paddingRight: 16, height: 48, fontSize: '1rem' }}
-                placeholder="Wprowadź login lub email..." 
+                placeholder="Wprowadź login lub email..."
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 autoFocus
@@ -123,11 +123,11 @@ export default function LoginPage() {
             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Hasło</label>
             <div style={{ position: 'relative' }}>
               <FiLock style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
-              <input 
-                type="password" 
-                className="input" 
+              <input
+                type="password"
+                className="input"
                 style={{ paddingLeft: 42, paddingRight: 16, height: 48, fontSize: '1rem' }}
-                placeholder="Wprowadź hasło..." 
+                placeholder="Wprowadź hasło..."
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 disabled={loading}
@@ -135,13 +135,13 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary" 
-            style={{ 
-              width: '100%', 
-              height: 48, 
-              fontSize: '1rem', 
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{
+              width: '100%',
+              height: 48,
+              fontSize: '1rem',
               fontWeight: 600,
               display: 'flex',
               justifyContent: 'center',
@@ -153,10 +153,10 @@ export default function LoginPage() {
             {loading ? <div className="spinner"></div> : <><FiLogIn /> Zaloguj się</>}
           </button>
         </form>
-        
-        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+
+        {/* <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
           Konto awaryjne: login <b>admin</b>, hasło <b>admin</b>
-        </div>
+        </div> */}
       </div>
     </div>
   );

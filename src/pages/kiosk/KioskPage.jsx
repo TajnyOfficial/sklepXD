@@ -43,7 +43,7 @@ function PinDisplay({ value }) {
             background: filled ? 'var(--accent)' : 'transparent',
             border: `1px solid ${filled ? 'var(--accent)' : 'var(--border-primary)'}`,
             transition: 'all 0.15s',
-            
+
           }}
         />
       ))}
@@ -90,7 +90,7 @@ function NumKey({ label, sub, onClick, danger, wide }) {
 const STATUS_CONFIG = {
   idle: { bg: 'var(--bg-primary)', color: 'var(--text-primary)', icon: '', text: '' },
   checking: { bg: 'var(--bg-card)', color: 'var(--text-muted)', icon: '⏳', text: 'Weryfikacja...' },
-  success_in:  { bg: 'var(--success-bg)', color: 'var(--success)', icon: '✅', text: 'Witaj!' },
+  success_in: { bg: 'var(--success-bg)', color: 'var(--success)', icon: '✅', text: 'Witaj!' },
   success_out: { bg: 'var(--info-bg)', color: 'var(--info)', icon: '👋', text: 'Żegnaj!' },
   error: { bg: 'var(--danger-bg)', color: 'var(--danger)', icon: '❌', text: 'Błąd' },
 };
@@ -145,7 +145,7 @@ export default function KioskPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
         <div style={{ width: 44, height: 44, borderRadius: '4px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', color: '#fff' }}>S</div>
         <div>
-          <div style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '1.1rem' }}>SklepXD HR</div>
+          <div style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '1.1rem' }}>Sklep HR</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Terminal rejestracji czasu pracy</div>
         </div>
       </div>
@@ -157,7 +157,7 @@ export default function KioskPage() {
         background: 'var(--bg-card)', borderRadius: '4px',
         border: `1px solid ${status === 'error' ? 'var(--danger)' : status === 'success' ? 'var(--success)' : 'var(--border-primary)'}`,
         padding: '28px 24px 24px',
-        
+
       }}>
         {status !== 'idle' ? (
           <div style={{ textAlign: 'center', marginBottom: 20 }}>

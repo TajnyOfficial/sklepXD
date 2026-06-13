@@ -21,39 +21,43 @@ const CROSS_SELL_MAP = {};
 export function StoreProvider({ children }) {
   /* Stan uwierzytelnienia pobierany z AuthContext */
   const { isAuthenticated, profile } = useAuth();
-  
+
   /* Flaga określająca czy aplikacja jest połączona z instancją Supabase */
   const isSupabase = !!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co');
-  
+
   /* Stan przechowujący listę wszystkich produktów */
   const [products, setProducts] = useState([]);
-  
+
   /* Stan przechowujący listę kategorii asortymentu */
   const [categories, setCategories] = useState([]);
-  
+
   /* Stan przechowujący bazę klientów */
   const [customers, setCustomers] = useState([]);
-  
+
   /* Stan przechowujący listę dostawców zewnętrznych */
   const [suppliers, setSuppliers] = useState([]);
-  
+
   /* Stan przechowujący listę pracowników sklepu */
   const [employees, setEmployees] = useState([]);
-  
+
   /* Stan przechowujący zarejestrowane transakcje (paragony/faktury z POS) */
   const [transactions, setTransactions] = useState([]);
-  
+
   /* Stan przechowujący wystawione dokumenty kasowe i handlowe */
   const [documents, setDocuments] = useState([]);
-  
+
   /* Stan przechowujący zgłoszone zwroty towarów */
   const [returnsList, setReturnsList] = useState([]);
-  
+
   /* Stan przechowujący logi rejestracji czasu pracy (wejścia/wyjścia) */
   const [attendance, setAttendance] = useState([]);
-  
+
   /* Stan przechowujący lokalizacje magazynowe (regały/półki) */
   const [warehouseLocations, setWarehouseLocations] = useState([]);
+
+  /* Stany dla nowych funkcji magazynowych, dostaw i opakowań */
+  const [stockMovements, setStockMovements] = useState([]);
+  const [packaging, setPackaging] = useState([]);
   const [inventories, setInventories] = useState(() => {
     try {
       const saved = localStorage.getItem('store_inventories');
@@ -189,7 +193,7 @@ export function StoreProvider({ children }) {
       try {
         const { data: existing } = await supabase.from('store_settings').select('id, settings_json').limit(1);
         const currentJson = existing && existing[0] ? existing[0].settings_json || {} : {};
-        
+
         const row = {
           settings_json: {
             ...currentJson,
@@ -214,7 +218,7 @@ export function StoreProvider({ children }) {
   }, [isSupabase, shopSettings]);
 
   /* Funkcja dodająca wpis do dziennika logów audytu stanowiska POS */
-  const addPosLog = useCallback(async (type, user, register, details, amount = null) => {
+  const addPosLog = useCallback(async (type, user, register, details, amount = null, extra = null) => {
     const newLog = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
       type,
@@ -222,7 +226,8 @@ export function StoreProvider({ children }) {
       register,
       time: new Date().toISOString(),
       details,
-      amount
+      amount,
+      rawDetails: { type, register, amount, details, extra }
     };
     setPosLogs(prev => {
       const updated = [newLog, ...prev];
@@ -245,7 +250,7 @@ export function StoreProvider({ children }) {
           action: dbAction,
           entity_type: 'pos',
           description: `${user} [${register}]: ${details}`,
-          details: { type, register, amount, details },
+          details: { type, register, amount, details, extra },
           user_name: user,
           user_id: emp ? emp.id : null
         });
@@ -264,31 +269,31 @@ export function StoreProvider({ children }) {
         deviceId = crypto.randomUUID();
         localStorage.setItem(`${appType}_device_id`, deviceId);
       }
-      
+
       const { data: existingSessions } = await supabase
         .from('active_sessions')
         .select('id, device_id')
         .eq('profile_id', employeeId)
         .eq('app_type', appType);
-        
+
       if (existingSessions && existingSessions.length > 0) {
         const otherDevice = existingSessions.find(s => s.device_id !== deviceId);
         if (otherDevice) {
           return { success: false, error: `Użytkownik jest już zalogowany na innym urządzeniu (${appType}).` };
         }
       }
-      
+
       const { error } = await supabase.from('active_sessions').upsert({
         profile_id: employeeId,
         device_id: deviceId,
         app_type: appType,
         last_seen_at: new Date().toISOString()
       }, { onConflict: 'device_id,app_type' });
-      
+
       if (error && (error.code === '42P01' || error.message?.includes('relation'))) {
-         console.warn('Tabela active_sessions nie istnieje. Logowanie kontynuowane offline.');
+        console.warn('Tabela active_sessions nie istnieje. Logowanie kontynuowane offline.');
       }
-      
+
       return { success: true };
     } catch (e) {
       console.error(e);
@@ -304,7 +309,7 @@ export function StoreProvider({ children }) {
     if (deviceId) {
       try {
         await supabase.from('active_sessions').delete().eq('device_id', deviceId).eq('app_type', appType);
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -391,7 +396,7 @@ export function StoreProvider({ children }) {
           if (s.settings_json?.role_permissions) {
             for (const k in ROLE_PERMISSIONS) delete ROLE_PERMISSIONS[k];
             Object.assign(ROLE_PERMISSIONS, s.settings_json.role_permissions);
-            
+
             setShopSettings(prev => ({
               ...prev,
               role_permissions: s.settings_json.role_permissions
@@ -683,7 +688,7 @@ export function StoreProvider({ children }) {
         let meta = { customer: 'Nieznany', receipt: '' };
         try {
           if (r.note && r.note.startsWith('{')) meta = JSON.parse(r.note);
-        } catch(e){}
+        } catch (e) { }
         return {
           id: r.id,
           number: r.return_number,
@@ -714,7 +719,7 @@ export function StoreProvider({ children }) {
         try {
           const saved = localStorage.getItem('work_schedules');
           if (saved) setSchedules(JSON.parse(saved));
-        } catch {}
+        } catch { }
       }
 
       // --- LOGI AUDYTU (AUDIT LOGS) ---
@@ -725,7 +730,8 @@ export function StoreProvider({ children }) {
         register: l.details?.register || 'POS',
         time: l.created_at || new Date().toISOString(),
         details: l.description,
-        amount: l.details?.amount || null
+        amount: l.details?.amount || null,
+        rawDetails: l.details
       }));
       if (loadedLogs.length > 0) {
         setPosLogs(loadedLogs);
@@ -733,7 +739,7 @@ export function StoreProvider({ children }) {
         try {
           const saved = localStorage.getItem('pos_logs');
           if (saved) setPosLogs(JSON.parse(saved));
-        } catch {}
+        } catch { }
       }
 
       // --- USTAWIENIA SKLEPU (STORE SETTINGS) ---
@@ -774,7 +780,7 @@ export function StoreProvider({ children }) {
         try {
           const saved = localStorage.getItem('shop_settings');
           if (saved) setShopSettings(JSON.parse(saved));
-        } catch {}
+        } catch { }
       }
 
       // --- INWENTARYZACJE ---
@@ -842,6 +848,32 @@ export function StoreProvider({ children }) {
         }
       } else {
         setInventories(mappedInvs);
+      }
+
+      // Pobieranie ruchów magazynowych z bazy Supabase
+      try {
+        const { data: smData, error: smErr } = await supabase
+          .from('stock_movements')
+          .select('*, profile:profiles(full_name)')
+          .order('created_at', { ascending: false });
+        if (!smErr && smData) {
+          setStockMovements(smData);
+        }
+      } catch (e) {
+        console.warn('Failed to load stock movements in loadData:', e);
+      }
+
+      // Pobieranie opakowań z bazy Supabase (żadne dane nie są zaszyte w kodzie)
+      try {
+        const { data: pkgData, error: pkgErr } = await supabase
+          .from('packaging')
+          .select('*')
+          .order('name');
+        if (!pkgErr && pkgData) {
+          setPackaging(pkgData);
+        }
+      } catch (e) {
+        console.warn('Failed to load packaging in loadData:', e);
       }
 
     } catch (err) {
@@ -949,14 +981,14 @@ export function StoreProvider({ children }) {
       location_id: productData.location_id || null,
       unit: productData.unit || 'szt',
       purchase_price: parseFloat(productData.purchase_price) || 0,
-      sell_price: parseFloat(productData.sell_price) || 0,
+      sell_price: productData.sell_price === '' || productData.sell_price === null || productData.sell_price === undefined || isNaN(parseFloat(productData.sell_price)) ? null : parseFloat(productData.sell_price),
       min_stock: parseInt(productData.min_stock) || 0,
       stock_qty: parseFloat(productData.stock_qty) || 0,
       barcodes: Array.isArray(productData.barcodes)
         ? productData.barcodes
         : (productData.barcodes ? String(productData.barcodes).split(',').map(b => b.trim()).filter(Boolean) : []),
-      attributes: typeof productData.attributes === 'string' 
-        ? (() => { try { return JSON.parse(productData.attributes); } catch { return {}; } })() 
+      attributes: typeof productData.attributes === 'string'
+        ? (() => { try { return JSON.parse(productData.attributes); } catch { return {}; } })()
         : (productData.attributes || {}),
     };
 
@@ -1038,6 +1070,191 @@ export function StoreProvider({ children }) {
     const userLabel = profile ? profile.full_name : 'System';
     addPosLog('stock', userLabel, 'Admin', `Korekta stanu magazynowego produktu "${product.name}": ${product.stock_qty} → ${newQty} szt. (${change > 0 ? '+' : ''}${change} szt.)`);
   }, [isSupabase, products, addPosLog, profile]);
+
+  const recordStockMovement = useCallback(async (productId, type, change, note) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const newQty = Math.max(0, (product.stock_qty || 0) + change);
+
+    if (isSupabase) {
+      // 1. Aktualizacja w tabeli products
+      await supabase.from('products').update({ stock_qty: newQty }).eq('id', productId);
+
+      // 2. Dodanie do stock_movements
+      const movementRow = {
+        product_id: productId,
+        type: type,
+        qty_change: change,
+        qty_before: product.stock_qty || 0,
+        qty_after: newQty,
+        note: note || '',
+        user_id: profile?.id || null
+      };
+
+      const { data: mRes, error: mErr } = await supabase
+        .from('stock_movements')
+        .insert(movementRow)
+        .select('*, profile:profiles(full_name)')
+        .single();
+
+      if (!mErr && mRes) {
+        setStockMovements(prev => [mRes, ...prev]);
+      } else {
+        // Fallback w razie problemów z relacją
+        const fallbackRes = { ...movementRow, id: crypto.randomUUID(), created_at: new Date().toISOString(), profile: { full_name: profile ? profile.full_name : 'System' } };
+        setStockMovements(prev => [fallbackRes, ...prev]);
+      }
+    } else {
+      // Tryb offline/demo
+      const mockMovement = {
+        id: crypto.randomUUID(),
+        product_id: productId,
+        type: type,
+        qty_change: change,
+        qty_before: product.stock_qty || 0,
+        qty_after: newQty,
+        note: note || '',
+        user_id: profile?.id || null,
+        created_at: new Date().toISOString(),
+        profile: { full_name: profile ? profile.full_name : 'System' }
+      };
+      setStockMovements(prev => [mockMovement, ...prev]);
+    }
+
+    // Aktualizacja stanu lokalnego produktów
+    setProducts(prev => prev.map(p => p.id === productId ? { ...p, stock_qty: newQty } : p));
+
+    // Zapisz w logach POS z pełnymi szczegółami do audytu
+    const userLabel = profile ? profile.full_name : 'System';
+    const actionLabel = type === 'in' ? 'Wniesienie' : 'Wyniesienie';
+    addPosLog(
+      'stock',
+      userLabel,
+      'Magazyn',
+      `${actionLabel} produktu "${product.name}": ${product.stock_qty} → ${newQty} szt. (${change > 0 ? '+' : ''}${change} szt.) - Komentarz: ${note}`,
+      null,
+      {
+        entity_name: product.name,
+        sku: product.sku,
+        qty_change: change,
+        qty_before: product.stock_qty || 0,
+        qty_after: newQty,
+        comment: note,
+        op_type: actionLabel
+      }
+    );
+
+    return newQty;
+  }, [isSupabase, products, addPosLog, profile]);
+
+  const addDamagedProductToOutlet = useCallback(async (originalProduct, qty) => {
+    let saleCat = categories.find(c => c.name.toLowerCase() === 'wyprzedaż');
+    let saleCatId = saleCat?.id;
+
+    if (!saleCatId && isSupabase) {
+      try {
+        const { data: newCat, error: catErr } = await supabase
+          .from('categories')
+          .insert({ name: 'Wyprzedaż', icon: 'FiPercent', sort_order: 99 })
+          .select()
+          .single();
+        if (!catErr && newCat) {
+          saleCatId = newCat.id;
+          setCategories(prev => [...prev, newCat]);
+        }
+      } catch (e) {
+        console.error('Błąd tworzenia kategorii Wyprzedaż:', e);
+      }
+    }
+
+    if (!saleCatId) {
+      saleCatId = 'wyprzedaz-cat-uuid';
+      const newCat = { id: saleCatId, name: 'Wyprzedaż', icon: 'FiPercent', sort_order: 99 };
+      setCategories(prev => {
+        if (!prev.some(c => c.id === saleCatId)) return [...prev, newCat];
+        return prev;
+      });
+    }
+
+    const outletSku = `${originalProduct.sku}-WYP-${Date.now().toString().slice(-4)}`;
+
+    const row = {
+      name: `${originalProduct.name} (Wyprzedaż - Uszkodzony)`,
+      sku: outletSku,
+      category_id: saleCatId,
+      location_id: originalProduct.location_id || null,
+      unit: originalProduct.unit || 'szt',
+      purchase_price: parseFloat(originalProduct.purchase_price) || 0,
+      sell_price: null, // Pusta cena sprzedaży!
+      min_stock: 0,
+      stock_qty: qty,
+      barcodes: [],
+      attributes: { stan: 'Uszkodzony outlet' }
+    };
+
+    if (isSupabase) {
+      const { data, error } = await supabase.from('products').insert(row).select().single();
+      if (error) {
+        console.error('Błąd dodawania produktu wyprzedażowego:', error);
+        throw error;
+      }
+      setProducts(prev => [...prev, data]);
+
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('create', userLabel, 'Admin', `Dodano uszkodzony produkt z dostawy do Wyprzedaży: "${row.name}" (SKU: ${row.sku}, Ilość: ${qty})`);
+      return data;
+    } else {
+      const newProd = { ...row, id: crypto.randomUUID() };
+      setProducts(prev => [...prev, newProd]);
+
+      const userLabel = profile ? profile.full_name : 'System';
+      addPosLog('create', userLabel, 'Admin', `[DEMO] Dodano uszkodzony produkt z dostawy do Wyprzedaży: "${row.name}" (SKU: ${row.sku}, Ilość: ${qty})`);
+      return newProd;
+    }
+  }, [isSupabase, categories, profile, addPosLog]);
+
+  const updatePackagingQty = useCallback(async (packagingId, change, note) => {
+    const pkgItem = packaging.find(p => p.id === packagingId);
+    if (!pkgItem) return;
+    const newQty = Math.max(0, Number(pkgItem.qty || 0) + change);
+
+    if (isSupabase) {
+      const { error } = await supabase
+        .from('packaging')
+        .update({ qty: newQty, updated_at: new Date().toISOString() })
+        .eq('id', packagingId);
+      if (error) {
+        console.error('Failed to update packaging in Supabase:', error);
+        throw error;
+      }
+    }
+
+    // Aktualizacja stanu lokalnego
+    setPackaging(prev => prev.map(p => p.id === packagingId ? { ...p, qty: newQty } : p));
+
+    // Zapisz w logach POS/Audytu z pełną sygnaturą!
+    const userLabel = profile ? profile.full_name : 'System';
+    const actionLabel = change > 0 ? 'Wniesienie (dodanie)' : 'Wyniesienie (zdjęcie)';
+
+    addPosLog(
+      'stock',
+      userLabel,
+      'Magazyn',
+      `${actionLabel} opakowania "${pkgItem.name}": ${pkgItem.qty} → ${newQty} szt. (${change > 0 ? '+' : ''}${change} szt.) - Komentarz: ${note}`,
+      null,
+      {
+        entity_name: pkgItem.name,
+        sku: `PKG-${pkgItem.type.toUpperCase()}`,
+        qty_change: change,
+        qty_before: pkgItem.qty || 0,
+        qty_after: newQty,
+        comment: note,
+        op_type: actionLabel
+      }
+    );
+
+    return newQty;
+  }, [isSupabase, packaging, addPosLog, profile]);
 
   const saveWarehouseLocation = useCallback(async (locationData, existingId = null) => {
     const row = {
@@ -1164,7 +1381,7 @@ export function StoreProvider({ children }) {
         }
       }
     }
-    
+
     if (wasArchived) {
       setEmployees(prev => prev.map(e => e.id === employeeId ? { ...e, active: false, is_active: false } : e));
     } else {
@@ -1239,37 +1456,37 @@ export function StoreProvider({ children }) {
       if (updateErr) throw updateErr;
 
       setAttendance(prev => prev.map(a => a.id === entryId ? updated : a));
-      
+
       if (addPosLog) {
         addPosLog('logout', employee.name || employee.full_name, 'Kiosk', 'Zakończenie zmiany (Wyjście z pracy)');
       }
-      
+
       return { employee, type: 'clock_out', entry: updated };
     } else {
       // 3b. Wejście (Clock In)
       // Walidacja: czy pracownik ma dzisiaj zmianę w grafiku? (czas lokalny)
       const localDate = new Date();
       const dzisiaj = localDate.getFullYear() + '-' + String(localDate.getMonth() + 1).padStart(2, '0') + '-' + String(localDate.getDate()).padStart(2, '0');
-      
+
       const { data: shiftData, error: shiftErr } = await supabase
         .from('schedules')
         .select('*')
         .eq('profile_id', employee.id)
         .eq('date', dzisiaj)
         .single();
-        
+
       if (shiftErr || !shiftData) {
         throw new Error("Nie masz dzisiaj zaplanowanej zmiany w grafiku.");
       }
-      
+
       // Walidacja: max 15 minut przed czasem
       const [h, m] = shiftData.shift_start.split(':').map(Number);
       const shiftStartTime = new Date();
       shiftStartTime.setHours(h, m, 0, 0);
-      
+
       const currentTime = new Date();
       const diffMinutes = (shiftStartTime.getTime() - currentTime.getTime()) / (1000 * 60);
-      
+
       if (diffMinutes > 15) {
         throw new Error(`Za wcześnie! Twoja zmiana zaczyna się o ${shiftData.shift_start}. Najwcześniej możesz wejść 15 min przed.`);
       }
@@ -1286,11 +1503,11 @@ export function StoreProvider({ children }) {
       if (insertErr) throw insertErr;
 
       setAttendance(prev => [inserted, ...prev]);
-      
+
       if (addPosLog) {
         addPosLog('login', employee.name || employee.full_name, 'Kiosk', 'Rozpoczęcie zmiany (Wejście do pracy)');
       }
-      
+
       return { employee, type: 'clock_in', entry: inserted };
     }
   }, [isSupabase, employees]);
@@ -1337,7 +1554,7 @@ export function StoreProvider({ children }) {
   const updateDocumentStatus = useCallback(async (docId, newStatus) => {
     const doc = documents.find(d => d.id === docId || d._db_id === docId);
     if (!doc) return;
-    
+
     if (isSupabase && doc._db_id) {
       const { error } = await supabase.from('documents').update({ status: newStatus }).eq('id', doc._db_id);
       if (error) throw error;
@@ -1710,7 +1927,7 @@ export function StoreProvider({ children }) {
   // ── Stare funkcje (zachowane dla kompatybilności) ─────────────────────────
   const addDocument = saveDocument;
 
-  
+
   // ── DOSTAWCY ─────────────────────────────────────────────────────────────
   const saveSupplier = useCallback(async (supData, existingId = null) => {
     const row = {
@@ -1811,6 +2028,7 @@ export function StoreProvider({ children }) {
     getCustomerDiscount, getLowStockProducts,
     // Supabase-backed mutations
     saveProduct, deleteProduct, updateProductStock,
+    recordStockMovement, addDamagedProductToOutlet, updatePackagingQty,
     saveCategory, deleteCategory,
     saveEmployee, deleteEmployee, toggleEmployeeActive, clockInOutEmployee,
     saveDocument, addDocument, updateDocumentStatus,
@@ -1820,6 +2038,8 @@ export function StoreProvider({ children }) {
     returnsList, saveReturn, updateReturnStatus,
     // Attendance state
     attendance,
+    stockMovements, setStockMovements,
+    packaging, setPackaging,
     // Legacy setters (demo mode / inne widoki)
     setProducts, setCategories, setCustomers, setSuppliers, setEmployees, setTransactions,
     refreshData: loadData,

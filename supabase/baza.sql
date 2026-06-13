@@ -1,334 +1,6 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
-CREATE TABLE public.absences (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  profile_id uuid NOT NULL,
-  type USER-DEFINED NOT NULL,
-  status USER-DEFINED DEFAULT 'pending'::absence_status,
-  date_from date NOT NULL,
-  date_to date NOT NULL,
-  days_count integer NOT NULL DEFAULT 1,
-  note text,
-  approved_by uuid,
-  approved_at timestamp with time zone,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT absences_pkey PRIMARY KEY (id),
-  CONSTRAINT absences_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
-  CONSTRAINT absences_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.active_sessions (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  profile_id uuid NOT NULL,
-  device_id text NOT NULL,
-  app_type text NOT NULL,
-  created_at timestamp with time zone DEFAULT now(),
-  last_seen_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT active_sessions_pkey PRIMARY KEY (id),
-  CONSTRAINT active_sessions_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.announcements (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  title text NOT NULL,
-  content text NOT NULL,
-  priority USER-DEFINED DEFAULT 'normal'::announcement_priority,
-  author_id uuid,
-  is_pinned boolean DEFAULT false,
-  expires_at timestamp with time zone,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT announcements_pkey PRIMARY KEY (id),
-  CONSTRAINT announcements_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.audit_logs (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  action USER-DEFINED NOT NULL,
-  entity_type text NOT NULL,
-  entity_id uuid,
-  description text NOT NULL,
-  details jsonb DEFAULT '{}'::jsonb,
-  user_id uuid,
-  user_name text,
-  ip_address text,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT audit_logs_pkey PRIMARY KEY (id),
-  CONSTRAINT audit_logs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.cash_operations (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  type USER-DEFINED NOT NULL,
-  amount numeric NOT NULL,
-  balance_after numeric,
-  reference_id uuid,
-  reference_type text,
-  note text,
-  user_id uuid,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT cash_operations_pkey PRIMARY KEY (id),
-  CONSTRAINT cash_operations_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.cash_reports (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  report_type text NOT NULL,
-  report_date date NOT NULL DEFAULT CURRENT_DATE,
-  opening_balance numeric DEFAULT 0,
-  closing_balance numeric DEFAULT 0,
-  physical_count numeric,
-  difference numeric,
-  total_sales_cash numeric DEFAULT 0,
-  total_sales_card numeric DEFAULT 0,
-  total_sales_transfer numeric DEFAULT 0,
-  total_deposits numeric DEFAULT 0,
-  total_withdrawals numeric DEFAULT 0,
-  transaction_count integer DEFAULT 0,
-  generated_by uuid,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT cash_reports_pkey PRIMARY KEY (id),
-  CONSTRAINT cash_reports_generated_by_fkey FOREIGN KEY (generated_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.categories (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  name text NOT NULL,
-  parent_id uuid,
-  sort_order integer DEFAULT 0,
-  icon text,
-  is_active boolean DEFAULT true,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT categories_pkey PRIMARY KEY (id),
-  CONSTRAINT categories_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.categories(id)
-);
-CREATE TABLE public.customers (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  type USER-DEFINED NOT NULL DEFAULT 'person'::customer_type,
-  name text NOT NULL,
-  company_name text,
-  nip text,
-  regon text,
-  phone text,
-  email text,
-  address text,
-  city text,
-  postal_code text,
-  price_group USER-DEFINED DEFAULT 'regular'::price_group,
-  credit_limit numeric DEFAULT 0,
-  credit_used numeric DEFAULT 0,
-  marketing_consent boolean DEFAULT false,
-  consent_date date,
-  note text,
-  is_active boolean DEFAULT true,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT customers_pkey PRIMARY KEY (id)
-);
-CREATE TABLE public.deliveries (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  delivery_number text NOT NULL UNIQUE,
-  supplier_id uuid,
-  status USER-DEFINED DEFAULT 'expected'::delivery_status,
-  expected_date date,
-  received_date date,
-  items jsonb NOT NULL DEFAULT '[]'::jsonb,
-  total_value numeric DEFAULT 0,
-  has_discrepancy boolean DEFAULT false,
-  discrepancy_note text,
-  supplier_invoice text,
-  received_by uuid,
-  created_by uuid,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  assigned_users ARRAY DEFAULT '{}'::uuid[],
-  CONSTRAINT deliveries_pkey PRIMARY KEY (id),
-  CONSTRAINT deliveries_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id),
-  CONSTRAINT deliveries_received_by_fkey FOREIGN KEY (received_by) REFERENCES public.profiles(id),
-  CONSTRAINT deliveries_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.documents (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  document_number text NOT NULL UNIQUE,
-  type USER-DEFINED NOT NULL,
-  status USER-DEFINED DEFAULT 'issued'::invoice_status,
-  transaction_id uuid,
-  customer_id uuid,
-  net_amount numeric DEFAULT 0,
-  vat_amount numeric DEFAULT 0,
-  gross_amount numeric DEFAULT 0,
-  issue_date date DEFAULT CURRENT_DATE,
-  sale_date date,
-  due_date date,
-  paid_date date,
-  buyer_name text,
-  buyer_nip text,
-  buyer_address text,
-  items jsonb DEFAULT '[]'::jsonb,
-  issued_by uuid,
-  note text,
-  pdf_url text,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT documents_pkey PRIMARY KEY (id),
-  CONSTRAINT documents_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id),
-  CONSTRAINT documents_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
-  CONSTRAINT documents_issued_by_fkey FOREIGN KEY (issued_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.employee_files (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  profile_id uuid NOT NULL,
-  file_name text NOT NULL,
-  file_url text NOT NULL,
-  document_type text DEFAULT 'other'::text,
-  uploaded_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT employee_files_pkey PRIMARY KEY (id),
-  CONSTRAINT employee_files_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.expenses (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  category USER-DEFINED NOT NULL DEFAULT 'other'::expense_category,
-  supplier_id uuid,
-  description text NOT NULL,
-  net_amount numeric NOT NULL,
-  vat_amount numeric DEFAULT 0,
-  gross_amount numeric NOT NULL,
-  invoice_number text,
-  invoice_date date,
-  due_date date,
-  is_paid boolean DEFAULT false,
-  paid_date date,
-  receipt_url text,
-  created_by uuid,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT expenses_pkey PRIMARY KEY (id),
-  CONSTRAINT expenses_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id),
-  CONSTRAINT expenses_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.gdpr_consents (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  customer_id uuid,
-  consent_type text NOT NULL,
-  is_granted boolean DEFAULT false,
-  granted_at timestamp with time zone,
-  revoked_at timestamp with time zone,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT gdpr_consents_pkey PRIMARY KEY (id),
-  CONSTRAINT gdpr_consents_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
-);
-CREATE TABLE public.inventories (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  inventory_number text NOT NULL UNIQUE,
-  type USER-DEFINED NOT NULL DEFAULT 'partial'::inventory_type,
-  status USER-DEFINED DEFAULT 'planned'::inventory_status,
-  scope text,
-  is_blind boolean DEFAULT false,
-  started_at timestamp with time zone,
-  completed_at timestamp with time zone,
-  created_by uuid,
-  created_at timestamp with time zone DEFAULT now(),
-  assigned_users ARRAY DEFAULT '{}'::uuid[],
-  CONSTRAINT inventories_pkey PRIMARY KEY (id),
-  CONSTRAINT inventories_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.inventory_items (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  inventory_id uuid NOT NULL,
-  product_id uuid NOT NULL,
-  system_qty numeric NOT NULL,
-  counted_qty numeric,
-  difference numeric DEFAULT (counted_qty - system_qty),
-  counted_by uuid,
-  counted_at timestamp with time zone,
-  note text,
-  CONSTRAINT inventory_items_pkey PRIMARY KEY (id),
-  CONSTRAINT inventory_items_inventory_id_fkey FOREIGN KEY (inventory_id) REFERENCES public.inventories(id),
-  CONSTRAINT inventory_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
-  CONSTRAINT inventory_items_counted_by_fkey FOREIGN KEY (counted_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.orders (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  order_number text NOT NULL UNIQUE,
-  type USER-DEFINED NOT NULL DEFAULT 'manual'::order_type,
-  status USER-DEFINED NOT NULL DEFAULT 'new'::order_status,
-  customer_id uuid,
-  seller_id uuid,
-  items jsonb NOT NULL DEFAULT '[]'::jsonb,
-  total numeric DEFAULT 0,
-  deposit_amount numeric DEFAULT 0,
-  pickup_date date,
-  expires_at timestamp with time zone,
-  note text,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT orders_pkey PRIMARY KEY (id),
-  CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
-  CONSTRAINT orders_seller_id_fkey FOREIGN KEY (seller_id) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.payments (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  transaction_id uuid NOT NULL,
-  method USER-DEFINED NOT NULL,
-  amount numeric NOT NULL,
-  change_amount numeric DEFAULT 0,
-  reference text,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT payments_pkey PRIMARY KEY (id),
-  CONSTRAINT payments_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id)
-);
-CREATE TABLE public.price_overrides (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  product_id uuid NOT NULL,
-  price_group USER-DEFINED NOT NULL,
-  sell_price numeric NOT NULL,
-  valid_from date,
-  valid_to date,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT price_overrides_pkey PRIMARY KEY (id),
-  CONSTRAINT price_overrides_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
-);
-CREATE TABLE public.product_cross_sell (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  product_id uuid NOT NULL,
-  related_id uuid NOT NULL,
-  relation_type text DEFAULT 'cross_sell'::text,
-  sort_order integer DEFAULT 0,
-  CONSTRAINT product_cross_sell_pkey PRIMARY KEY (id),
-  CONSTRAINT product_cross_sell_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
-  CONSTRAINT product_cross_sell_related_id_fkey FOREIGN KEY (related_id) REFERENCES public.products(id)
-);
-CREATE TABLE public.product_tags (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  product_id uuid NOT NULL,
-  tag text NOT NULL,
-  CONSTRAINT product_tags_pkey PRIMARY KEY (id),
-  CONSTRAINT product_tags_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
-);
-CREATE TABLE public.products (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  name text NOT NULL,
-  sku text NOT NULL UNIQUE,
-  category_id uuid,
-  description text,
-  unit text DEFAULT 'szt'::text,
-  purchase_price numeric DEFAULT 0,
-  sell_price numeric NOT NULL DEFAULT 0,
-  vat_rate_id uuid,
-  stock_qty numeric DEFAULT 0,
-  reserved_qty numeric DEFAULT 0,
-  min_stock numeric DEFAULT 0,
-  max_stock numeric DEFAULT 0,
-  location_id uuid,
-  barcodes ARRAY DEFAULT '{}'::text[],
-  attributes jsonb DEFAULT '{}'::jsonb,
-  image_url text,
-  images ARRAY DEFAULT '{}'::text[],
-  is_active boolean DEFAULT true,
-  is_service boolean DEFAULT false,
-  weight_kg numeric,
-  dimensions_cm jsonb,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT products_pkey PRIMARY KEY (id),
-  CONSTRAINT products_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id),
-  CONSTRAINT products_vat_rate_id_fkey FOREIGN KEY (vat_rate_id) REFERENCES public.vat_rates(id)
-);
 CREATE TABLE public.profiles (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   user_id uuid,
@@ -349,40 +21,111 @@ CREATE TABLE public.profiles (
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
-CREATE TABLE public.returns (
+CREATE TABLE public.store_settings (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  return_number text NOT NULL UNIQUE,
-  transaction_id uuid,
-  customer_id uuid,
-  status USER-DEFINED DEFAULT 'pending'::return_status,
-  quarantine USER-DEFINED DEFAULT 'shelf'::quarantine_type,
-  items jsonb NOT NULL DEFAULT '[]'::jsonb,
-  total_amount numeric DEFAULT 0,
-  reason text,
-  note text,
-  approved_by uuid,
-  created_by uuid,
+  store_name text NOT NULL DEFAULT 'Sklep'::text,
+  nip text,
+  address text,
+  phone text,
+  email text,
+  bank_account text,
+  logo_url text,
+  default_vat_rate numeric DEFAULT 23,
+  currency text DEFAULT 'PLN'::text,
+  settings_json jsonb DEFAULT '{}'::jsonb,
   created_at timestamp with time zone DEFAULT now(),
-  completed_at timestamp with time zone,
-  CONSTRAINT returns_pkey PRIMARY KEY (id),
-  CONSTRAINT returns_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id),
-  CONSTRAINT returns_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
-  CONSTRAINT returns_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.profiles(id),
-  CONSTRAINT returns_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT store_settings_pkey PRIMARY KEY (id)
 );
-CREATE TABLE public.schedules (
+CREATE TABLE public.vat_rates (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  profile_id uuid NOT NULL,
-  date date NOT NULL,
-  shift_start time without time zone NOT NULL,
-  shift_end time without time zone NOT NULL,
-  is_confirmed boolean DEFAULT false,
-  note text,
-  created_by uuid,
+  name text NOT NULL,
+  rate numeric NOT NULL,
+  fiscal_code text,
+  is_default boolean DEFAULT false,
   created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT schedules_pkey PRIMARY KEY (id),
-  CONSTRAINT schedules_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
-  CONSTRAINT schedules_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+  CONSTRAINT vat_rates_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.categories (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL,
+  parent_id uuid,
+  sort_order integer DEFAULT 0,
+  icon text,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT categories_pkey PRIMARY KEY (id),
+  CONSTRAINT categories_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.categories(id)
+);
+CREATE TABLE public.products (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL,
+  sku text NOT NULL UNIQUE,
+  category_id uuid,
+  description text,
+  unit text DEFAULT 'szt'::text,
+  purchase_price numeric DEFAULT 0,
+  sell_price numeric DEFAULT NULL::numeric,
+  vat_rate_id uuid,
+  stock_qty numeric DEFAULT 0,
+  reserved_qty numeric DEFAULT 0,
+  min_stock numeric DEFAULT 0,
+  max_stock numeric DEFAULT 0,
+  location_id uuid,
+  barcodes ARRAY DEFAULT '{}'::text[],
+  attributes jsonb DEFAULT '{}'::jsonb,
+  image_url text,
+  images ARRAY DEFAULT '{}'::text[],
+  is_active boolean DEFAULT true,
+  is_service boolean DEFAULT false,
+  weight_kg numeric,
+  dimensions_cm jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  gtu_code USER-DEFINED DEFAULT 'BRAK'::gtu_code,
+  is_mpp boolean DEFAULT false,
+  CONSTRAINT products_pkey PRIMARY KEY (id),
+  CONSTRAINT products_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id),
+  CONSTRAINT products_vat_rate_id_fkey FOREIGN KEY (vat_rate_id) REFERENCES public.vat_rates(id)
+);
+CREATE TABLE public.product_cross_sell (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  product_id uuid NOT NULL,
+  related_id uuid NOT NULL,
+  relation_type text DEFAULT 'cross_sell'::text,
+  sort_order integer DEFAULT 0,
+  CONSTRAINT product_cross_sell_pkey PRIMARY KEY (id),
+  CONSTRAINT product_cross_sell_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
+  CONSTRAINT product_cross_sell_related_id_fkey FOREIGN KEY (related_id) REFERENCES public.products(id)
+);
+CREATE TABLE public.price_overrides (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  product_id uuid NOT NULL,
+  price_group USER-DEFINED NOT NULL,
+  sell_price numeric NOT NULL,
+  valid_from date,
+  valid_to date,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT price_overrides_pkey PRIMARY KEY (id),
+  CONSTRAINT price_overrides_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+);
+CREATE TABLE public.product_tags (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  product_id uuid NOT NULL,
+  tag text NOT NULL,
+  CONSTRAINT product_tags_pkey PRIMARY KEY (id),
+  CONSTRAINT product_tags_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+);
+CREATE TABLE public.warehouse_locations (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  sector text NOT NULL,
+  rack text,
+  shelf text,
+  description text,
+  capacity integer DEFAULT 0,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT warehouse_locations_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.stock_movements (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -416,21 +159,28 @@ CREATE TABLE public.stock_transfers (
   CONSTRAINT stock_transfers_to_location_fkey FOREIGN KEY (to_location) REFERENCES public.warehouse_locations(id),
   CONSTRAINT stock_transfers_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
 );
-CREATE TABLE public.store_settings (
+CREATE TABLE public.customers (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  store_name text NOT NULL DEFAULT 'Sklep'::text,
+  type USER-DEFINED NOT NULL DEFAULT 'person'::customer_type,
+  name text NOT NULL,
+  company_name text,
   nip text,
-  address text,
+  regon text,
   phone text,
   email text,
-  bank_account text,
-  logo_url text,
-  default_vat_rate numeric DEFAULT 23,
-  currency text DEFAULT 'PLN'::text,
-  settings_json jsonb DEFAULT '{}'::jsonb,
+  address text,
+  city text,
+  postal_code text,
+  price_group USER-DEFINED DEFAULT 'regular'::price_group,
+  credit_limit numeric DEFAULT 0,
+  credit_used numeric DEFAULT 0,
+  marketing_consent boolean DEFAULT false,
+  consent_date date,
+  note text,
+  is_active boolean DEFAULT true,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT store_settings_pkey PRIMARY KEY (id)
+  CONSTRAINT customers_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.suppliers (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -452,60 +202,6 @@ CREATE TABLE public.suppliers (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT suppliers_pkey PRIMARY KEY (id)
-);
-CREATE TABLE public.tasks (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  title text NOT NULL,
-  description text,
-  priority USER-DEFINED DEFAULT 'normal'::task_priority,
-  status USER-DEFINED DEFAULT 'pending'::task_status,
-  assigned_to uuid,
-  assigned_by uuid,
-  due_at timestamp with time zone,
-  completed_at timestamp with time zone,
-  requires_photo boolean DEFAULT false,
-  photo_url text,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT tasks_pkey PRIMARY KEY (id),
-  CONSTRAINT tasks_assigned_to_fkey FOREIGN KEY (assigned_to) REFERENCES public.profiles(id),
-  CONSTRAINT tasks_assigned_by_fkey FOREIGN KEY (assigned_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.time_entries (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  profile_id uuid NOT NULL,
-  clock_in timestamp with time zone NOT NULL,
-  clock_out timestamp with time zone,
-  break_minutes integer DEFAULT 0,
-  total_minutes integer DEFAULT 
-CASE
-    WHEN (clock_out IS NOT NULL) THEN (((EXTRACT(epoch FROM (clock_out - clock_in)))::integer / 60) - break_minutes)
-    ELSE NULL::integer
-END,
-  is_overtime boolean DEFAULT false,
-  note text,
-  corrected_by uuid,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT time_entries_pkey PRIMARY KEY (id),
-  CONSTRAINT time_entries_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
-  CONSTRAINT time_entries_corrected_by_fkey FOREIGN KEY (corrected_by) REFERENCES public.profiles(id)
-);
-CREATE TABLE public.transaction_items (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  transaction_id uuid NOT NULL,
-  product_id uuid,
-  product_name text NOT NULL,
-  product_sku text,
-  qty numeric NOT NULL DEFAULT 1,
-  unit text DEFAULT 'szt'::text,
-  unit_price numeric NOT NULL,
-  discount_percent numeric DEFAULT 0,
-  vat_rate numeric DEFAULT 23,
-  line_total numeric NOT NULL,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT transaction_items_pkey PRIMARY KEY (id),
-  CONSTRAINT transaction_items_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id),
-  CONSTRAINT transaction_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
 );
 CREATE TABLE public.transactions (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -530,6 +226,313 @@ CREATE TABLE public.transactions (
   CONSTRAINT transactions_seller_id_fkey FOREIGN KEY (seller_id) REFERENCES public.profiles(id),
   CONSTRAINT transactions_parked_by_fkey FOREIGN KEY (parked_by) REFERENCES public.profiles(id)
 );
+CREATE TABLE public.transaction_items (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  transaction_id uuid NOT NULL,
+  product_id uuid,
+  product_name text NOT NULL,
+  product_sku text,
+  qty numeric NOT NULL DEFAULT 1,
+  unit text DEFAULT 'szt'::text,
+  unit_price numeric NOT NULL,
+  discount_percent numeric DEFAULT 0,
+  vat_rate numeric DEFAULT 23,
+  line_total numeric NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT transaction_items_pkey PRIMARY KEY (id),
+  CONSTRAINT transaction_items_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id),
+  CONSTRAINT transaction_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+);
+CREATE TABLE public.payments (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  transaction_id uuid NOT NULL,
+  method USER-DEFINED NOT NULL,
+  amount numeric NOT NULL,
+  change_amount numeric DEFAULT 0,
+  reference text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT payments_pkey PRIMARY KEY (id),
+  CONSTRAINT payments_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id)
+);
+CREATE TABLE public.orders (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  order_number text NOT NULL UNIQUE,
+  type USER-DEFINED NOT NULL DEFAULT 'manual'::order_type,
+  status USER-DEFINED NOT NULL DEFAULT 'new'::order_status,
+  customer_id uuid,
+  seller_id uuid,
+  items jsonb NOT NULL DEFAULT '[]'::jsonb,
+  total numeric DEFAULT 0,
+  deposit_amount numeric DEFAULT 0,
+  pickup_date date,
+  expires_at timestamp with time zone,
+  note text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT orders_pkey PRIMARY KEY (id),
+  CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
+  CONSTRAINT orders_seller_id_fkey FOREIGN KEY (seller_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.returns (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  return_number text NOT NULL UNIQUE,
+  transaction_id uuid,
+  customer_id uuid,
+  status USER-DEFINED DEFAULT 'pending'::return_status,
+  quarantine USER-DEFINED DEFAULT 'shelf'::quarantine_type,
+  items jsonb NOT NULL DEFAULT '[]'::jsonb,
+  total_amount numeric DEFAULT 0,
+  reason text,
+  note text,
+  approved_by uuid,
+  created_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  completed_at timestamp with time zone,
+  CONSTRAINT returns_pkey PRIMARY KEY (id),
+  CONSTRAINT returns_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id),
+  CONSTRAINT returns_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
+  CONSTRAINT returns_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.profiles(id),
+  CONSTRAINT returns_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.deliveries (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  delivery_number text NOT NULL UNIQUE,
+  supplier_id uuid,
+  status USER-DEFINED DEFAULT 'expected'::delivery_status,
+  expected_date date,
+  received_date date,
+  items jsonb NOT NULL DEFAULT '[]'::jsonb,
+  total_value numeric DEFAULT 0,
+  has_discrepancy boolean DEFAULT false,
+  discrepancy_note text,
+  supplier_invoice text,
+  received_by uuid,
+  created_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  assigned_users ARRAY DEFAULT '{}'::uuid[],
+  attachments jsonb DEFAULT '[]'::jsonb,
+  has_damage boolean DEFAULT false,
+  damage_note text,
+  CONSTRAINT deliveries_pkey PRIMARY KEY (id),
+  CONSTRAINT deliveries_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id),
+  CONSTRAINT deliveries_received_by_fkey FOREIGN KEY (received_by) REFERENCES public.profiles(id),
+  CONSTRAINT deliveries_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.inventories (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  inventory_number text NOT NULL UNIQUE,
+  type USER-DEFINED NOT NULL DEFAULT 'partial'::inventory_type,
+  status USER-DEFINED DEFAULT 'planned'::inventory_status,
+  scope text,
+  is_blind boolean DEFAULT false,
+  started_at timestamp with time zone,
+  completed_at timestamp with time zone,
+  created_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  assigned_users ARRAY DEFAULT '{}'::uuid[],
+  CONSTRAINT inventories_pkey PRIMARY KEY (id),
+  CONSTRAINT inventories_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.inventory_items (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  inventory_id uuid NOT NULL,
+  product_id uuid NOT NULL,
+  system_qty numeric NOT NULL,
+  counted_qty numeric,
+  difference numeric DEFAULT (counted_qty - system_qty),
+  counted_by uuid,
+  counted_at timestamp with time zone,
+  note text,
+  CONSTRAINT inventory_items_pkey PRIMARY KEY (id),
+  CONSTRAINT inventory_items_inventory_id_fkey FOREIGN KEY (inventory_id) REFERENCES public.inventories(id),
+  CONSTRAINT inventory_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
+  CONSTRAINT inventory_items_counted_by_fkey FOREIGN KEY (counted_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.documents (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  document_number text NOT NULL UNIQUE,
+  type USER-DEFINED NOT NULL,
+  status USER-DEFINED DEFAULT 'issued'::invoice_status,
+  transaction_id uuid,
+  customer_id uuid,
+  net_amount numeric DEFAULT 0,
+  vat_amount numeric DEFAULT 0,
+  gross_amount numeric DEFAULT 0,
+  issue_date date DEFAULT CURRENT_DATE,
+  sale_date date,
+  due_date date,
+  paid_date date,
+  buyer_name text,
+  buyer_nip text,
+  buyer_address text,
+  items jsonb DEFAULT '[]'::jsonb,
+  issued_by uuid,
+  note text,
+  pdf_url text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  is_locked boolean DEFAULT false,
+  corrected_doc_id uuid,
+  correction_reason text,
+  vat_exemption_base text,
+  ksef_reference text,
+  CONSTRAINT documents_pkey PRIMARY KEY (id),
+  CONSTRAINT documents_corrected_doc_id_fkey FOREIGN KEY (corrected_doc_id) REFERENCES public.documents(id),
+  CONSTRAINT documents_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES public.transactions(id),
+  CONSTRAINT documents_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
+  CONSTRAINT documents_issued_by_fkey FOREIGN KEY (issued_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.expenses (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  category text NOT NULL DEFAULT 'other'::expense_category,
+  supplier_id uuid,
+  description text NOT NULL,
+  net_amount numeric NOT NULL,
+  vat_amount numeric DEFAULT 0,
+  gross_amount numeric NOT NULL,
+  invoice_number text,
+  invoice_date date,
+  due_date date,
+  is_paid boolean DEFAULT false,
+  paid_date date,
+  receipt_url text,
+  created_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  supplier_name text,
+  vat_rate text DEFAULT '23'::text,
+  is_mpp boolean DEFAULT false,
+  CONSTRAINT expenses_pkey PRIMARY KEY (id),
+  CONSTRAINT expenses_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id),
+  CONSTRAINT expenses_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.cash_operations (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  type USER-DEFINED NOT NULL,
+  amount numeric NOT NULL,
+  balance_after numeric,
+  reference_id uuid,
+  reference_type text,
+  note text,
+  user_id uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT cash_operations_pkey PRIMARY KEY (id),
+  CONSTRAINT cash_operations_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.cash_reports (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  report_type text NOT NULL,
+  report_date date NOT NULL DEFAULT CURRENT_DATE,
+  opening_balance numeric DEFAULT 0,
+  closing_balance numeric DEFAULT 0,
+  physical_count numeric,
+  difference numeric,
+  total_sales_cash numeric DEFAULT 0,
+  total_sales_card numeric DEFAULT 0,
+  total_sales_transfer numeric DEFAULT 0,
+  total_deposits numeric DEFAULT 0,
+  total_withdrawals numeric DEFAULT 0,
+  transaction_count integer DEFAULT 0,
+  generated_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT cash_reports_pkey PRIMARY KEY (id),
+  CONSTRAINT cash_reports_generated_by_fkey FOREIGN KEY (generated_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.time_entries (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  profile_id uuid NOT NULL,
+  clock_in timestamp with time zone NOT NULL,
+  clock_out timestamp with time zone,
+  break_minutes integer DEFAULT 0,
+  total_minutes integer DEFAULT 
+CASE
+    WHEN (clock_out IS NOT NULL) THEN (((EXTRACT(epoch FROM (clock_out - clock_in)))::integer / 60) - break_minutes)
+    ELSE NULL::integer
+END,
+  is_overtime boolean DEFAULT false,
+  note text,
+  corrected_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT time_entries_pkey PRIMARY KEY (id),
+  CONSTRAINT time_entries_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT time_entries_corrected_by_fkey FOREIGN KEY (corrected_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.schedules (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  profile_id uuid NOT NULL,
+  date date NOT NULL,
+  shift_start time without time zone NOT NULL,
+  shift_end time without time zone NOT NULL,
+  is_confirmed boolean DEFAULT false,
+  note text,
+  created_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT schedules_pkey PRIMARY KEY (id),
+  CONSTRAINT schedules_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT schedules_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.absences (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  profile_id uuid NOT NULL,
+  type USER-DEFINED NOT NULL,
+  status USER-DEFINED DEFAULT 'pending'::absence_status,
+  date_from date NOT NULL,
+  date_to date NOT NULL,
+  days_count integer NOT NULL DEFAULT 1,
+  note text,
+  approved_by uuid,
+  approved_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT absences_pkey PRIMARY KEY (id),
+  CONSTRAINT absences_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT absences_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.announcements (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  title text NOT NULL,
+  content text NOT NULL,
+  priority USER-DEFINED DEFAULT 'normal'::announcement_priority,
+  author_id uuid,
+  is_pinned boolean DEFAULT false,
+  expires_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT announcements_pkey PRIMARY KEY (id),
+  CONSTRAINT announcements_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.tasks (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  title text NOT NULL,
+  description text,
+  priority USER-DEFINED DEFAULT 'normal'::task_priority,
+  status USER-DEFINED DEFAULT 'pending'::task_status,
+  assigned_to uuid,
+  assigned_by uuid,
+  due_at timestamp with time zone,
+  completed_at timestamp with time zone,
+  requires_photo boolean DEFAULT false,
+  photo_url text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT tasks_pkey PRIMARY KEY (id),
+  CONSTRAINT tasks_assigned_to_fkey FOREIGN KEY (assigned_to) REFERENCES public.profiles(id),
+  CONSTRAINT tasks_assigned_by_fkey FOREIGN KEY (assigned_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.audit_logs (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  action USER-DEFINED NOT NULL,
+  entity_type text NOT NULL,
+  entity_id uuid,
+  description text NOT NULL,
+  details jsonb DEFAULT '{}'::jsonb,
+  user_id uuid,
+  user_name text,
+  ip_address text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT audit_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT audit_logs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+);
 CREATE TABLE public.user_sessions (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   profile_id uuid NOT NULL,
@@ -542,23 +545,54 @@ CREATE TABLE public.user_sessions (
   CONSTRAINT user_sessions_pkey PRIMARY KEY (id),
   CONSTRAINT user_sessions_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
 );
-CREATE TABLE public.vat_rates (
+CREATE TABLE public.gdpr_consents (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  name text NOT NULL,
-  rate numeric NOT NULL,
-  fiscal_code text,
-  is_default boolean DEFAULT false,
+  customer_id uuid,
+  consent_type text NOT NULL,
+  is_granted boolean DEFAULT false,
+  granted_at timestamp with time zone,
+  revoked_at timestamp with time zone,
   created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT vat_rates_pkey PRIMARY KEY (id)
+  CONSTRAINT gdpr_consents_pkey PRIMARY KEY (id),
+  CONSTRAINT gdpr_consents_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
 );
-CREATE TABLE public.warehouse_locations (
+CREATE TABLE public.employee_files (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  sector text NOT NULL,
-  rack text,
-  shelf text,
-  description text,
-  capacity integer DEFAULT 0,
-  is_active boolean DEFAULT true,
+  profile_id uuid NOT NULL,
+  file_name text NOT NULL,
+  file_url text NOT NULL,
+  document_type text DEFAULT 'other'::text,
+  uploaded_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT employee_files_pkey PRIMARY KEY (id),
+  CONSTRAINT employee_files_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.active_sessions (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  profile_id uuid NOT NULL,
+  device_id text NOT NULL,
+  app_type text NOT NULL,
   created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT warehouse_locations_pkey PRIMARY KEY (id)
+  last_seen_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT active_sessions_pkey PRIMARY KEY (id),
+  CONSTRAINT active_sessions_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.document_payments (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  document_id uuid,
+  amount numeric NOT NULL,
+  payment_date date NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  expense_id uuid,
+  CONSTRAINT document_payments_pkey PRIMARY KEY (id),
+  CONSTRAINT document_payments_expense_id_fkey FOREIGN KEY (expense_id) REFERENCES public.expenses(id),
+  CONSTRAINT document_payments_document_id_fkey FOREIGN KEY (document_id) REFERENCES public.documents(id)
+);
+CREATE TABLE public.packaging (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL UNIQUE,
+  type text NOT NULL,
+  qty numeric NOT NULL DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT packaging_pkey PRIMARY KEY (id)
 );

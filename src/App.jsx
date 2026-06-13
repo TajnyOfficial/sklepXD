@@ -35,6 +35,7 @@ import StockOverviewPage from './pages/warehouse/StockOverviewPage';
 import LocationsPage from './pages/warehouse/LocationsPage';
 import AlertsPage from './pages/warehouse/AlertsPage';
 import TransfersPage from './pages/warehouse/TransfersPage';
+import PackagingPage from './pages/warehouse/PackagingPage';
 
 // === Deliveries Module ===
 import DeliveriesPage from './pages/deliveries/DeliveriesPage';
@@ -246,6 +247,7 @@ function AppLayout() {
             <Route path="/warehouse/alerts" element={<AlertsPage />} />
             <Route path="/warehouse/transfers" element={<TransfersPage />} />
             <Route path="/warehouse/inventory" element={<InventoryPage />} />
+            <Route path="/warehouse/packaging" element={<PackagingPage />} />
 
             {/* Deliveries */}
             <Route path="/deliveries" element={<DeliveriesPage />} />
