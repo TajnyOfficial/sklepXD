@@ -376,7 +376,7 @@ export function getNavItems(userRole) {
         { id: 'admin-store', label: 'Ustawienia sklepu', path: '/admin/settings' },
         { id: 'admin-additional', label: 'Dodatkowe', path: '/admin/additional' },
         { id: 'admin-audit', label: 'Logi audytu', path: '/admin/audit' },
-        { id: 'admin-security', label: 'Bezpieczeństwo', path: '/admin/security' },
+        // { id: 'admin-security', label: 'Bezpieczeństwo', path: '/admin/security' },
       ],
     });
   }

@@ -46,8 +46,9 @@ export function AuthProvider({ children }) {
       const localUser = localStorage.getItem('local_user');
       if (localUser) {
         const parsed = JSON.parse(localUser);
+        const isValidUuid = (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
         
-        if (import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
+        if (import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co') && isValidUuid(parsed.id)) {
           // Verify with active_sessions
           let deviceId = localStorage.getItem('system_device_id');
           if (!deviceId) {
@@ -97,11 +98,12 @@ export function AuthProvider({ children }) {
 
           // Update last seen
           await supabase.from('active_sessions').update({ last_seen_at: new Date().toISOString() }).eq('id', activeSession.id);
+        } else {
+          // Bypass active_sessions check for offline/demo users
+          setUser({ id: parsed.id });
+          setProfile(parsed);
+          setIsDemoMode(!isValidUuid(parsed.id));
         }
-
-        setUser({ id: parsed.id });
-        setProfile(parsed);
-        setIsDemoMode(false);
       } else {
         setIsDemoMode(true);
       }
@@ -148,6 +150,7 @@ export function AuthProvider({ children }) {
       if (demoUser) {
         setProfile(demoUser);
         setUser({ id: demoUser.id, email: demoUser.email });
+        localStorage.setItem('local_user', JSON.stringify(demoUser));
         return { success: true };
       }
       return { success: false, error: 'Nieprawidłowy PIN' };
@@ -175,9 +178,45 @@ export function AuthProvider({ children }) {
   const loginWithCredentials = useCallback(async (username, password) => {
     // 1. Zawsze działające konto awaryjne: admin / admin
     if (username === 'admin' && password === 'admin') {
-      const adminDemo = DEMO_USERS.find(u => u.role === ROLES.ADMIN) || DEMO_USERS[0];
-      setProfile(adminDemo);
-      setUser({ id: adminDemo.id, email: adminDemo.email });
+      const emergencyAdmin = {
+        id: 'emergency-admin-1',
+        full_name: 'Admin Awaryjny',
+        role: ROLES.ADMIN,
+        email: 'admin@sklep.pl',
+        pin: '11111111',
+        avatar_url: null
+      };
+
+      if (import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
+        let deviceId = localStorage.getItem('system_device_id');
+        if (!deviceId) {
+          deviceId = crypto.randomUUID();
+          localStorage.setItem('system_device_id', deviceId);
+        }
+
+        try {
+          const { data: storeData } = await supabase.from('store_settings').select('settings_json, id').limit(1).single();
+          if (storeData) {
+            const activeDemo = storeData.settings_json?.activeDemoSessions || {};
+            const adminSession = activeDemo['admin'];
+            const now = new Date().getTime();
+
+            if (adminSession && adminSession.device_id !== deviceId && (now - adminSession.timestamp < 30 * 60 * 1000)) {
+              return { success: false, error: 'Użytkownik jest już zalogowany na innej przeglądarce, karcie lub urządzeniu. Wyloguj się tam najpierw.' };
+            }
+
+            await supabase.from('store_settings').update({
+              settings_json: { ...storeData.settings_json, activeDemoSessions: { ...activeDemo, admin: { device_id: deviceId, timestamp: now } } }
+            }).eq('id', storeData.id);
+          }
+        } catch (err) {
+          console.warn('Błąd blokady sesji awaryjnej', err);
+        }
+      }
+
+      setProfile(emergencyAdmin);
+      setUser({ id: emergencyAdmin.id, email: emergencyAdmin.email });
+      localStorage.setItem('local_user', JSON.stringify(emergencyAdmin));
       setIsDemoMode(true);
       return { success: true };
     }
@@ -193,6 +232,7 @@ export function AuthProvider({ children }) {
       if (demoUser && (password === 'haslo' || password === '')) {
         setProfile(demoUser);
         setUser({ id: demoUser.id, email: demoUser.email });
+        localStorage.setItem('local_user', JSON.stringify(demoUser));
         return { success: true };
       }
       return { success: false, error: 'Nieprawidłowa nazwa użytkownika lub hasło (Tryb offline)' };
@@ -232,7 +272,7 @@ export function AuthProvider({ children }) {
         if (otherDevice) {
           // Check if it's abandoned (e.g. > 12h)
           // Simplified: We reject if there is another session
-          return { success: false, error: 'Użytkownik jest już zalogowany na innym urządzeniu. Wyloguj się tam najpierw.' };
+          return { success: false, error: 'Użytkownik jest już zalogowany na innej przeglądarce, karcie lub urządzeniu. Wyloguj się tam najpierw.' };
         }
       }
 
@@ -261,10 +301,28 @@ export function AuthProvider({ children }) {
 
   /* Funkcja asynchroniczna czyszcząca sesję i wylogowująca użytkownika ze wszystkich urządzeń typu web */
   const logout = useCallback(async () => {
+    const deviceId = localStorage.getItem('system_device_id');
+    
+    if (profile?.id === 'emergency-admin-1' && import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
+      try {
+        const { data: storeData } = await supabase.from('store_settings').select('settings_json, id').limit(1).single();
+        if (storeData) {
+           const activeDemo = storeData.settings_json?.activeDemoSessions || {};
+           if (activeDemo['admin']?.device_id === deviceId) {
+              delete activeDemo['admin'];
+              await supabase.from('store_settings').update({
+                settings_json: { ...storeData.settings_json, activeDemoSessions: activeDemo }
+              }).eq('id', storeData.id);
+           }
+        }
+      } catch (err) {
+        console.warn('Błąd zwalniania blokady sesji awaryjnej', err);
+      }
+    }
+
     if (!isDemoMode && profile) {
       await supabase.auth.signOut();
       
-      const deviceId = localStorage.getItem('system_device_id');
       if (deviceId) {
         await supabase.from('active_sessions')
           .delete()
