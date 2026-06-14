@@ -79,3 +79,21 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   CONSTRAINT tasks_assigned_to_fkey FOREIGN KEY (assigned_to) REFERENCES public.profiles(id),
   CONSTRAINT tasks_assigned_by_fkey FOREIGN KEY (assigned_by) REFERENCES public.profiles(id)
 );
+
+-- 5. Tabela nieobecności
+CREATE TABLE IF NOT EXISTS public.absences (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  profile_id uuid NOT NULL,
+  type text NOT NULL,
+  status text DEFAULT 'pending',
+  date_from date NOT NULL,
+  date_to date NOT NULL,
+  days_count integer NOT NULL DEFAULT 1,
+  note text,
+  approved_by uuid,
+  approved_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT absences_pkey PRIMARY KEY (id),
+  CONSTRAINT absences_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT absences_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.profiles(id)
+);
