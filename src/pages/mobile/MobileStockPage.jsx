@@ -46,7 +46,6 @@ export default function MobileStockPage() {
       <MobileHeader title="Sklep Mobile" subtitle="Stany Magazynowe" />
       
       <div style={{ padding: '20px' }}>
-        // Wyszukiwarka
         <div style={{ position: 'relative', marginBottom: 20 }}>
           <FiSearch style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
           <input 
@@ -105,7 +104,6 @@ export default function MobileStockPage() {
         )}
       </div>
 
-      // Bottom Sheet Modal do edycji
       {selectedProduct && (
         <>
           <div 

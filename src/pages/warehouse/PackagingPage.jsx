@@ -157,10 +157,8 @@ export default function PackagingPage() {
         </div>
       </div>
 
-      // Panel metryk i kluczowych wskaźników (KPI).
       <div className="grid-3 mb-24">
 
-        // Suma wartości kaucji za palety.
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.03) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
           <div className="flex-between mb-8">
             <span className="stat-label" style={{ color: 'var(--text-secondary)' }}>Wycena kaucji paletowej</span>
@@ -170,7 +168,6 @@ export default function PackagingPage() {
           <div className="text-xs text-muted mt-4">Wartość bilansowa palet na magazynie</div>
         </div>
 
-        // Aktualna liczba palet na magazynie.
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
           <div className="flex-between mb-8">
             <span className="stat-label" style={{ color: 'var(--text-secondary)' }}>Palety na magazynie</span>
@@ -180,7 +177,6 @@ export default function PackagingPage() {
           <div className="text-xs text-muted mt-4">Łączny wolumen EUR / Półpalet</div>
         </div>
 
-        // Ilość worków i kartonów w obiegu.
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.03) 100%)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
           <div className="flex-between mb-8">
             <span className="stat-label" style={{ color: 'var(--text-secondary)' }}>Worki w obiegu</span>
@@ -192,7 +188,6 @@ export default function PackagingPage() {
 
       </div>
 
-      // Zakładki nawigacyjne widoku opakowań.
       <div className="tabs mb-24" style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--border-light)', paddingBottom: 8 }}>
         <button
           className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-ghost'}`}
@@ -217,7 +212,6 @@ export default function PackagingPage() {
         </button>
       </div>
 
-      // Zakładka ewidencji obecnych stanów opakowań.
       {activeTab === 'inventory' && (
         <div>
           {loading && packaging.length === 0 ? (
@@ -225,7 +219,6 @@ export default function PackagingPage() {
           ) : (
             <div className="grid-3 mb-24">
 
-              // Lista dostępnych palet kaucjonowanych.
               <div className="card p-16" style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
                 <h3 className="mb-12" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 700, borderBottom: '1px solid var(--border-light)', paddingBottom: 8, margin: '0 0 12px 0' }}>
                   <span>🪵</span> Dostępność Palet EUR
@@ -257,7 +250,6 @@ export default function PackagingPage() {
                 </div>
               </div>
 
-              // Lista worków i opakowań foliowych.
               <div className="card p-16" style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
                 <h3 className="mb-12" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 700, borderBottom: '1px solid var(--border-light)', paddingBottom: 8, margin: '0 0 12px 0' }}>
                   <span>🛍️</span> Worki i Etykiety EAN
@@ -289,7 +281,6 @@ export default function PackagingPage() {
                 </div>
               </div>
 
-              // Lista opakowań kartonowych i zbiorczych.
               <div className="card p-16" style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
                 <h3 className="mb-12" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 700, borderBottom: '1px solid var(--border-light)', paddingBottom: 8, margin: '0 0 12px 0' }}>
                   <span>📦</span> Kartony i Skrzynki
@@ -326,7 +317,6 @@ export default function PackagingPage() {
         </div>
       )}
 
-      // Zakładka sald kaucji i kontrahentów.
       {activeTab === 'balances' && (
         <div className="animate-fadeIn">
           <div className="table-container">
@@ -374,7 +364,6 @@ export default function PackagingPage() {
         </div>
       )}
 
-      // Zakładka logów i historii ruchów opakowań.
       {activeTab === 'logs' && (
         <div className="animate-fadeIn">
           {loadingLogs ? (
@@ -434,7 +423,6 @@ export default function PackagingPage() {
         </div>
       )}
 
-      // Modal ręcznego wnoszenia lub wynoszenia opakowań.
       <Modal
         isOpen={showAdjust}
         onClose={() => setShowAdjust(false)}
@@ -526,7 +514,6 @@ export default function PackagingPage() {
         )}
       </Modal>
 
-      // Modal szczegółowego podglądu pojedynczego logu opakowań.
       <Modal
         isOpen={showLogModal}
         onClose={() => setShowLogModal(false)}

@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 export default function DashboardPage() {
   // Odczytanie z głównego stanu sklepu list: produktów, transakcji z kasy POS oraz dokumentów, a także helpera do sprawdzania braków na magazynie
   const { products, transactions, documents, getLowStockProducts, categories, saveProduct } = useStore();
-  
+
   // Pobranie profilu aktualnego użytkownika wraz z funkcją weryfikującą dostęp na bazie ról (RBAC)
   const { profile, can } = useAuth();
 
@@ -31,16 +31,16 @@ export default function DashboardPage() {
 
   // Zsumowanie łącznego dochodu (Obrót dzisiaj) z przefiltrowanych transakcji dobowych
   const todayRevenue = todayTransactions.reduce((sum, t) => sum + (parseFloat(t.total) || 0), 0);
-  
+
   // Odczyt ilości wszystkich zarejestrowanych zwrotów towarowych z bazy dokumentów
   const totalReturns = documents ? documents.filter(d => d.type === 'return').length : 0;
-  
+
   // Pobranie tablicy produktów, których stan magazynowy jest poniżej minimum
   const lowStock = getLowStockProducts();
 
   // Wyszukiwanie produktów z kategorii "Wyprzedaż" bez ustalonej ceny sprzedaży (null lub 0)
   const outletCategory = categories.find(c => c.name.toLowerCase() === 'wyprzedaż');
-  const alertProducts = products.filter(p => 
+  const alertProducts = products.filter(p =>
     p.category_id === outletCategory?.id && (p.sell_price === null || p.sell_price === 0 || isNaN(p.sell_price))
   );
 
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       };
       await saveProduct(updatedProduct, p.id);
       toast.success(`Cena dla "${p.name}" została ustalona na ${formatCurrency(val)}`);
-      
+
       // Czyścimy pole wejściowe
       setPriceValues(prev => {
         const copy = { ...prev };
@@ -85,7 +85,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      // Stats Grid
+      {/* Stats Grid */}
       {can(PERMISSIONS.POS_ACCESS) && (
         <div className="grid-4 mb-24">
           <div className="stat-card">
@@ -127,8 +127,8 @@ export default function DashboardPage() {
       )}
 
       <div className="grid-2" style={{ gap: 24 }}>
-        
-        // Zamieniona sekcja ostatnich transakcji -> ALERTY OGÓLNE
+
+        {/* // Zamieniona sekcja ostatnich transakcji ALERTY OGÓLNE */}
         <div className="card">
           <div className="flex-between mb-16">
             <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -161,37 +161,37 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  // Szybkie uzupełnianie ceny bezpośrednio z Dashboardu
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: 8, 
-                    alignItems: 'center', 
-                    background: 'var(--bg-primary)', 
-                    padding: 8, 
+                  {/* // Szybkie uzupełnianie ceny bezpośrednio z Dashboardu */}
+                  <div style={{
+                    display: 'flex',
+                    gap: 8,
+                    alignItems: 'center',
+                    background: 'var(--bg-primary)',
+                    padding: 8,
                     borderRadius: 8,
-                    border: '1px solid var(--border-light)' 
+                    border: '1px solid var(--border-light)'
                   }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Ustal cenę sprzedaży (PLN):</span>
-                    <input 
-                      type="number" 
-                      placeholder="0.00" 
+                    <input
+                      type="number"
+                      placeholder="0.00"
                       step="0.01"
                       className="input"
                       value={priceValues[p.id] || ''}
                       onChange={e => setPriceValues(prev => ({ ...prev, [p.id]: e.target.value }))}
                       style={{ width: 100, height: 32, padding: '4px 8px', fontSize: '0.9rem', fontWeight: 700 }}
                     />
-                    <button 
-                      className="btn btn-success" 
+                    <button
+                      className="btn btn-success"
                       onClick={() => handleSavePrice(p)}
-                      style={{ 
-                        padding: '6px 12px', 
-                        height: 32, 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 4, 
-                        fontSize: '0.8rem', 
-                        fontWeight: 600 
+                      style={{
+                        padding: '6px 12px',
+                        height: 32,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        fontSize: '0.8rem',
+                        fontWeight: 600
                       }}
                     >
                       <FiCheck size={14} /> Zapisz
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        // Low stock alerts
+        {/* // Low stock alerts */}
         <div className="card">
           <div className="flex-between mb-16">
             <h3>

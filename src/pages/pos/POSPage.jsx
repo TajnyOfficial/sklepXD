@@ -342,9 +342,7 @@ export default function POSPage() {
 
   return (
     <div className="pos-layout">
-      // Left: Products
       <div className="pos-products">
-        // Search bar
         <div style={{ position: 'relative', marginBottom: 16 }}>
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: 1, position: 'relative' }}>
@@ -387,7 +385,6 @@ export default function POSPage() {
             </button>
           </div>
 
-          // Search results dropdown
           {showSearch && searchResults.length > 0 && (
             <div style={{
               position: 'absolute',
@@ -438,7 +435,6 @@ export default function POSPage() {
           )}
         </div>
 
-        // Quick tiles
         {showTiles && (
           <div>
             <h4 className="text-muted" style={{ marginBottom: 8, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -460,7 +456,6 @@ export default function POSPage() {
           </div>
         )}
 
-        // Cross-sell suggestions
         {crossSellProducts.length > 0 && (
           <div className="card mt-16" style={{ borderColor: 'var(--accent-border)', background: 'var(--accent-bg)' }}>
             <div className="flex-between mb-8">
@@ -491,7 +486,6 @@ export default function POSPage() {
         )}
       </div>
 
-      // Right: Cart
       <div className="pos-cart">
         <div className="pos-cart-header">
           <h3 style={{ fontSize: '1rem' }}>
@@ -511,7 +505,6 @@ export default function POSPage() {
         </div>
 
 
-        // Cart items
         <div className="pos-cart-items">
           {cart.length === 0 ? (
             <div className="empty-state" style={{ padding: '40px 20px' }}>
@@ -550,7 +543,6 @@ export default function POSPage() {
           )}
         </div>
 
-        // Summary
         <div className="pos-cart-summary">
           <div className="flex-between text-sm" style={{ marginBottom: 4 }}>
             <span className="text-muted">Suma częściowa</span>
@@ -586,7 +578,6 @@ export default function POSPage() {
         </div>
       </div>
 
-      // Payment Modal
       {showPayment && (
         <div className="modal-overlay" onClick={() => setShowPayment(false)}>
           <div className="modal modal-lg" onClick={e => e.stopPropagation()}>
@@ -732,7 +723,6 @@ export default function POSPage() {
         </div>
       )}
 
-      // Camera Scanner Modal
       {showScanner && (
         <BarcodeScanner
           onConfirm={handleCameraScan}

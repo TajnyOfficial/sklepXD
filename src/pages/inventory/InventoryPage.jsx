@@ -270,7 +270,6 @@ export default function InventoryPage() {
         </table>
       </div>
 
-      // Modal tworzenia nowego zlecenia inwentaryzacji.
       <Modal 
         isOpen={showCreate} 
         onClose={() => setShowCreate(false)} 
@@ -302,7 +301,6 @@ export default function InventoryPage() {
         </div>
       </Modal>
 
-      // Modal wyboru i przypisania pracownika do zlecenia.
       <Modal
         isOpen={showAssign}
         onClose={() => setShowAssign(false)}
@@ -334,7 +332,6 @@ export default function InventoryPage() {
         </div>
       </Modal>
 
-      // Modal podglądu szczegółów i wyników inwentaryzacji.
       <Modal
         isOpen={showDetails}
         onClose={() => setShowDetails(false)}
@@ -396,7 +393,6 @@ export default function InventoryPage() {
         </div>
       </Modal>
 
-      // Modal ręcznego wykonywania spisu przez managera.
       <Modal 
         isOpen={showCount} 
         onClose={() => setShowCount(false)} 

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { StoreProvider, useStore } from './contexts/StoreContext';
@@ -10,7 +10,7 @@ import {
   FiFileText, FiPackage, FiTruck, FiCheckSquare, FiDollarSign,
   FiClock, FiMessageSquare, FiSettings, FiSearch, FiBell,
   FiChevronDown, FiChevronRight, FiLogOut, FiMenu, FiAlertTriangle, FiX,
-  FiGrid, FiVideo
+  FiGrid, FiVideo, FiSun, FiMoon
 } from 'react-icons/fi';
 
 import LoginPage from './pages/LoginPage';
@@ -95,6 +95,14 @@ function Sidebar({ navItems, collapsed, onToggle }) {
   // Stan otwarcia i zamknięcia poszczególnych folderów menu.
   const [expandedItems, setExpandedItems] = useState({});
 
+  // Zmiana motywu jasny/ciemny
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   // Przełącznik widoczności elementów podrzędnych w menu bocznym.
   const toggleExpand = useCallback((id) => {
     setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
@@ -110,7 +118,18 @@ function Sidebar({ navItems, collapsed, onToggle }) {
     <aside className={`app-sidebar ${collapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo">S</div>
-        {!collapsed && <span className="sidebar-brand">Sklep<span>POS</span></span>}
+        {!collapsed && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="sidebar-brand">Sklep<span>POS</span></span>
+            <button 
+              onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+              style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              title="Zmień motyw"
+            >
+              {theme === 'dark' ? <FiSun size={18} /> : <FiMoon size={18} />}
+            </button>
+          </div>
+        )}
       </div>
 
       <nav className="sidebar-nav">
@@ -161,7 +180,6 @@ function Sidebar({ navItems, collapsed, onToggle }) {
         })}
       </nav>
 
-      // ── Linki do zewnętrznych aplikacji ─────────────────────────
       {!collapsed && (
         <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)', marginTop: 4 }}>
           <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 600 }}>Aplikacje</div>
@@ -232,15 +250,12 @@ function AppLayout() {
             <Route path="/pos" element={<Navigate to="/sales/pos-history" replace />} />
             <Route path="/sales/pos-history" element={<POSHistoryPage />} />
 
-            // Sales
             <Route path="/sales/orders" element={<OrdersPage />} />
             <Route path="/sales/returns" element={<ReturnsPage />} />
 
-            // Contractors
             <Route path="/contractors/customers" element={<CustomersPage />} />
             <Route path="/contractors/suppliers" element={<SuppliersPage />} />
 
-            // Warehouse
             <Route path="/warehouse/products" element={<ProductCatalogPage />} />
             <Route path="/warehouse/stock" element={<StockOverviewPage />} />
             <Route path="/warehouse/locations" element={<LocationsPage />} />
@@ -249,20 +264,17 @@ function AppLayout() {
             <Route path="/warehouse/inventory" element={<InventoryPage />} />
             <Route path="/warehouse/packaging" element={<PackagingPage />} />
 
-            // Deliveries
             <Route path="/deliveries" element={<DeliveriesPage />} />
             <Route path="/deliveries/schedule" element={<DeliverySchedulePage />} />
 
 
 
-            // Finance
             <Route path="/finance/invoices" element={<InvoicesPage />} />
             <Route path="/finance/expenses" element={<ExpensesPage />} />
             <Route path="/finance/payments" element={<PaymentsPage />} />
             <Route path="/finance/cash" element={<CashReportPage />} />
             <Route path="/finance/analytics" element={<AnalyticsPage />} />
 
-            // HR
             <Route path="/hr/time" element={<TimeTrackingPage />} />
             <Route path="/hr/schedule" element={<SchedulePage />} />
             <Route path="/hr/absences" element={<AbsencesPage />} />
@@ -271,14 +283,12 @@ function AppLayout() {
             <Route path="/hr/announcements" element={<AnnouncementsPage />} />
             <Route path="/hr/tasks" element={<TasksPage />} />
 
-            // Admin
             <Route path="/admin/roles" element={<RolesPage />} />
             <Route path="/admin/settings" element={<StoreSettingsPage />} />
             <Route path="/admin/additional" element={<AdditionalSettingsPage />} />
             <Route path="/admin/audit" element={<AuditLogPage />} />
             <Route path="/admin/security" element={<SecurityPage />} />
 
-            // Catch-all redirect
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
@@ -305,7 +315,6 @@ export default function App() {
   return (
     <StoreProvider>
       <Routes>
-        // Główna aplikacja z autentykacją
         <Route
           path="/*"
           element={!isAuthenticated ? <LoginPage /> : <AppLayout />}

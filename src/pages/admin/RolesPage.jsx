@@ -263,7 +263,6 @@ export default function RolesPage() {
   return (
     <div className="page animate-fadeIn">
       
-      // Header
       <div className="page-header flex-between" style={{ marginBottom: 24, borderBottom: '1px solid var(--border-primary)', paddingBottom: 16 }}>
         <div>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--primary), var(--accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -282,7 +281,6 @@ export default function RolesPage() {
         </button>
       </div>
 
-      // Info Banner
       <div style={{
         background: 'var(--accent-bg)', border: '1.5px solid var(--accent-border)',
         borderRadius: 'var(--radius-lg)', padding: '14px 18px', display: 'flex', gap: 12, alignItems: 'center', marginBottom: 28
@@ -293,7 +291,6 @@ export default function RolesPage() {
         </span>
       </div>
 
-      // Roles List
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {Object.values(roles).map(roleKey => {
           const roleLabel = labels[roleKey] || roleKey;
@@ -310,7 +307,6 @@ export default function RolesPage() {
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              // Card Header
               <div 
                 onClick={() => setExpandedRole(isExpanded ? null : roleKey)}
                 style={{
@@ -343,7 +339,6 @@ export default function RolesPage() {
                   </div>
                 </div>
 
-                // Actions
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} onClick={e => e.stopPropagation()}>
                   <button 
                     className="btn btn-ghost btn-icon btn-sm"
@@ -373,7 +368,6 @@ export default function RolesPage() {
                 </div>
               </div>
 
-              // Card Expanded Content
               {isExpanded && (
                 <div style={{ 
                   borderTop: '1px solid var(--border-primary)', padding: '24px 28px', background: 'var(--bg-primary)',
@@ -400,7 +394,6 @@ export default function RolesPage() {
                               padding: 16, display: 'flex', flexDirection: 'column'
                             }}
                           >
-                            // Group Header
                             <div style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
                               borderBottom: '1px solid var(--border-light)', paddingBottom: 10, marginBottom: 12 
@@ -417,7 +410,6 @@ export default function RolesPage() {
                               </button>
                             </div>
 
-                            // Group Perms List
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
                               {groupPermList.map(([permKey, permVal]) => {
                                 const has = (permissions[roleKey] || []).includes(permVal);
@@ -459,7 +451,6 @@ export default function RolesPage() {
         })}
       </div>
 
-      // Add New Role Modal
       {showAddModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -533,7 +524,6 @@ export default function RolesPage() {
         </div>
       )}
 
-      // Edit Role Modal
       {editRoleKey && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,

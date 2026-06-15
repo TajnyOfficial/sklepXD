@@ -125,7 +125,6 @@ export default function SchedulePage() {
           gridTemplateColumns: '200px repeat(7, 1fr)',
           borderCollapse: 'collapse'
         }}>
-          // Header Row
           <div className="schedule-header-cell" style={{
             padding: 16,
             background: 'var(--bg-tertiary)',
@@ -168,7 +167,6 @@ export default function SchedulePage() {
             </div>
           ))}
 
-          // Employee Rows
           {employees.filter(e => e.active !== false && e.is_active !== false).map(emp => (
             <Fragment key={emp.id}>
               <div className="schedule-cell employee-cell" style={{
@@ -241,12 +239,10 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      // Modal Style Hack for hidden buttons hover effect
       <style>{`
         .day-cell:hover .add-shift-btn { opacity: 1 !important; }
       `}</style>
 
-      // Shift Modal
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>

@@ -257,7 +257,6 @@ export default function DeliveriesPage() {
         </div>
       )}
 
-      // MODAL: Tworzenie nowej PZ
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Nowa dostawa (PZ)" size="modal-lg" footer={<><button className="btn btn-secondary" onClick={() => setShowModal(false)}>Anuluj</button><button className="btn btn-primary" onClick={handleSave}>Utwórz</button></>}>
         <div className="input-row mb-16">
           <div className="input-group">
@@ -289,7 +288,6 @@ export default function DeliveriesPage() {
         <button className="btn btn-ghost btn-sm" onClick={addItem}><FiPlus size={14} /> Dodaj pozycję</button>
       </Modal>
 
-      // MODAL: Szczegółowy podgląd dostawy
       <Modal isOpen={showView} onClose={() => setShowView(false)} title={`Szczegóły dostawy ${viewDel?.delivery_number}`} size="modal-lg" footer={<button className="btn btn-primary" onClick={() => setShowView(false)}>Zamknij</button>}>
         {viewDel && (
           <div>
@@ -306,7 +304,6 @@ export default function DeliveriesPage() {
               ))}
             </div>
 
-            // Informacja o ogólnym uszkodzeniu
             {viewDel.has_damage && (
               <div className="mb-16 p-12" style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8 }}>
                 <h4 style={{ color: '#991b1b', margin: '0 0 4px 0', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -316,7 +313,6 @@ export default function DeliveriesPage() {
               </div>
             )}
 
-            // Załączniki z dostawy
             {viewDel.attachments && viewDel.attachments.length > 0 && (
               <div className="mb-16 card p-12">
                 <h4 className="mb-8" style={{ fontSize: '0.9rem', margin: '0 0 8px 0' }}><FiPaperclip /> Załączone dokumenty dostawy ({viewDel.attachments.length}):</h4>
@@ -393,7 +389,6 @@ export default function DeliveriesPage() {
         )}
       </Modal>
 
-      // MODAL: DESKTOP ODBIÓR DOSTAWY (PREMIUM)
       <Modal
         isOpen={showReceiveModal}
         onClose={() => setShowReceiveModal(false)}
@@ -419,7 +414,6 @@ export default function DeliveriesPage() {
               </div>
             </div>
 
-            // Sekcja ogólna zniszczenia dostawy
             <div className="card p-12 mb-16" style={{ border: '1px solid var(--border-light)' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>Ogólna weryfikacja nośników / palet</h4>
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 8, fontSize: '0.85rem' }}>
@@ -443,7 +437,6 @@ export default function DeliveriesPage() {
                 />
               )}
 
-              // Dodawanie załączników bez limitu
               <div style={{ borderTop: '1px solid var(--border-light)', marginTop: 12, paddingTop: 12 }}>
                 <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
                   DOŁĄCZ DOKUMENTY LUB ZDJĘCIA DOWODU DOSTAWY (BEZ LIMITU)
@@ -494,7 +487,6 @@ export default function DeliveriesPage() {
               </div>
             </div>
 
-            // Pozycje
             <h4 style={{ fontSize: '0.9rem', margin: '0 0 8px 0' }}>Weryfikacja ilości towarów:</h4>
             <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: 8, padding: 8 }}>
               {receivingItems.map((item, idx) => (
@@ -506,7 +498,6 @@ export default function DeliveriesPage() {
 
                   <div className="grid-3" style={{ gap: 10 }}>
 
-                    // Normalne
                     <div className="card p-8" style={{ background: 'rgba(22, 163, 74, 0.03)', border: '1px solid rgba(22, 163, 74, 0.1)' }}>
                       <div className="flex-between mb-4">
                         <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--success)' }}>🟢 Przyjęto normalnie:</span>
@@ -528,7 +519,6 @@ export default function DeliveriesPage() {
                       />
                     </div>
 
-                    // Uszkodzone outlet
                     <div className="card p-8" style={{ background: 'rgba(217, 119, 6, 0.03)', border: '1px solid rgba(217, 119, 6, 0.1)' }}>
                       <div className="flex-between mb-4">
                         <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--warning)' }}>🟡 Przyjęto uszk. (Outlet):</span>
@@ -550,7 +540,6 @@ export default function DeliveriesPage() {
                       />
                     </div>
 
-                    // Odrzucone
                     <div className="card p-8" style={{ background: 'rgba(220, 38, 38, 0.03)', border: '1px solid rgba(220, 38, 38, 0.1)' }}>
                       <div className="flex-between mb-4">
                         <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--danger)' }}>🔴 Odrzucono:</span>

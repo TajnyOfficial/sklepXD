@@ -86,6 +86,32 @@
   --z-tooltip: 150;
 }
 
+:root[data-theme='light'] {
+  /* Background */
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f3f5;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8f9fa;
+  --bg-input: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-overlay: rgba(0, 0, 0, 0.4);
+  --bg-tooltip: #343a40;
+  --bg-modal: #ffffff;
+
+  /* Text */
+  --text-primary: #343a40;
+  --text-secondary: #495057;
+  --text-muted: #868e96;
+  --text-inverse: #ffffff;
+  --text-heading: #212529;
+
+  /* Borders */
+  --border-primary: #dee2e6;
+  --border-secondary: #ced4da;
+  --border-light: #e9ecef;
+}
+
 /* ─── Reset & Base ──────────────────────────────────────────── */
 *,
 *::before,
@@ -103,7 +129,7 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: #1e1e1e; /* Ciemny szary lekko jaśniejszy od menu (#161616) */
+  background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
 }

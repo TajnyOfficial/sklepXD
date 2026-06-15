@@ -199,7 +199,6 @@ export default function DocumentsPage() {
         </div>
       </div>
 
-      // Filtry
       <div className="flex gap-12 mb-16" style={{ alignItems: 'center' }}>
         <div style={{ flex: 1, position: 'relative' }}>
           <FiSearch style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -211,7 +210,6 @@ export default function DocumentsPage() {
         </select>
       </div>
 
-      // Tabela
       <div className="table-container">
         <table>
           <thead>
@@ -246,10 +244,8 @@ export default function DocumentsPage() {
         </table>
       </div>
 
-      // ── Modal: Nowy dokument (pełny formularz faktury) ──
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Nowy dokument" size="modal-lg" footer={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          // Przycisk PDF wewnątrz modala — widoczny gdy formularz jest gotowy
           {form && form.type === 'invoice' && (
             <InvoiceDownloadBtn invoiceData={form} />
           )}
@@ -262,7 +258,6 @@ export default function DocumentsPage() {
         {form && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-            // Typ i daty
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
               <div className="input-group">
                 <label>Typ dokumentu</label>
@@ -291,7 +286,6 @@ export default function DocumentsPage() {
               </select>
             </div>
 
-            // Sprzedawca i Nabywca
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>Sprzedawca</div>
@@ -328,7 +322,6 @@ export default function DocumentsPage() {
               </div>
             </div>
 
-            // Pozycje na fakturze
             <div>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
                 Pozycje na fakturze *
@@ -371,7 +364,6 @@ export default function DocumentsPage() {
         )}
       </Modal>
 
-      // ── Modal: Pobierz PDF istniejącego dokumentu ──
       <Modal
         isOpen={showPdfModal}
         onClose={() => setShowPdfModal(false)}
@@ -407,7 +399,6 @@ export default function DocumentsPage() {
         )}
       </Modal>
 
-      // ── Modal: Podgląd dokumentu (Premium Sheet View) ──
       <Modal
         isOpen={showPreviewModal}
         onClose={() => setShowPreviewModal(false)}
@@ -431,7 +422,6 @@ export default function DocumentsPage() {
             fontFamily: 'var(--font-sans)',
             lineHeight: 1.5,
           }}>
-            // Header: Logo, Typ & Numer
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--border-primary)', paddingBottom: 16, marginBottom: 20 }}>
               <div>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -447,7 +437,6 @@ export default function DocumentsPage() {
               </div>
             </div>
 
-            // Sprzedawca i Nabywca
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
               <div style={{ padding: 16, background: 'var(--bg-subtle, rgba(255, 255, 255, 0.02))', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-light)', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.05em' }}>
@@ -473,7 +462,6 @@ export default function DocumentsPage() {
               </div>
             </div>
 
-            // Tabela pozycji
             <div style={{ overflowX: 'auto', marginBottom: 20 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
@@ -514,7 +502,6 @@ export default function DocumentsPage() {
               </table>
             </div>
 
-            // Podsumowanie
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'start', borderTop: '2px solid var(--border-primary)', paddingTop: 16 }}>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                 <div>Sposób płatności: <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>

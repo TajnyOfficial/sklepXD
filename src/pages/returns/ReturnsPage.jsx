@@ -151,7 +151,6 @@ export default function ReturnsPage() {
         </table>
       </div>
 
-      // Modal: nowy zwrot
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -169,7 +168,6 @@ export default function ReturnsPage() {
           <div className="input-group"><label>Nr paragonu/FV</label><input className="input" value={form.receipt} onChange={F('receipt')} /></div>
         </div>
 
-        // Status towaru — przyciski kafelkowe
         <div className="input-group mb-20">
           <label style={{ marginBottom: 10, display: 'block' }}>Status towaru</label>
           <div style={{ display: 'flex', gap: 12 }}>
@@ -222,7 +220,6 @@ export default function ReturnsPage() {
         </div>
       </Modal>
 
-      // Modal: podgląd zwrotu
       <Modal
         isOpen={showView}
         onClose={() => setShowView(false)}

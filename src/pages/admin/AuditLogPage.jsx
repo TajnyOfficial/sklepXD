@@ -70,7 +70,6 @@ export default function AuditLogPage() {
   return (
     <div className="page animate-fadeIn">
       
-      // Header
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid var(--border-primary)', paddingBottom: 16 }}>
         <div>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--primary), var(--accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -82,13 +81,11 @@ export default function AuditLogPage() {
         </div>
       </div>
 
-      // Filters Bar
       <div style={{
         display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center',
         background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)',
         padding: '16px 20px', marginBottom: 24
       }}>
-        // Search
         <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
           <FiSearch style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input 
@@ -104,7 +101,6 @@ export default function AuditLogPage() {
           />
         </div>
 
-        // Action Type Dropdown
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FiFilter size={15} style={{ color: 'var(--text-muted)' }} />
           <select
@@ -126,7 +122,6 @@ export default function AuditLogPage() {
           </select>
         </div>
 
-        // Counter Badge
         <span style={{
           fontSize: '0.75rem', color: 'var(--primary)', background: 'var(--primary-light)',
           padding: '6px 12px', borderRadius: 20, fontWeight: 700, marginLeft: 'auto'
@@ -135,7 +130,6 @@ export default function AuditLogPage() {
         </span>
       </div>
 
-      // Table Container
       <div className="table-container" style={{ 
         background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)', 
         overflow: 'hidden', boxShadow: 'var(--shadow-sm)'
@@ -214,7 +208,6 @@ export default function AuditLogPage() {
         </table>
       </div>
 
-      // MODAL: Szczegóły wpisu w logach audytu (Wizualny podgląd)
       <Modal
         isOpen={showDetails}
         onClose={() => setShowDetails(false)}
@@ -256,7 +249,6 @@ export default function AuditLogPage() {
                 </p>
               </div>
 
-              // [PREMIUM PODGLĄD RUCHU MAGAZYNOWEGO / OPAKOWAŃ]
               {selectedLog.rawDetails?.extra && (
                 <div style={{ marginTop: 12, borderTop: '2px dashed var(--border-light)', paddingTop: 16 }}>
                   <h4 style={{ margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.9rem', color: 'var(--primary)' }}>

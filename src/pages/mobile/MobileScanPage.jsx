@@ -101,14 +101,12 @@ export default function MobileScanPage() {
         />
       )}
 
-      // Widok produktu po zeskanowaniu
       {scannedProduct && (
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, top: 0,
           background: 'var(--bg-primary)', zIndex: 1000, overflowY: 'auto',
           display: 'flex', flexDirection: 'column'
         }}>
-          // Header
           <div style={{ padding: '20px', borderBottom: '1px solid var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-overlay)', position: 'sticky', top: 0 }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Informacje o produkcie</h2>
             <button 
@@ -118,13 +116,11 @@ export default function MobileScanPage() {
           </div>
 
           <div style={{ padding: '24px 20px', flex: 1 }}>
-            // Tytuł i SKU
             <div style={{ marginBottom: 24 }}>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8, lineHeight: 1.2 }}>{scannedProduct.name}</h3>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono, monospace)' }}>SKU: {scannedProduct.sku}</div>
             </div>
 
-            // Główne informacje (Cena, Stan)
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
               <div style={{ background: 'var(--bg-card)', padding: '16px', borderRadius: 16, border: '1px solid var(--border-primary)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: 6 }}>
@@ -145,7 +141,6 @@ export default function MobileScanPage() {
               </div>
             </div>
 
-            // Opisy i lokalizacja
             <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: 16, border: '1px solid var(--border-primary)', marginBottom: 24 }}>
               {(() => {
                 const loc = warehouseLocations?.find(l => l.id === scannedProduct.location_id);
@@ -178,7 +173,6 @@ export default function MobileScanPage() {
               })()}
             </div>
 
-            // Akcje / Korekta stanu
             <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: 16, border: '1px solid var(--border-primary)', marginBottom: 24 }}>
               <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 16 }}>Szybka korekta stanu</h4>
               

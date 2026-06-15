@@ -148,7 +148,6 @@ export default function StockOverviewPage() {
       </div>
 
 
-      // Modal Wnoszenia / Wynoszenia
       <Modal
         isOpen={showAdjust}
         onClose={() => setShowAdjust(false)}

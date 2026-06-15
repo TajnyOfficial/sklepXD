@@ -94,7 +94,6 @@ function MobilePinLogin() {
       background: 'var(--bg-primary)',
       fontFamily: 'var(--font-sans)', padding: '24px 20px',
     }}>
-      // Header
       <div style={{ textAlign: 'center', marginBottom: 36 }}>
         <div style={{
           width: 60, height: 60, borderRadius: '4px', margin: '0 auto 16px',
@@ -113,7 +112,6 @@ function MobilePinLogin() {
         background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: '4px',
         padding: '32px 28px', width: '100%', maxWidth: 320,
       }}>
-        // PIN dots
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 28 }}>
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i} style={{

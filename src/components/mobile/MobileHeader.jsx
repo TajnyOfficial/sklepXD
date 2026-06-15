@@ -37,7 +37,6 @@ export default function MobileHeader({ title = 'Sklep Mobile', subtitle = '' }) 
         </div>
       </div>
 
-      // Informacje o zalogowanym użytkowniku
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-heading)' }}>

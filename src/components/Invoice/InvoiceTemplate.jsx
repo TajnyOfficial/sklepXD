@@ -78,7 +78,6 @@ export default function InvoiceTemplate({ invoice }) {
     <Document title={`Faktura ${invoice?.id}`} author={invoice?.seller?.name} subject="Faktura VAT">
       <Page size="A4" style={s.page}>
 
-        // Nagłówek dokumentu
         <View style={s.header}>
           <View style={s.logoBox}><Text style={s.logoText}>S</Text></View>
           <View>
@@ -88,7 +87,6 @@ export default function InvoiceTemplate({ invoice }) {
         </View>
         <View style={s.accentLine} />
 
-        // Dane sprzedawcy i nabywcy
         <View style={s.partiesRow}>
           <View style={s.partyBox}>
             <Text style={s.partyLabel}>Sprzedawca</Text>
@@ -104,7 +102,6 @@ export default function InvoiceTemplate({ invoice }) {
           </View>
         </View>
 
-        // Informacje meta (daty, płatność)
         <View style={s.metaRow}>
           {[
             ['Data wystawienia', invoice?.date_issue || invoice?.date],
@@ -119,7 +116,6 @@ export default function InvoiceTemplate({ invoice }) {
           ) : null)}
         </View>
 
-        // Główna tabela produktów
         <View style={s.tableHeader}>
           {cols.map(c => (
             <Text key={c.hdr} style={[s.thText, { width: c.w, textAlign: c.align }]}>{c.hdr}</Text>
@@ -140,9 +136,7 @@ export default function InvoiceTemplate({ invoice }) {
 
         <View style={s.line} />
 
-        // Podsumowanie podatkowe i kwota końcowa
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 20 }}>
-          // Tabela rozbicia stawek VAT
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 7, color: C.muted, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>
               Podsumowanie stawek VAT
@@ -162,7 +156,6 @@ export default function InvoiceTemplate({ invoice }) {
             ))}
           </View>
 
-          // Kwota całkowita
           <View style={s.totalBox}>
             <Text style={s.totalLabel}>Do zapłaty</Text>
             <Text style={s.totalValue}>{formatPLN(totals.gross)}</Text>
@@ -171,7 +164,6 @@ export default function InvoiceTemplate({ invoice }) {
           </View>
         </View>
 
-        // Informacje o koncie bankowym
         {invoice?.seller?.bank && (
           <View style={{ marginTop: 14, padding: '10 12', backgroundColor: C.bg, borderRadius: 6 }}>
             <Text style={[s.partyLabel, { marginBottom: 4 }]}>Dane do przelewu</Text>
@@ -180,7 +172,6 @@ export default function InvoiceTemplate({ invoice }) {
           </View>
         )}
 
-        // Miejsca na pieczęć i podpisy
         <View style={s.footer}>
           <View style={s.footerBox}>
             <Text style={s.footerLabel}>Wystawił(a)</Text>

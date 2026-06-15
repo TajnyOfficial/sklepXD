@@ -345,7 +345,6 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
     <div style={s.overlay} onClick={onClose}>
       <div style={s.container} onClick={e => e.stopPropagation()}>
 
-        // Nagłówek
         <div style={s.header}>
           <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{title}</span>
           {onClose && (
@@ -358,7 +357,6 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
           )}
         </div>
 
-        // Podgląd kamery — ukrywamy przy błędzie
         {!cameraError && (
           <div style={s.videoWrap}>
             <video
@@ -369,14 +367,12 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
               muted         /* wymagane przez Chrome do autoPlay */
             />
 
-            // Ramka skanera + animowana linia
             {isScanning && !scanned && (
               <div style={s.frame}>
                 <div style={s.scanLine} />
               </div>
             )}
 
-            // Overlay sukcesu
             {scanned && (
               <div style={s.successOverlay}>
                 <span style={{ fontSize: '2.5rem' }}>✅</span>
@@ -386,7 +382,6 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
           </div>
         )}
 
-        // Komunikat błędu
         {errorInfo && (
           <div style={s.errorBox}>
             <span style={{ fontSize: '1.4rem' }}>{errorInfo.icon}</span>
@@ -396,7 +391,6 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
           </div>
         )}
 
-        // Pasek statusu
         <div style={s.statusRow}>
           <div style={s.statusDot} />
           {scanned
@@ -408,7 +402,6 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
             : 'Inicjalizacja...'}
         </div>
 
-        // Sekcja ręczna
         <div style={s.body}>
           <div style={s.divider}>
             <div style={s.divLine} />
@@ -435,7 +428,6 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
             spellCheck={false}
           />
 
-          // Przycisk zatwierdź
           <button style={s.btnConfirm} disabled={!hasCode} onClick={handleConfirm}>
             {hasCode
               ? <><span>✓</span><span>Zatwierdź kod</span></>
@@ -443,7 +435,6 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
             }
           </button>
 
-          // Resetuj po odczycie
           {scanned && (
             <button style={s.btnReset} onClick={handleReset}>
               ↩ Skanuj inny kod

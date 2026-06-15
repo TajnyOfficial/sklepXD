@@ -379,7 +379,6 @@ export default function ProductCatalogPage() {
 
       </Modal>
 
-      // Skaner kodów
       {showScanner && (
         <BarcodeScanner
           onConfirm={handleScan}
@@ -388,7 +387,6 @@ export default function ProductCatalogPage() {
         />
       )}
 
-      // Modal: Podgląd produktu
       <Modal isOpen={showViewModal} onClose={() => setShowViewModal(false)} title="Szczegóły produktu" footer={<><button className="btn btn-secondary" onClick={() => { setShowViewModal(false); openEdit(viewProduct); }}>Edytuj</button><button className="btn btn-primary" onClick={() => setShowViewModal(false)}>Zamknij</button></>}>
         {viewProduct && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -425,7 +423,6 @@ export default function ProductCatalogPage() {
         )}
       </Modal>
 
-      // Modal: Etykiety
       <Modal isOpen={showLabelModal} onClose={() => setShowLabelModal(false)} title="Drukuj etykiety cenowe" size="modal-lg" footer={<><button className="btn btn-secondary" onClick={() => setShowLabelModal(false)}>Anuluj</button><button className="btn btn-primary" onClick={printLabels} disabled={selectedForLabels.length === 0}><FiPrinter size={14} /> Drukuj ({selectedForLabels.length})</button></>}>
         <p className="text-sm text-muted mb-16">Zaznacz produkty, dla których chcesz wydrukować etykiety cenowe:</p>
         <div className="table-container" style={{ maxHeight: 400, overflowY: 'auto' }}>

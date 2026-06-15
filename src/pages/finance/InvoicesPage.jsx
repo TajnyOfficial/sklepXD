@@ -371,7 +371,6 @@ async function handleSavePayment() {
         <div className="page-header-left"><h1>Faktury</h1><p>Fakturowanie, korekty, archiwum cyfrowe</p></div>
         
         <div className="page-header-right" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          // --- AUTOMATYCZNIE WYKRYTY UŻYTKOWNIK (Bez możliwości rozwijania/zmiany!) ---
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-tertiary)', padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
             <FiUser size={14} style={{color: 'var(--accent)'}} />
             <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9em' }}>
@@ -456,7 +455,6 @@ async function handleSavePayment() {
         </div>
       )}
 
-      // MODAL: DODAWANIE FAKTURY
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Nowa faktura VAT" size="modal-lg" footer={<><button className="btn btn-secondary" onClick={() => setShowModal(false)}>Anuluj</button><button className="btn btn-primary" onClick={handleSave}>Wystaw fakturę</button></>}>
         <div className="input-row mb-16">
           <div className="input-group" style={{ flex: 2 }}>
@@ -511,7 +509,6 @@ async function handleSavePayment() {
         <button className="btn btn-ghost btn-sm" onClick={addItem}><FiPlus size={14} /> Dodaj pozycję</button>
       </Modal>
 
-      // MODAL: WYSTAWIANIE KOREKTY
       <Modal isOpen={showCorrectionModal} onClose={() => setShowCorrectionModal(false)} title={`Korekta do: ${correctionTarget?.document_number}`} size="modal-lg" footer={<><button className="btn btn-secondary" onClick={() => setShowCorrectionModal(false)}>Anuluj</button><button className="btn btn-primary" style={{ backgroundColor: 'var(--warning)', borderColor: 'var(--warning)' }} onClick={handleCorrectionSave}>Wystaw Korektę</button></>}>
         <div className="input-group mb-16"><label>Przyczyna korekty </label><input className="input" style={{ borderLeft: '4px solid var(--warning)' }} value={correctionReason} onChange={e => setCorrectionReason(e.target.value)} placeholder="np. Zwrot towaru..." /></div>
         <div className="input-row mb-16"><div className="input-group"><label>Kontrahent</label><input className="input" value={form.customer} disabled /></div><div className="input-group"><label>NIP</label><input className="input" value={form.nip} disabled /></div></div>
@@ -533,7 +530,6 @@ async function handleSavePayment() {
         <button className="btn btn-ghost btn-sm" onClick={addItem}><FiPlus size={14} /> Dodaj pozycję</button>
       </Modal>
 
-      // MODAL: PŁATNOŚCI
       <Modal isOpen={showPaymentModal} onClose={() => setShowPaymentModal(false)} title={`Zarządzanie wpłatami do: ${paymentTarget?.document_number}`} footer={<><button className="btn btn-secondary" onClick={() => setShowPaymentModal(false)}>Anuluj</button><button className="btn btn-success" onClick={handleSavePayment}>Zaksięguj</button></>}>
         <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: '8px' }}>
           <div className="flex-between mb-8"><span className="text-muted">Kwota po ew. korektach:</span> <strong>{paymentTarget && formatCurrency(getEffectiveGross(paymentTarget))}</strong></div>
@@ -544,7 +540,6 @@ async function handleSavePayment() {
         <div className="input-group"><label>Wpisz kwotę do zaksięgowania (PLN)</label><input className="input" type="number" step="0.01" style={{ fontSize: '1.2em', fontWeight: 'bold' }} value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)} /></div>
       </Modal>
 
-      // MODAL: PODGLĄD
       <Modal isOpen={showView} onClose={() => setShowView(false)} title={`Faktura ${viewInv?.document_number}`} footer={<><InvoiceDownloadBtn invoiceData={viewInv ? getInvoiceData(viewInv) : null} /><button className="btn btn-secondary" onClick={() => setShowView(false)}>Zamknij</button></>}>
         {viewInv && <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[
