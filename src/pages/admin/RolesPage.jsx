@@ -75,12 +75,12 @@ const PERMISSION_LABELS = {
   'kiosk.access': 'Dostęp do kiosku RCP (kod PIN)'
 };
 
-/* Zaawansowany panel administracyjny do kompleksowego zarządzania Rolami (RBAC) i dynamicznego przypisywania poszczególnych uprawnień w systemie */
+// Zaawansowany panel administracyjny do kompleksowego zarządzania Rolami (RBAC) i dynamicznego przypisywania poszczególnych uprawnień w systemie
 export default function RolesPage() {
-  /* Funkcja z kontekstu pozwalająca na globalne zaktualizowanie macierzy ról i uprawnień w głównej bazie danych (Supabase) */
+  // Funkcja z kontekstu pozwalająca na globalne zaktualizowanie macierzy ról i uprawnień w głównej bazie danych (Supabase)
   const { updateRolePermissions } = useStore();
 
-  /* Lokalne kopie słowników: definicje kluczy ról, ludzkie nazwy ról, oraz aktualne mapowania uprawnień do danej roli */
+  // Lokalne kopie słowników: definicje kluczy ról, ludzkie nazwy ról, oraz aktualne mapowania uprawnień do danej roli
   const [roles, setRoles] = useState(() => ({ ...ROLES }));
   const [labels, setLabels] = useState(() => ({ ...ROLE_LABELS }));
   const [permissions, setPermissions] = useState(() => {
@@ -91,22 +91,22 @@ export default function RolesPage() {
     return copy;
   });
 
-  /* Identyfikator roli, której "karta" jest w danej chwili otwarta w celu podglądu szczegółów i pól wyboru */
+  // Identyfikator roli, której "karta" jest w danej chwili otwarta w celu podglądu szczegółów i pól wyboru
   const [expandedRole, setExpandedRole] = useState(null);
   
-  /* Stany obsługujące nakładki modalne (Modal) używane do tworzenia nowej roli (wpisywanie nazwy i kodu) */
+  // Stany obsługujące nakładki modalne (Modal) używane do tworzenia nowej roli (wpisywanie nazwy i kodu)
   const [showAddModal, setShowAddModal] = useState(false);
   const [newRoleName, setNewRoleName] = useState('');
   const [newRoleCode, setNewRoleCode] = useState('');
 
-  /* Stany obsługujące nakładki modalne (Modal) używane do edytowania istniejącej roli */
+  // Stany obsługujące nakładki modalne (Modal) używane do edytowania istniejącej roli
   const [editRoleKey, setEditRoleKey] = useState(null);
   const [editRoleName, setEditRoleName] = useState('');
 
-  /* Tablica ról wbudowanych w system, które objęte są ścisłą ochroną (nie można ich usunąć, a admin ma nałożoną niemodyfikowalność) */
+  // Tablica ról wbudowanych w system, które objęte są ścisłą ochroną (nie można ich usunąć, a admin ma nałożoną niemodyfikowalność)
   const criticalRoles = ['admin', 'shift_manager', 'cashier'];
 
-  /* Handler służący do odznaczania/zaznaczania i asynchronicznego zapisywania pojedynczego uprawnienia dla określonej roli */
+  // Handler służący do odznaczania/zaznaczania i asynchronicznego zapisywania pojedynczego uprawnienia dla określonej roli
   async function handleTogglePermission(roleKey, permValue) {
     if (roleKey === 'admin') {
       toast.error('Rola Administratora posiada pełne i niemodyfikowalne uprawnienia.');
@@ -131,7 +131,7 @@ export default function RolesPage() {
     toast.success('Uprawnienie zaktualizowane pomyślnie!', { duration: 1500 });
   }
 
-  /* Helper pozwalający za pomocą jednego kliknięcia nadać/zabrać cały zestaw uprawnień danej kategorii tematycznej */
+  // Helper pozwalający za pomocą jednego kliknięcia nadać/zabrać cały zestaw uprawnień danej kategorii tematycznej
   async function handleToggleAllInGroup(roleKey, groupName, permList) {
     if (roleKey === 'admin') {
       toast.error('Rola Administratora posiada pełne i niemodyfikowalne uprawnienia.');
@@ -162,7 +162,7 @@ export default function RolesPage() {
     toast.success(`Grupa "${groupName}" zaktualizowana!`, { duration: 1500 });
   }
 
-  /* Funkcja odpowiedzialna za rejestrację całkowicie nowej, niestandardowej roli w systemie i odświeżenie konfiguracji */
+  // Funkcja odpowiedzialna za rejestrację całkowicie nowej, niestandardowej roli w systemie i odświeżenie konfiguracji
   async function handleAddRole(e) {
     e.preventDefault();
     const code = newRoleCode.trim().toLowerCase().replace(/\s+/g, '_');
@@ -206,7 +206,7 @@ export default function RolesPage() {
     toast.success(`Rola "${name}" została pomyślnie dodana!`);
   }
 
-  /* Funkcja odpowiedzialna za edycję etykiety dla wybranej wariacji roli (nie dotyka kodu bazowego) */
+  // Funkcja odpowiedzialna za edycję etykiety dla wybranej wariacji roli (nie dotyka kodu bazowego)
   async function handleEditRole(e) {
     e.preventDefault();
     const name = editRoleName.trim();
@@ -225,7 +225,7 @@ export default function RolesPage() {
     toast.success('Nazwa roli zaktualizowana!');
   }
 
-  /* Funkcja obsługująca bezpieczne usunięcie wybranej roli z systemu, pomijająca krytyczne definicje wbudowane (criticalRoles) */
+  // Funkcja obsługująca bezpieczne usunięcie wybranej roli z systemu, pomijająca krytyczne definicje wbudowane (criticalRoles)
   async function handleDeleteRole(roleKey) {
     if (criticalRoles.includes(roleKey)) {
       toast.error(`Rola systemowa "${labels[roleKey]}" nie może zostać usunięta.`);
@@ -263,7 +263,7 @@ export default function RolesPage() {
   return (
     <div className="page animate-fadeIn">
       
-      {/* Header */}
+      // Header
       <div className="page-header flex-between" style={{ marginBottom: 24, borderBottom: '1px solid var(--border-primary)', paddingBottom: 16 }}>
         <div>
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--primary), var(--accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -282,7 +282,7 @@ export default function RolesPage() {
         </button>
       </div>
 
-      {/* Info Banner */}
+      // Info Banner
       <div style={{
         background: 'var(--accent-bg)', border: '1.5px solid var(--accent-border)',
         borderRadius: 'var(--radius-lg)', padding: '14px 18px', display: 'flex', gap: 12, alignItems: 'center', marginBottom: 28
@@ -293,7 +293,7 @@ export default function RolesPage() {
         </span>
       </div>
 
-      {/* Roles List */}
+      // Roles List
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {Object.values(roles).map(roleKey => {
           const roleLabel = labels[roleKey] || roleKey;
@@ -310,7 +310,7 @@ export default function RolesPage() {
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              {/* Card Header */}
+              // Card Header
               <div 
                 onClick={() => setExpandedRole(isExpanded ? null : roleKey)}
                 style={{
@@ -343,7 +343,7 @@ export default function RolesPage() {
                   </div>
                 </div>
 
-                {/* Actions */}
+                // Actions
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} onClick={e => e.stopPropagation()}>
                   <button 
                     className="btn btn-ghost btn-icon btn-sm"
@@ -373,7 +373,7 @@ export default function RolesPage() {
                 </div>
               </div>
 
-              {/* Card Expanded Content */}
+              // Card Expanded Content
               {isExpanded && (
                 <div style={{ 
                   borderTop: '1px solid var(--border-primary)', padding: '24px 28px', background: 'var(--bg-primary)',
@@ -400,7 +400,7 @@ export default function RolesPage() {
                               padding: 16, display: 'flex', flexDirection: 'column'
                             }}
                           >
-                            {/* Group Header */}
+                            // Group Header
                             <div style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
                               borderBottom: '1px solid var(--border-light)', paddingBottom: 10, marginBottom: 12 
@@ -417,7 +417,7 @@ export default function RolesPage() {
                               </button>
                             </div>
 
-                            {/* Group Perms List */}
+                            // Group Perms List
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
                               {groupPermList.map(([permKey, permVal]) => {
                                 const has = (permissions[roleKey] || []).includes(permVal);
@@ -459,7 +459,7 @@ export default function RolesPage() {
         })}
       </div>
 
-      {/* Add New Role Modal */}
+      // Add New Role Modal
       {showAddModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -533,7 +533,7 @@ export default function RolesPage() {
         </div>
       )}
 
-      {/* Edit Role Modal */}
+      // Edit Role Modal
       {editRoleKey && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,

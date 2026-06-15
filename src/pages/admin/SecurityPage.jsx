@@ -1,7 +1,7 @@
 import { FiShield, FiKey, FiDatabase, FiLock, FiSmartphone, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/* Ekran przeglądu zabezpieczeń informujący o włączonych protokołach RODO, 2FA oraz statusie kopii zapasowych */
+// Ekran przeglądu zabezpieczeń informujący o włączonych protokołach RODO, 2FA oraz statusie kopii zapasowych
 export default function SecurityPage() {
   return (
     <div className="page animate-fadeIn">

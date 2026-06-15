@@ -1,0 +1,74 @@
+\doxysection{src/\+pages/\+finance/\+\+Payments\+Page.jsx File Reference}
+\hypertarget{_payments_page_8jsx}{}\label{_payments_page_8jsx}\index{src/pages/finance/PaymentsPage.jsx@{src/pages/finance/PaymentsPage.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function default \doxymbox{\hyperlink{_payments_page_8jsx_ac8fd507fcc8d3ec9b638fb41f6552437}{Payments\+Page}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_payments_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \doxymbox{\hyperlink{_payments_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04}{React}}
+\item 
+import \doxymbox{\hyperlink{_payments_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \doxymbox{\hyperlink{helpers_8js_a80da30ad61600031580cff63fac33683}{format\+Currency}} \} from \textquotesingle{}../\+../\+utils/\+helpers\textquotesingle{}
+\item 
+\doxymbox{\hyperlink{_payments_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot \doxymbox{\hyperlink{_payments_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}{toast}}
+\item 
+const \doxymbox{\hyperlink{_payments_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}} = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+URL
+\item 
+const \doxymbox{\hyperlink{_payments_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}} = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+ANON\+\_\+\+KEY
+\item 
+const \doxymbox{\hyperlink{_payments_page_8jsx_a4835e349e6bbb23837da2bcb675e423c}{supabase}} = create\+Client(\doxymbox{\hyperlink{_payments_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}}, \doxymbox{\hyperlink{_payments_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}})
+\end{DoxyCompactItemize}
+
+
+\label{_payments_page_8jsx_doc-func-members}
+\Hypertarget{_payments_page_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_payments_page_8jsx_ac8fd507fcc8d3ec9b638fb41f6552437}\index{PaymentsPage.jsx@{PaymentsPage.jsx}!PaymentsPage@{PaymentsPage}}
+\index{PaymentsPage@{PaymentsPage}!PaymentsPage.jsx@{PaymentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{PaymentsPage()}{PaymentsPage()}}
+{\footnotesize\ttfamily \label{_payments_page_8jsx_ac8fd507fcc8d3ec9b638fb41f6552437} 
+function default Payments\+Page (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{_payments_page_8jsx_doc-var-members}
+\Hypertarget{_payments_page_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_payments_page_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{PaymentsPage.jsx@{PaymentsPage.jsx}!import@{import}}
+\index{import@{import}!PaymentsPage.jsx@{PaymentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_payments_page_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \doxymbox{\hyperlink{helpers_8js_a80da30ad61600031580cff63fac33683}{format\+Currency}} \} from \textquotesingle{}../\+../\+utils/\+helpers\textquotesingle{}}
+
+\Hypertarget{_payments_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04}\index{PaymentsPage.jsx@{PaymentsPage.jsx}!React@{React}}
+\index{React@{React}!PaymentsPage.jsx@{PaymentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{React}{React}}
+{\footnotesize\ttfamily \label{_payments_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04} 
+\doxymbox{\hyperlink{_payments_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} React}
+
+\Hypertarget{_payments_page_8jsx_a4835e349e6bbb23837da2bcb675e423c}\index{PaymentsPage.jsx@{PaymentsPage.jsx}!supabase@{supabase}}
+\index{supabase@{supabase}!PaymentsPage.jsx@{PaymentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabase}{supabase}}
+{\footnotesize\ttfamily \label{_payments_page_8jsx_a4835e349e6bbb23837da2bcb675e423c} 
+const supabase = create\+Client(\doxymbox{\hyperlink{_payments_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}}, \doxymbox{\hyperlink{_payments_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}})}
+
+\Hypertarget{_payments_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}\index{PaymentsPage.jsx@{PaymentsPage.jsx}!supabaseAnonKey@{supabaseAnonKey}}
+\index{supabaseAnonKey@{supabaseAnonKey}!PaymentsPage.jsx@{PaymentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabaseAnonKey}{supabaseAnonKey}}
+{\footnotesize\ttfamily \label{_payments_page_8jsx_a86795d5e5667931ab7381f32ebd00f46} 
+const supabase\+Anon\+Key = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+ANON\+\_\+\+KEY}
+
+\Hypertarget{_payments_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}\index{PaymentsPage.jsx@{PaymentsPage.jsx}!supabaseUrl@{supabaseUrl}}
+\index{supabaseUrl@{supabaseUrl}!PaymentsPage.jsx@{PaymentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabaseUrl}{supabaseUrl}}
+{\footnotesize\ttfamily \label{_payments_page_8jsx_ab12664b12f6ee28c247c6245953d9bee} 
+const supabase\+Url = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+URL}
+
+\Hypertarget{_payments_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}\index{PaymentsPage.jsx@{PaymentsPage.jsx}!toast@{toast}}
+\index{toast@{toast}!PaymentsPage.jsx@{PaymentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{toast}{toast}}
+{\footnotesize\ttfamily \label{_payments_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a} 
+\doxymbox{\hyperlink{_payments_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot toast}
+

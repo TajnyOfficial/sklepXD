@@ -10,7 +10,7 @@ const PRIORITIES = { urgent: '🔴 Pilne', high: '🟠 Wysokie', normal: '🔵 N
 const STATUSES = { pending: 'Oczekuje', in_progress: 'W trakcie', completed: 'Zakończone', cancelled: 'Anulowane' };
 const EMPTY = { title: '', description: '', priority: 'normal', assigned: '', requires_photo: false, due: '' };
 
-/* Narzędzie Task Managementu (Todo) dla zespołu sklepu. Zapis i odczyt z bazy danych Supabase. */
+// Narzędzie Task Managementu (Todo) dla zespołu sklepu. Zapis i odczyt z bazy danych Supabase.
 export default function TasksPage() {
   const { profile } = useAuth();
   const { employees } = useStore();

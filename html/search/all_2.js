@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['c_0',['C',['../_invoice_template_8jsx.html#af33f4e85482e7ba78af07ce19d85cea8',1,'InvoiceTemplate.jsx']]],
+  ['calculategrossfromnet_1',['calculateGrossFromNet',['../helpers_8js.html#aeb1959696b978e2f82fb498822d1a0c9',1,'helpers.js']]],
+  ['calculateinvoicedata_2',['calculateInvoiceData',['../invoice_utils_8js.html#a7f22343365df622cd810152b79b49e77',1,'invoiceUtils.js']]],
+  ['calculatemargin_3',['calculateMargin',['../helpers_8js.html#aa35af5a50ca6a771ff36d34d5d25c049',1,'helpers.js']]],
+  ['calculatemarkup_4',['calculateMarkup',['../helpers_8js.html#adc68a96858dac6bdb3c59a2b71157d1d',1,'helpers.js']]],
+  ['calculatenetfromgross_5',['calculateNetFromGross',['../helpers_8js.html#a3b2f281e887d4265ec584b08d9a21955',1,'helpers.js']]],
+  ['calculatevat_6',['calculateVAT',['../helpers_8js.html#a9e5fce8e20b6c5080200894d6877fd1a',1,'helpers.js']]],
+  ['cashdrawerpage_7',['CashDrawerPage',['../_p_o_s_app_8jsx.html#a858872b54f6ebf7af520d0171ab709d1',1,'CashDrawerPage:&#160;POSApp.jsx'],['../_cash_drawer_page_8jsx.html#a0f688b6bbd11a61a3d86440810908640',1,'CashDrawerPage():&#160;CashDrawerPage.jsx']]],
+  ['cashdrawerpage_2ejsx_8',['CashDrawerPage.jsx',['../_cash_drawer_page_8jsx.html',1,'']]],
+  ['cashreportpage_9',['CashReportPage',['../_app_8jsx.html#a9a19e26aa4a296f30c943f11c753c035',1,'CashReportPage:&#160;App.jsx'],['../_cash_report_page_8jsx.html#aa2c58f13828638ae0c72a9d914c4057f',1,'CashReportPage():&#160;CashReportPage.jsx']]],
+  ['cashreportpage_2ejsx_10',['CashReportPage.jsx',['../_cash_report_page_8jsx.html',1,'']]],
+  ['cats_11',['CATS',['../_expenses_page_8jsx.html#a5e437053b710af07cd803b5cd67d9de6',1,'ExpensesPage.jsx']]],
+  ['classnames_12',['classNames',['../helpers_8js.html#a1ad40f3419b667ff81e8cb4ef3fb33e4',1,'helpers.js']]],
+  ['cross_5fsell_5fmap_13',['CROSS_SELL_MAP',['../_store_context_8jsx.html#ae2c2a0fc1150fa8e0225908495619e2c',1,'StoreContext.jsx']]],
+  ['css_14',['css',['../apps_2kiosk_2main_8jsx.html#a39ce074942a931b6249205e207cb8af2',1,'css:&#160;main.jsx'],['../apps_2mobile_2main_8jsx.html#a39ce074942a931b6249205e207cb8af2',1,'css:&#160;main.jsx'],['../apps_2pos_2main_8jsx.html#a39ce074942a931b6249205e207cb8af2',1,'css:&#160;main.jsx'],['../main_8jsx.html#a39ce074942a931b6249205e207cb8af2',1,'css:&#160;main.jsx']]],
+  ['customerspage_15',['CustomersPage',['../_app_8jsx.html#a51e792962c10852f43585e451130aab7',1,'CustomersPage:&#160;App.jsx'],['../_customers_page_8jsx.html#a4e71ac96b83f8491302e4d2d4e6bf14a',1,'CustomersPage():&#160;CustomersPage.jsx']]],
+  ['customerspage_2ejsx_16',['CustomersPage.jsx',['../_customers_page_8jsx.html',1,'']]],
+  ['customtooltip_17',['CustomTooltip',['../_analytics_page_8jsx.html#aea834b6dbcba95025e8ca456a77d0c13',1,'AnalyticsPage.jsx']]]
+];

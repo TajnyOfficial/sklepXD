@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const EMPTY = { title: '', content: '', priority: 'normal' };
 
-/* Wewnętrzna "Tablica Ogłoszeń" komunikacji korporacyjnej dla pracowników. Obsługuje przypinanie ważnych postów i oznaczanie priorytetów */
+// Wewnętrzna "Tablica Ogłoszeń" komunikacji korporacyjnej dla pracowników. Obsługuje przypinanie ważnych postów i oznaczanie priorytetów
 export default function AnnouncementsPage() {
   const { profile } = useAuth();
   const [items, setItems] = useState([]);

@@ -1,0 +1,74 @@
+\doxysection{src/\+pages/\+communication/\+\+Tasks\+Page.jsx File Reference}
+\hypertarget{_tasks_page_8jsx}{}\label{_tasks_page_8jsx}\index{src/pages/communication/TasksPage.jsx@{src/pages/communication/TasksPage.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function default \doxymbox{\hyperlink{_tasks_page_8jsx_a139a9322a0a8c14295d371ca5698b538}{Tasks\+Page}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_tasks_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ use\+State, use\+Effect \} from \textquotesingle{}react\textquotesingle{}
+\item 
+\doxymbox{\hyperlink{_tasks_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Modal from components \doxymbox{\hyperlink{_tasks_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb}{Modal}}
+\item 
+\doxymbox{\hyperlink{_tasks_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot \doxymbox{\hyperlink{_tasks_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}{toast}}
+\item 
+const \doxymbox{\hyperlink{_tasks_page_8jsx_ab999249ad84eb5f88df3f99ee499519d}{PRIORITIES}} = \{ urgent:\+ \textquotesingle{}🔴 Pilne\textquotesingle{}, high:\+ \textquotesingle{}🟠 Wysokie\textquotesingle{}, normal:\+ \textquotesingle{}🔵 Normalne\textquotesingle{}, low:\+ \textquotesingle{}⚪ Niski\textquotesingle{} \}
+\item 
+const \doxymbox{\hyperlink{_tasks_page_8jsx_a5a06f4abd1c3db5845451539cdbd023f}{STATUSES}} = \{ pending:\+ \textquotesingle{}Oczekuje\textquotesingle{}, in\+\_\+progress:\+ \textquotesingle{}W trakcie\textquotesingle{}, completed:\+ \textquotesingle{}Zakończone\textquotesingle{}, cancelled:\+ \textquotesingle{}Anulowane\textquotesingle{} \}
+\item 
+const \doxymbox{\hyperlink{_tasks_page_8jsx_aab83498427d3a800db7d84d0eedf14a2}{EMPTY}} = \{ title:\+ \textquotesingle{}\textquotesingle{}, description:\+ \textquotesingle{}\textquotesingle{}, priority:\+ \textquotesingle{}normal\textquotesingle{}, assigned:\+ \textquotesingle{}\textquotesingle{}, requires\+\_\+photo:\+ false, due:\+ \textquotesingle{}\textquotesingle{} \}
+\end{DoxyCompactItemize}
+
+
+\label{_tasks_page_8jsx_doc-func-members}
+\Hypertarget{_tasks_page_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_tasks_page_8jsx_a139a9322a0a8c14295d371ca5698b538}\index{TasksPage.jsx@{TasksPage.jsx}!TasksPage@{TasksPage}}
+\index{TasksPage@{TasksPage}!TasksPage.jsx@{TasksPage.jsx}}
+\doxysubsubsection{\texorpdfstring{TasksPage()}{TasksPage()}}
+{\footnotesize\ttfamily \label{_tasks_page_8jsx_a139a9322a0a8c14295d371ca5698b538} 
+function default Tasks\+Page (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{_tasks_page_8jsx_doc-var-members}
+\Hypertarget{_tasks_page_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_tasks_page_8jsx_aab83498427d3a800db7d84d0eedf14a2}\index{TasksPage.jsx@{TasksPage.jsx}!EMPTY@{EMPTY}}
+\index{EMPTY@{EMPTY}!TasksPage.jsx@{TasksPage.jsx}}
+\doxysubsubsection{\texorpdfstring{EMPTY}{EMPTY}}
+{\footnotesize\ttfamily \label{_tasks_page_8jsx_aab83498427d3a800db7d84d0eedf14a2} 
+const EMPTY = \{ title:\+ \textquotesingle{}\textquotesingle{}, description:\+ \textquotesingle{}\textquotesingle{}, priority:\+ \textquotesingle{}normal\textquotesingle{}, assigned:\+ \textquotesingle{}\textquotesingle{}, requires\+\_\+photo:\+ false, due:\+ \textquotesingle{}\textquotesingle{} \}}
+
+\Hypertarget{_tasks_page_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{TasksPage.jsx@{TasksPage.jsx}!import@{import}}
+\index{import@{import}!TasksPage.jsx@{TasksPage.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_tasks_page_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ use\+State, use\+Effect \} from \textquotesingle{}react\textquotesingle{}}
+
+\Hypertarget{_tasks_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb}\index{TasksPage.jsx@{TasksPage.jsx}!Modal@{Modal}}
+\index{Modal@{Modal}!TasksPage.jsx@{TasksPage.jsx}}
+\doxysubsubsection{\texorpdfstring{Modal}{Modal}}
+{\footnotesize\ttfamily \label{_tasks_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb} 
+\doxymbox{\hyperlink{_tasks_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Modal from components Modal}
+
+\Hypertarget{_tasks_page_8jsx_ab999249ad84eb5f88df3f99ee499519d}\index{TasksPage.jsx@{TasksPage.jsx}!PRIORITIES@{PRIORITIES}}
+\index{PRIORITIES@{PRIORITIES}!TasksPage.jsx@{TasksPage.jsx}}
+\doxysubsubsection{\texorpdfstring{PRIORITIES}{PRIORITIES}}
+{\footnotesize\ttfamily \label{_tasks_page_8jsx_ab999249ad84eb5f88df3f99ee499519d} 
+const PRIORITIES = \{ urgent:\+ \textquotesingle{}🔴 Pilne\textquotesingle{}, high:\+ \textquotesingle{}🟠 Wysokie\textquotesingle{}, normal:\+ \textquotesingle{}🔵 Normalne\textquotesingle{}, low:\+ \textquotesingle{}⚪ Niski\textquotesingle{} \}}
+
+\Hypertarget{_tasks_page_8jsx_a5a06f4abd1c3db5845451539cdbd023f}\index{TasksPage.jsx@{TasksPage.jsx}!STATUSES@{STATUSES}}
+\index{STATUSES@{STATUSES}!TasksPage.jsx@{TasksPage.jsx}}
+\doxysubsubsection{\texorpdfstring{STATUSES}{STATUSES}}
+{\footnotesize\ttfamily \label{_tasks_page_8jsx_a5a06f4abd1c3db5845451539cdbd023f} 
+const STATUSES = \{ pending:\+ \textquotesingle{}Oczekuje\textquotesingle{}, in\+\_\+progress:\+ \textquotesingle{}W trakcie\textquotesingle{}, completed:\+ \textquotesingle{}Zakończone\textquotesingle{}, cancelled:\+ \textquotesingle{}Anulowane\textquotesingle{} \}}
+
+\Hypertarget{_tasks_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}\index{TasksPage.jsx@{TasksPage.jsx}!toast@{toast}}
+\index{toast@{toast}!TasksPage.jsx@{TasksPage.jsx}}
+\doxysubsubsection{\texorpdfstring{toast}{toast}}
+{\footnotesize\ttfamily \label{_tasks_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a} 
+\doxymbox{\hyperlink{_tasks_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot toast}
+

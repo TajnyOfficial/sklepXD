@@ -1,15 +1,11 @@
-/**
- * Komponent skanera kodów kreskowych (Aparat + Klawiatura).
- * Umożliwia wykorzystanie sprzętowej kamery (np. smartfona, tabletu) do ciągłego
- * nasłuchiwania w poszukiwaniu kodów kreskowych 1D/2D przy użyciu biblioteki `@zxing/browser`.
- * Wyposażony w system `Fallback` — pozwala ręcznie wpisać kod w sytuacji krytycznej (brak kamery).
- */
+// Komponent skanera kodów. Używa kamery urządzenia do ciągłego nasłuchu kodów EAN/QR.
+// Obsługuje ręczne wpisywanie w razie problemów z kamerą.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { NotFoundException } from '@zxing/library';
 
-// ── Animacja linii skanera wstrzykiwana do <head> raz ──────────────────────
+// Wstrzyknięcie animacji skanera do <head>
 const SCAN_ANIMATION_CSS = `
   @keyframes scanLine {
     0%   { top: 8%; }
@@ -26,33 +22,33 @@ function injectScanAnimation() {
   document.head.appendChild(style);
 }
 
-/* Główny komponent skanera kodów kreskowych zarządzający cyklem życia strumienia wideo z kamery urządzenia */
+// Główny komponent skanera, zarządza kamerą i dekoderem zXing.
 export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy', onClose }) {
-  /* Stan przechowujący aktualnie zeskanowany lub wpisany kod kreskowy */
+  // Zeskanowany lub wpisany kod.
   const [code, setCode]               = useState('');
   
-  /* Stan określający rodzaj błędu podczas inicjalizacji kamery (brak uprawnień, brak kamery, itp.) */
+  // Ewentualny błąd kamery.
   const [cameraError, setCameraError] = useState(null);
   
-  /* Flaga informująca, czy aktualnie trwa nasłuch obrazu i dekodowanie wideo w poszukiwaniu kodu */
+  // Czy aktualnie trwa skanowanie obrazu.
   const [isScanning, setIsScanning]   = useState(false);
   
-  /* Flaga określająca, czy w danej sesji udało się pomyślnie zdekodować kod kreskowy */
+  // Czy udało się zdekodować kod.
   const [scanned, setScanned]         = useState(false);
   
-  /* Stan określający czy ręczne pole do wpisywania kodu posiada aktualnie focus użytkownika */
+  // Czy pole ręcznego wpisywania jest aktywne.
   const [inputFocused, setInputFocused] = useState(false);
 
-  /* Referencja do elementu <video> w DOM służąca do wyświetlania obrazu na żywo z kamery */
+  // Referencja do wideo z kamery.
   const videoRef  = useRef(null);
   
-  /* Referencja do dekodera zXing przetwarzającego poszczególne klatki wideo na wartości tekstowe */
+  // Referencja dekodera zXing.
   const readerRef = useRef(null);
   
-  /* Referencja do aktywnego strumienia multimedialnego (MediaStream), używana do jego zamykania przy wychodzeniu z komponentu */
+  // Aktywny strumień MediaStream.
   const streamRef = useRef(null);
 
-  /* Funkcja zwalniająca i wyłączająca dostęp do kamery urządzenia (czyszczenie torów MediaStream) */
+  // Zatrzymuje dostęp do kamery i zwalnia zasoby.
   const stopCamera = useCallback(() => {
     // 1. Zatrzymaj reader (pętla dekodowania)
     if (readerRef.current) {
@@ -71,7 +67,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
     setIsScanning(false);
   }, []);
 
-  /* Funkcja asynchroniczna inicjująca dostęp do fizycznego aparatu oraz pętlę ciągłego skanowania w zXing */
+  // Uruchamia kamerę i ciągłe skanowanie zXing.
   const startCamera = useCallback(async () => {
     setCameraError(null);
     setScanned(false);
@@ -135,11 +131,11 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
     }
   }, [stopCamera]);
 
-  // ── Lifecycle: uruchom przy montowaniu, posprzątaj przy odmontowaniu ─────
+  // Lifecycle – start przy montowaniu, czyszczenie przy demontażu.
   useEffect(() => {
     injectScanAnimation();
 
-    // ── Polyfill i przygotowanie API dla Safari / starszych przeglądarek ──────
+    // Polyfill i przygotowanie API dla Safari / starszych przeglądarek
     const prepareMediaDevices = () => {
       try {
         if (typeof navigator !== 'undefined' && navigator.mediaDevices === undefined) {
@@ -183,30 +179,30 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
     };
   }, [startCamera, stopCamera]);
 
-  /* Funkcja obsługująca zmianę wartości w ręcznym polu wprowadzenia kodu EAN */
+  // Obsługa wpisywania kodu ręcznie.
   function handleManualInput(e) {
     setCode(e.target.value);
     if (scanned) setScanned(false);
   }
 
-  /* Funkcja resetująca stan udanego skanowania i uruchamiająca kamerę na nowo */
+  // Resetuje skaner do stanu początkowego.
   function handleReset() {
     startCamera();
   }
 
-  /* Funkcja zatwierdzająca zeskanowany lub wpisany kod, wyzwalająca przekazany callback onConfirm */
+  // Potwierdza wpisany/zeskanowany kod i uruchamia onConfirm.
   function handleConfirm() {
     const trimmed = code.trim();
     if (!trimmed) return;
     onConfirm?.(trimmed);
   }
 
-  // ── Obsługa Enter w polu tekstowym ───────────────────────────────────────
+  // Obsługa zatwierdzenia przez klawisz Enter.
   function handleInputKeyDown(e) {
     if (e.key === 'Enter' && code.trim()) handleConfirm();
   }
 
-  // ── Komunikaty błędów ─────────────────────────────────────────────────────
+  // Konfiguracja błędów sprzętowych.
   const ERROR_CONFIG = {
     permission:    { icon: '🚫', msg: 'Brak dostępu do kamery. Zezwól na dostęp w ustawieniach przeglądarki lub wpisz kod ręcznie.' },
     not_found:     { icon: '📷', msg: 'Nie znaleziono kamery. Upewnij się, że urządzenie ma podłączoną kamerę.' },
@@ -223,7 +219,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
   const errorInfo = cameraError ? ERROR_CONFIG[cameraError] : null;
   const hasCode   = code.trim().length > 0;
 
-  // ── Style ─────────────────────────────────────────────────────────────────
+  // Style komponentu skanera.
   const s = {
     overlay: {
       position: 'fixed', inset: 0, zIndex: 1000,
@@ -344,12 +340,12 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
     },
   };
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // Render
   return (
     <div style={s.overlay} onClick={onClose}>
       <div style={s.container} onClick={e => e.stopPropagation()}>
 
-        {/* Nagłówek */}
+        // Nagłówek
         <div style={s.header}>
           <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{title}</span>
           {onClose && (
@@ -362,7 +358,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
           )}
         </div>
 
-        {/* Podgląd kamery — ukrywamy przy błędzie */}
+        // Podgląd kamery — ukrywamy przy błędzie
         {!cameraError && (
           <div style={s.videoWrap}>
             <video
@@ -373,14 +369,14 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
               muted         /* wymagane przez Chrome do autoPlay */
             />
 
-            {/* Ramka skanera + animowana linia */}
+            // Ramka skanera + animowana linia
             {isScanning && !scanned && (
               <div style={s.frame}>
                 <div style={s.scanLine} />
               </div>
             )}
 
-            {/* Overlay sukcesu */}
+            // Overlay sukcesu
             {scanned && (
               <div style={s.successOverlay}>
                 <span style={{ fontSize: '2.5rem' }}>✅</span>
@@ -390,7 +386,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
           </div>
         )}
 
-        {/* Komunikat błędu */}
+        // Komunikat błędu
         {errorInfo && (
           <div style={s.errorBox}>
             <span style={{ fontSize: '1.4rem' }}>{errorInfo.icon}</span>
@@ -400,7 +396,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
           </div>
         )}
 
-        {/* Pasek statusu */}
+        // Pasek statusu
         <div style={s.statusRow}>
           <div style={s.statusDot} />
           {scanned
@@ -412,7 +408,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
             : 'Inicjalizacja...'}
         </div>
 
-        {/* Sekcja ręczna */}
+        // Sekcja ręczna
         <div style={s.body}>
           <div style={s.divider}>
             <div style={s.divLine} />
@@ -439,7 +435,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
             spellCheck={false}
           />
 
-          {/* Przycisk zatwierdź */}
+          // Przycisk zatwierdź
           <button style={s.btnConfirm} disabled={!hasCode} onClick={handleConfirm}>
             {hasCode
               ? <><span>✓</span><span>Zatwierdź kod</span></>
@@ -447,7 +443,7 @@ export default function BarcodeScanner({ onConfirm, title = 'Skanuj kod kreskowy
             }
           </button>
 
-          {/* Resetuj po odczycie */}
+          // Resetuj po odczycie
           {scanned && (
             <button style={s.btnReset} onClick={handleReset}>
               ↩ Skanuj inny kod

@@ -344,7 +344,7 @@ export default function ExpensesPage() {
         </div>
       )}
 
-      {/* MODAL KOSZTOWY */}
+      // MODAL KOSZTOWY
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editing ? 'Edytuj dokument kosztowy' : 'Rejestracja nowej faktury zakupowej'} size="modal-lg" footer={<><button className="btn btn-secondary" onClick={() => setShowModal(false)}>Anuluj</button><button className="btn btn-primary" onClick={handleSave}>{editing ? 'Zapisz zmiany' : 'Zaksięguj dokument'}</button></>}>
         <div className="input-row mb-16">
           <div className="input-group">
@@ -423,7 +423,7 @@ export default function ExpensesPage() {
 
       </Modal>
 
-      {/* MODAL: PŁATNOŚCI KOSZTOWE (RATY) */}
+      // MODAL: PŁATNOŚCI KOSZTOWE (RATY)
       <Modal 
         isOpen={showPaymentModal} 
         onClose={() => setShowPaymentModal(false)} 

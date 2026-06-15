@@ -1,0 +1,161 @@
+\doxysection{src/\+utils/\+rbac.js File Reference}
+\hypertarget{rbac_8js}{}\label{rbac_8js}\index{src/utils/rbac.js@{src/utils/rbac.js}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \doxymbox{\hyperlink{rbac_8js_ad47a6d21d98ac1be33311f6a1f98774a}{has\+Permission}} (user\+Role, permission)
+\item 
+function export \doxymbox{\hyperlink{rbac_8js_ad4501f84bd41305a5e3d6d610d92d690}{has\+Any\+Permission}} (user\+Role, permissions)
+\item 
+function export \doxymbox{\hyperlink{rbac_8js_a02a33eee99db68d6c9274bb60edd5932}{has\+All\+Permissions}} (user\+Role, permissions)
+\item 
+function export \doxymbox{\hyperlink{rbac_8js_a96ebe75114127fe942f8d78b14f6d1cc}{get\+Permissions\+For\+Role}} (role)
+\item 
+function export \doxymbox{\hyperlink{rbac_8js_ace1dbafb4d74dd5ebe617e1c4f110f3b}{get\+Role\+Level}} (role)
+\item 
+function export \doxymbox{\hyperlink{rbac_8js_aaf474fd616f81143746298f31a9eab2e}{get\+Nav\+Items}} (user\+Role)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+export const \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}
+\item 
+export const \doxymbox{\hyperlink{rbac_8js_a3c9e5124be10d4e1fba71da4ca9cebb8}{ROLE\+\_\+\+LABELS}}
+\item 
+export const \doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}
+\item 
+export const \doxymbox{\hyperlink{rbac_8js_a256967d98fbcc662afdcb91d11944530}{ROLE\+\_\+\+PERMISSIONS}}
+\end{DoxyCompactItemize}
+
+
+\label{rbac_8js_doc-func-members}
+\Hypertarget{rbac_8js_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{rbac_8js_aaf474fd616f81143746298f31a9eab2e}\index{rbac.js@{rbac.js}!getNavItems@{getNavItems}}
+\index{getNavItems@{getNavItems}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{getNavItems()}{getNavItems()}}
+{\footnotesize\ttfamily \label{rbac_8js_aaf474fd616f81143746298f31a9eab2e} 
+function export get\+Nav\+Items (\begin{DoxyParamCaption}\item[{}]{user\+Role}{}\end{DoxyParamCaption})}
+
+Zwraca dynamicznie budowane drzewo elementów nawigacyjnych (Sidebaru) na podstawie posiadanych praw. Całkowicie ukrywa pozycje (oraz grupy pozycji), do których zalogowany pracownik nie ma uprawnień wglądu.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & user\+Role -\/ Aktualna rola zalogowanego pracownika \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{Array$<$\+Object$>$\} Oczyszczona tablica obiektów nawigacji 
+\end{DoxyReturn}
+\Hypertarget{rbac_8js_a96ebe75114127fe942f8d78b14f6d1cc}\index{rbac.js@{rbac.js}!getPermissionsForRole@{getPermissionsForRole}}
+\index{getPermissionsForRole@{getPermissionsForRole}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{getPermissionsForRole()}{getPermissionsForRole()}}
+{\footnotesize\ttfamily \label{rbac_8js_a96ebe75114127fe942f8d78b14f6d1cc} 
+function export get\+Permissions\+For\+Role (\begin{DoxyParamCaption}\item[{}]{role}{}\end{DoxyParamCaption})}
+
+\Hypertarget{rbac_8js_ace1dbafb4d74dd5ebe617e1c4f110f3b}\index{rbac.js@{rbac.js}!getRoleLevel@{getRoleLevel}}
+\index{getRoleLevel@{getRoleLevel}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{getRoleLevel()}{getRoleLevel()}}
+{\footnotesize\ttfamily \label{rbac_8js_ace1dbafb4d74dd5ebe617e1c4f110f3b} 
+function export get\+Role\+Level (\begin{DoxyParamCaption}\item[{}]{role}{}\end{DoxyParamCaption})}
+
+\Hypertarget{rbac_8js_a02a33eee99db68d6c9274bb60edd5932}\index{rbac.js@{rbac.js}!hasAllPermissions@{hasAllPermissions}}
+\index{hasAllPermissions@{hasAllPermissions}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{hasAllPermissions()}{hasAllPermissions()}}
+{\footnotesize\ttfamily \label{rbac_8js_a02a33eee99db68d6c9274bb60edd5932} 
+function export has\+All\+Permissions (\begin{DoxyParamCaption}\item[{}]{user\+Role}{, }\item[{}]{permissions}{}\end{DoxyParamCaption})}
+
+\Hypertarget{rbac_8js_ad4501f84bd41305a5e3d6d610d92d690}\index{rbac.js@{rbac.js}!hasAnyPermission@{hasAnyPermission}}
+\index{hasAnyPermission@{hasAnyPermission}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{hasAnyPermission()}{hasAnyPermission()}}
+{\footnotesize\ttfamily \label{rbac_8js_ad4501f84bd41305a5e3d6d610d92d690} 
+function export has\+Any\+Permission (\begin{DoxyParamCaption}\item[{}]{user\+Role}{, }\item[{}]{permissions}{}\end{DoxyParamCaption})}
+
+Sprawdza, czy rola posiada co najmniej jedno (dowolne) uprawnienie z podanej tablicy. Wykorzystywane głównie do sprawdzania dostępu do głównych kategorii w menu.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & user\+Role -\/ Kod roli \\
+\hline
+{\em \{\+Array$<$string$>$\}} & permissions -\/ Tablica możliwych uprawnień \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{boolean\} Prawda, jeśli posiada przynajmniej jedno uprawnienie 
+\end{DoxyReturn}
+\Hypertarget{rbac_8js_ad47a6d21d98ac1be33311f6a1f98774a}\index{rbac.js@{rbac.js}!hasPermission@{hasPermission}}
+\index{hasPermission@{hasPermission}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{hasPermission()}{hasPermission()}}
+{\footnotesize\ttfamily \label{rbac_8js_ad47a6d21d98ac1be33311f6a1f98774a} 
+function export has\+Permission (\begin{DoxyParamCaption}\item[{}]{user\+Role}{, }\item[{}]{permission}{}\end{DoxyParamCaption})}
+
+Sprawdza dostępność pojedynczego uprawnienia dla określonej roli.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & user\+Role -\/ Kod roli przypisanej użytkownikowi \\
+\hline
+{\em \{string\}} & permission -\/ Pojedyncze wymagane uprawnienie (np. {\ttfamily PERMISSIONS.\+POS\+\_\+\+SELL}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{boolean\} Prawda, jeśli rola posiada to uprawnienie 
+\end{DoxyReturn}
+
+
+\label{rbac_8js_doc-var-members}
+\Hypertarget{rbac_8js_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}\index{rbac.js@{rbac.js}!PERMISSIONS@{PERMISSIONS}}
+\index{PERMISSIONS@{PERMISSIONS}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{PERMISSIONS}{PERMISSIONS}}
+{\footnotesize\ttfamily \label{rbac_8js_a33319071ef746bef3bc5e916fc3a252b} 
+export const PERMISSIONS}
+
+Centralny rejestr wszystkich unikalnych "{}atomowych"{} uprawnień (Permissions). Każde uprawnienie pozwala na wykonanie określonej akcji (np. zwrot towaru) lub dostęp do danego widoku. \Hypertarget{rbac_8js_a3c9e5124be10d4e1fba71da4ca9cebb8}\index{rbac.js@{rbac.js}!ROLE\_LABELS@{ROLE\_LABELS}}
+\index{ROLE\_LABELS@{ROLE\_LABELS}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{ROLE\_LABELS}{ROLE\_LABELS}}
+{\footnotesize\ttfamily \label{rbac_8js_a3c9e5124be10d4e1fba71da4ca9cebb8} 
+export const ROLE\+\_\+\+LABELS}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \{}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.ADMIN]:\ \textcolor{stringliteral}{'Administrator\ /\ Właściciel'},}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.SHIFT\_MANAGER]:\ \textcolor{stringliteral}{'Główny\ Kierownik\ Zmiany'},}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.SALES\_MANAGER]:\ \textcolor{stringliteral}{'Kierownik\ Sprzedaży'},}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.WAREHOUSE\_MANAGER]:\ \textcolor{stringliteral}{'Kierownik\ Magazynu'},}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.SANITATION\_MANAGER]:\ \textcolor{stringliteral}{'Kierownik\ Serwisu'},}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.CASHIER]:\ \textcolor{stringliteral}{'Sprzedawca\ /\ Kasjer'},}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.WAREHOUSE\_WORKER]:\ \textcolor{stringliteral}{'Magazynier'},}
+\DoxyCodeLine{\ \ [\doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.CLEANER]:\ \textcolor{stringliteral}{'Pracownik\ Sprzątający'},}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+Słownik (Mapa) tłumaczący wewnętrzne klucze ról na czytelne dla człowieka nazwy polskie. Stosowany w interfejsie graficznym, np. w profilu zalogowanego pracownika. \Hypertarget{rbac_8js_a256967d98fbcc662afdcb91d11944530}\index{rbac.js@{rbac.js}!ROLE\_PERMISSIONS@{ROLE\_PERMISSIONS}}
+\index{ROLE\_PERMISSIONS@{ROLE\_PERMISSIONS}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{ROLE\_PERMISSIONS}{ROLE\_PERMISSIONS}}
+{\footnotesize\ttfamily \label{rbac_8js_a256967d98fbcc662afdcb91d11944530} 
+export const ROLE\+\_\+\+PERMISSIONS}
+
+Matryca powiązań (Mapa), która określa, jaki zestaw atomowych uprawnień przysługuje danej roli. Administrator dziedziczy automatycznie pełen zakres ({\ttfamily Object.\+values(\+PERMISSIONS)}). \Hypertarget{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}\index{rbac.js@{rbac.js}!ROLES@{ROLES}}
+\index{ROLES@{ROLES}!rbac.js@{rbac.js}}
+\doxysubsubsection{\texorpdfstring{ROLES}{ROLES}}
+{\footnotesize\ttfamily \label{rbac_8js_a656bbade8ec4805fb13dbaf752073b71} 
+export const ROLES}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \{}
+\DoxyCodeLine{\ \ ADMIN:\ \textcolor{stringliteral}{'admin'},}
+\DoxyCodeLine{\ \ SHIFT\_MANAGER:\ \textcolor{stringliteral}{'shift\_manager'},}
+\DoxyCodeLine{\ \ SALES\_MANAGER:\ \textcolor{stringliteral}{'sales\_manager'},}
+\DoxyCodeLine{\ \ WAREHOUSE\_MANAGER:\ \textcolor{stringliteral}{'warehouse\_manager'},}
+\DoxyCodeLine{\ \ SANITATION\_MANAGER:\ \textcolor{stringliteral}{'sanitation\_manager'},}
+\DoxyCodeLine{\ \ CASHIER:\ \textcolor{stringliteral}{'cashier'},}
+\DoxyCodeLine{\ \ WAREHOUSE\_WORKER:\ \textcolor{stringliteral}{'warehouse\_worker'},}
+\DoxyCodeLine{\ \ CLEANER:\ \textcolor{stringliteral}{'cleaner'},}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+Definicje stałych reprezentujących role systemowe (Role-\/\+Based Access Control). Przypisane poszczególnym pracownikom, jednoznacznie określają ich pozycję w hierarchii. 

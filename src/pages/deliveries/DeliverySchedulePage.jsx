@@ -7,7 +7,7 @@ import { pl } from 'date-fns/locale';
 
 const DAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
 
-/* Harmonogram graficzny dostawców (stałe okna dostaw) nałożony na kalendarz tygodniowy - ułatwia planowanie pracy magazynierów */
+// Harmonogram graficzny dostawców (stałe okna dostaw) nałożony na kalendarz tygodniowy - ułatwia planowanie pracy magazynierów
 export default function DeliverySchedulePage() {
   const { isSupabase } = useStore();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -94,7 +94,7 @@ export default function DeliverySchedulePage() {
           gridTemplateColumns: '220px repeat(7, 1fr)',
           borderCollapse: 'collapse'
         }}>
-          {/* Header Row */}
+          // Header Row
           <div className="schedule-header-cell" style={{ padding: 16, background: 'var(--bg-tertiary)', borderBottom: '2px solid var(--border-primary)', borderRight: '1px solid var(--border-light)', fontWeight: 700, color: 'var(--text-muted)' }}>
             Dostawca / Status
           </div>
@@ -109,7 +109,7 @@ export default function DeliverySchedulePage() {
             </div>
           ))}
 
-          {/* Regular Schedule Rows */}
+          // Regular Schedule Rows
           {scheduledSuppliers.map((s, i) => (
             <Fragment key={`supplier-${s.id}`}>
               <div className="schedule-cell" style={{ padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-light)', borderRight: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', fontSize: '0.85rem', fontWeight: 600 }}>
@@ -132,7 +132,7 @@ export default function DeliverySchedulePage() {
               </Fragment>
           ))}
 
-          {/* Planned Deliveries Rows */}
+          // Planned Deliveries Rows
           {plannedDeliveries.map((del) => {
             const expDate = new Date(del.expected_date);
             return (

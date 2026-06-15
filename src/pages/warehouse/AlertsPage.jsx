@@ -4,20 +4,20 @@ import { formatCurrency } from '../../utils/helpers';
 import { FiAlertTriangle, FiShoppingCart, FiCheck, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/* Moduł alertów magazynowych monitorujący produkty poniżej minimum z możliwością szybkiego generowania i druku zamówień */
+// Moduł alertów magazynowych monitorujący produkty poniżej minimum z możliwością szybkiego generowania i druku zamówień
 export default function AlertsPage() {
-  /* Pobranie produktów i wyłonienie tablicy tylko tych, które przekroczyły próg minimalny (braków) */
+  // Pobranie produktów i wyłonienie tablicy tylko tych, które przekroczyły próg minimalny (braków)
   const { products, categories } = useStore();
   const lowStock = products.filter(p => p.stock_qty <= p.min_stock && p.min_stock > 0);
   
-  /* Lokalny stan przechowujący zbiór identyfikatorów produktów zaznaczonych przez użytkownika do zamówienia/wydruku */
+  // Lokalny stan przechowujący zbiór identyfikatorów produktów zaznaczonych przez użytkownika do zamówienia/wydruku
   const [selected, setSelected] = useState(lowStock.map(p => p.id));
 
   function toggle(id) { setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]); }
   function selectAll() { setSelected(lowStock.map(p => p.id)); }
   function selectNone() { setSelected([]); }
 
-  /* Funkcja obliczająca ile sztuk brakuje (do max_stock) i generująca dokument HTML z gotową listą zakupową do druku */
+  // Funkcja obliczająca ile sztuk brakuje (do max_stock) i generująca dokument HTML z gotową listą zakupową do druku
   function generatePurchaseList() {
     const items = lowStock.filter(p => selected.includes(p.id));
     if (items.length === 0) { toast.error('Zaznacz produkty do zamówienia'); return; }

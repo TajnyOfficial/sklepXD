@@ -6,7 +6,7 @@ import { FiTruck, FiChevronRight, FiClock, FiCheckCircle } from 'react-icons/fi'
 import toast from 'react-hot-toast';
 import MobileHeader from '../../components/mobile/MobileHeader';
 
-/* Widok listy dostaw oczekujących i odebranych dla aplikacji mobilnej. Wykorzystuje Supabase do odczytu danych w czasie rzeczywistym */
+// Widok listy dostaw oczekujących i odebranych dla aplikacji mobilnej. Wykorzystuje Supabase do odczytu danych w czasie rzeczywistym
 export default function MobileDeliveriesPage() {
   const navigate = useNavigate();
   const { isSupabase } = useStore();

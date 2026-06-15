@@ -15,18 +15,18 @@ const EMPTY_CUSTOMER = {
   credit_limit: '0' 
 };
 
-/* Interfejs CRM służący do zarządzania bazą kontrahentów (firmy i klienci detaliczni), przypisywania limitów i grup rabatowych */
+// Interfejs CRM służący do zarządzania bazą kontrahentów (firmy i klienci detaliczni), przypisywania limitów i grup rabatowych
 export default function CustomersPage() {
-  /* Odczytanie globalnej bazy klientów oraz funkcji modyfikujących ze StoreContext */
+  // Odczytanie globalnej bazy klientów oraz funkcji modyfikujących ze StoreContext
   const { customers, saveCustomer, deleteCustomer } = useStore();
   
-  /* Lokalne stany interfejsu obsługujące wyszukiwanie tekstowe oraz cykl życia nakładki modalnej (dodawanie/edycja) */
+  // Lokalne stany interfejsu obsługujące wyszukiwanie tekstowe oraz cykl życia nakładki modalnej (dodawanie/edycja)
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_CUSTOMER);
 
-  /* Dynamicznie filtrowana lista klientów na podstawie zapytania wpisanego w pole wyszukiwarki (szuka po NIP, nazwie, emailu) */
+  // Dynamicznie filtrowana lista klientów na podstawie zapytania wpisanego w pole wyszukiwarki (szuka po NIP, nazwie, emailu)
   const filtered = customers.filter(c => {
     const q = search.toLowerCase();
     return (
@@ -38,14 +38,14 @@ export default function CustomersPage() {
     );
   });
 
-  /* Przygotowanie pustego formularza i otwarcie modala w trybie tworzenia nowego klienta */
+  // Przygotowanie pustego formularza i otwarcie modala w trybie tworzenia nowego klienta
   function openAdd() {
     setEditing(null);
     setForm(EMPTY_CUSTOMER);
     setShowModal(true);
   }
 
-  /* Załadowanie danych wybranego klienta do formularza i otwarcie modala w trybie edycji */
+  // Załadowanie danych wybranego klienta do formularza i otwarcie modala w trybie edycji
   function openEdit(customer) {
     setEditing(customer);
     setForm({
@@ -55,7 +55,7 @@ export default function CustomersPage() {
     setShowModal(true);
   }
 
-  /* Walidacja podstawowych pól i asynchroniczne przesłanie danych z formularza do globalnego stanu / Supabase */
+  // Walidacja podstawowych pól i asynchroniczne przesłanie danych z formularza do globalnego stanu / Supabase
   async function handleSave() {
     if (!form.name && !form.company_name) {
       toast.error('Podaj imię/nazwisko lub nazwę firmy');
@@ -70,7 +70,7 @@ export default function CustomersPage() {
     }
   }
 
-  /* Weryfikacja intencji użytkownika, a następnie bezpowrotne usunięcie rekordu z bazy klientów */
+  // Weryfikacja intencji użytkownika, a następnie bezpowrotne usunięcie rekordu z bazy klientów
   async function handleDelete(customer) {
     if (!confirm(`Usunąć klienta "${customer.name || customer.company_name}"?`)) return;
     try {

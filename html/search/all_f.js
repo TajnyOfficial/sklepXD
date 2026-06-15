@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['packagingpage_0',['PackagingPage',['../_app_8jsx.html#a63650148430e3c575abd10594a3d6007',1,'PackagingPage:&#160;App.jsx'],['../_packaging_page_8jsx.html#ac86dc2d6ce12362c7d2963abada7a4ea',1,'PackagingPage():&#160;PackagingPage.jsx']]],
+  ['packagingpage_2ejsx_1',['PackagingPage.jsx',['../_packaging_page_8jsx.html',1,'']]],
+  ['payment_5flabels_2',['PAYMENT_LABELS',['../_invoice_template_8jsx.html#a63ff20aa98fffa3abcb0e82d7c9c8f91',1,'InvoiceTemplate.jsx']]],
+  ['paymentspage_3',['PaymentsPage',['../_app_8jsx.html#a0ad528884d1e42e6690e9106ee0373b4',1,'PaymentsPage:&#160;App.jsx'],['../_payments_page_8jsx.html#ac8fd507fcc8d3ec9b638fb41f6552437',1,'PaymentsPage():&#160;PaymentsPage.jsx']]],
+  ['paymentspage_2ejsx_4',['PaymentsPage.jsx',['../_payments_page_8jsx.html',1,'']]],
+  ['permission_5fgroups_5',['PERMISSION_GROUPS',['../_roles_page_8jsx.html#a960b79e98dc0009dd245c15a64b44947',1,'RolesPage.jsx']]],
+  ['permission_5flabels_6',['PERMISSION_LABELS',['../_roles_page_8jsx.html#aaa8da923c9925d31b447dcbc6432ed19',1,'RolesPage.jsx']]],
+  ['permissions_7',['PERMISSIONS',['../rbac_8js.html#a33319071ef746bef3bc5e916fc3a252b',1,'rbac.js']]],
+  ['pindisplay_8',['PinDisplay',['../_kiosk_page_8jsx.html#a3d0ac4818b43245f6999d6c0af356122',1,'KioskPage.jsx']]],
+  ['pos_5flog_5ftypes_9',['POS_LOG_TYPES',['../_p_o_s_history_page_8jsx.html#a58b4a804198b235b89933f78fa18b0fa',1,'POSHistoryPage.jsx']]],
+  ['posapp_10',['POSApp',['../apps_2pos_2main_8jsx.html#a22e0d9e9649eba9d261ae921b49b10f6',1,'POSApp:&#160;main.jsx'],['../main_8jsx.html#af354103f72551727d0ba0324550539c6',1,'POSApp:&#160;main.jsx'],['../_p_o_s_app_8jsx.html#a2ffa0bb695d6df83d7bee4f8105eed4e',1,'POSApp():&#160;POSApp.jsx']]],
+  ['posapp_2ejsx_11',['POSApp.jsx',['../_p_o_s_app_8jsx.html',1,'']]],
+  ['poshistorypage_12',['POSHistoryPage',['../_app_8jsx.html#a0e2543c6da544586c01e91fe6db930f2',1,'POSHistoryPage:&#160;App.jsx'],['../_p_o_s_history_page_8jsx.html#afd4da1b35c97b18d9330bd57affe275b',1,'POSHistoryPage():&#160;POSHistoryPage.jsx']]],
+  ['poshistorypage_2ejsx_13',['POSHistoryPage.jsx',['../_p_o_s_history_page_8jsx.html',1,'']]],
+  ['posinner_14',['POSInner',['../_p_o_s_app_8jsx.html#a2bed73be1b11dd31c74285c0c32e8031',1,'POSApp.jsx']]],
+  ['pospage_15',['POSPage',['../_p_o_s_app_8jsx.html#a83ded2d86c28f43073db1fbf72ab69d2',1,'POSPage:&#160;POSApp.jsx'],['../_p_o_s_page_8jsx.html#aaa3b8d2ca2ac6552621b8a140d5f8109',1,'POSPage():&#160;POSPage.jsx']]],
+  ['pospage_2ejsx_16',['POSPage.jsx',['../_p_o_s_page_8jsx.html',1,'']]],
+  ['pospinlogin_17',['POSPinLogin',['../_p_o_s_app_8jsx.html#ab85967c328b71d0d362d037025266212',1,'POSApp.jsx']]],
+  ['postopbar_18',['POSTopbar',['../_p_o_s_app_8jsx.html#a90314b70970c3c23b5f279e7e4148e6e',1,'POSApp.jsx']]],
+  ['price_5fgroups_19',['PRICE_GROUPS',['../_store_context_8jsx.html#a98a991b50998d5ab1e26c99cec1256d4',1,'StoreContext.jsx']]],
+  ['priorities_20',['PRIORITIES',['../_tasks_page_8jsx.html#ab999249ad84eb5f88df3f99ee499519d',1,'TasksPage.jsx']]],
+  ['productcatalogpage_21',['ProductCatalogPage',['../_app_8jsx.html#a9cec0979afa645bf38af413402b9576c',1,'ProductCatalogPage:&#160;App.jsx'],['../_product_catalog_page_8jsx.html#a90d174bb4c958522728dd57a1dadf443',1,'ProductCatalogPage():&#160;ProductCatalogPage.jsx']]],
+  ['productcatalogpage_2ejsx_22',['ProductCatalogPage.jsx',['../_product_catalog_page_8jsx.html',1,'']]]
+];

@@ -1,3 +1,4 @@
+// Inicjalizacja Aplikacji Mobilnej w osobnym korzeniu React.
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../../index.css';

@@ -4,8 +4,11 @@ import { StoreProvider } from '../contexts/StoreContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import KioskPage from '../pages/kiosk/KioskPage';
 
-/* Punkt startowy (Root) aplikacji Kiosku RCP (Rejestracji Czasu Pracy). 
-Pełnoekranowy terminal montowany pod ścieżką "/kiosk", korzystający z globalnego stanu */
+// Główny moduł aplikacji Kiosku RCP (Rejestracji Czasu Pracy).
+// Środowisko pełnoekranowe do logowania wejść/wyjść za pomocą PIN.
+
+// Punkt wejścia (Router) aplikacji Kiosku.
+// Inicjuje ścieżki pod /kiosk oraz konteksty stanu i autoryzacji.
 export default function KioskApp() {
   return (
     <AuthProvider>

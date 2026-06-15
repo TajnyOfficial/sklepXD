@@ -4,21 +4,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { FiLogIn, FiUser, FiLock } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/* Ekran autoryzacji do głównego systemu ERP oparty o formularz (login i hasło) łączący się z Supabase lub logowaniem awaryjnym */
+// Ekran autoryzacji do głównego systemu ERP oparty o formularz (login i hasło) łączący się z Supabase lub logowaniem awaryjnym
 export default function LoginPage() {
-  /* Funkcja weryfikująca poświadczenia udostępniana przez kontekst uwierzytelniania */
+  // Funkcja weryfikująca poświadczenia udostępniana przez kontekst uwierzytelniania
   const { loginWithCredentials } = useAuth();
 
-  /* Zmienna routingu react-router-dom do przekierowywania np. po udanym logowaniu */
+  // Zmienna routingu react-router-dom do przekierowywania np. po udanym logowaniu
   const navigate = useNavigate();
 
-  /* Lokalne stany formularza kontrolujące inputy oraz stan procedury logowania (ładowanie, błędne hasło) */
+  // Lokalne stany formularza kontrolujące inputy oraz stan procedury logowania (ładowanie, błędne hasło)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  /* Funkcja zatwierdzająca formularz z obsługą blokady podczas próby logowania (loading) */
+  // Funkcja zatwierdzająca formularz z obsługą blokady podczas próby logowania (loading)
   async function handleSubmit(e) {
     e.preventDefault();
     if (!username.trim() || !password) {

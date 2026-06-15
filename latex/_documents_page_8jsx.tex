@@ -1,0 +1,98 @@
+\doxysection{src/\+pages/\+documents/\+\+Documents\+Page.jsx File Reference}
+\hypertarget{_documents_page_8jsx}{}\label{_documents_page_8jsx}\index{src/pages/documents/DocumentsPage.jsx@{src/pages/documents/DocumentsPage.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function \doxymbox{\hyperlink{_documents_page_8jsx_a9011e136e388a1922b1c3a3b0723a877}{empty\+Doc}} (profile)
+\item 
+function \doxymbox{\hyperlink{_documents_page_8jsx_ac26023b9ad2f08177cdb4aecf9ff231c}{Line\+Item\+Row}} (\{ item, index, on\+Change, on\+Remove, can\+Remove \})
+\item 
+function default \doxymbox{\hyperlink{_documents_page_8jsx_a37557b31966bfec9bf55e1e16a2f33db}{Documents\+Page}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_documents_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ use\+State \} from \textquotesingle{}react\textquotesingle{}
+\item 
+\doxymbox{\hyperlink{_documents_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Modal from components \doxymbox{\hyperlink{_documents_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb}{Modal}}
+\item 
+\doxymbox{\hyperlink{_documents_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot \doxymbox{\hyperlink{_documents_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}{toast}}
+\item 
+const \doxymbox{\hyperlink{_documents_page_8jsx_a11341b6bc7729f496282ff4b78b1ffa5}{TYPE\+\_\+\+MAP}} = \{ receipt:\+ \textquotesingle{}Paragon\textquotesingle{}, invoice:\+ \textquotesingle{}Faktura VAT\textquotesingle{}, proforma:\+ \textquotesingle{}Proforma\textquotesingle{}, wz:\+ \textquotesingle{}WZ\textquotesingle{}, kp:\+ \textquotesingle{}KP\textquotesingle{}, kw:\+ \textquotesingle{}KW\textquotesingle{} \}
+\item 
+const \doxymbox{\hyperlink{_documents_page_8jsx_a7cc09151bf8fa9a2bc0eb49d6d22d9c4}{TYPE\+\_\+\+PREFIX}} = \{ receipt:\+ \textquotesingle{}PAR\textquotesingle{}, invoice:\+ \textquotesingle{}FV\textquotesingle{}, proforma:\+ \textquotesingle{}PRO\textquotesingle{}, wz:\+ \textquotesingle{}WZ\textquotesingle{}, kp:\+ \textquotesingle{}KP\textquotesingle{}, kw:\+ \textquotesingle{}KW\textquotesingle{} \}
+\item 
+const \doxymbox{\hyperlink{_documents_page_8jsx_a74a1a81b4c4ebe33ea4cb3992832ed45}{TYPE\+\_\+\+BADGE}} = \{ receipt:\+ \textquotesingle{}badge-\/ghost\textquotesingle{}, invoice:\+ \textquotesingle{}badge-\/primary\textquotesingle{}, proforma:\+ \textquotesingle{}badge-\/info\textquotesingle{}, wz:\+ \textquotesingle{}badge-\/warning\textquotesingle{}, kp:\+ \textquotesingle{}badge-\/success\textquotesingle{}, kw:\+ \textquotesingle{}badge-\/danger\textquotesingle{} \}
+\item 
+const \doxymbox{\hyperlink{_documents_page_8jsx_a4c27f54dc26a87191adecfd7f2de9347}{VAT\+\_\+\+RATES}} = \+[\textquotesingle{}23\textquotesingle{}, \textquotesingle{}8\textquotesingle{}, \textquotesingle{}5\textquotesingle{}, \textquotesingle{}0\textquotesingle{}, \textquotesingle{}zw\textquotesingle{}]\+
+\end{DoxyCompactItemize}
+
+
+\label{_documents_page_8jsx_doc-func-members}
+\Hypertarget{_documents_page_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_documents_page_8jsx_a37557b31966bfec9bf55e1e16a2f33db}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!DocumentsPage@{DocumentsPage}}
+\index{DocumentsPage@{DocumentsPage}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{DocumentsPage()}{DocumentsPage()}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a37557b31966bfec9bf55e1e16a2f33db} 
+function default Documents\+Page (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{_documents_page_8jsx_a9011e136e388a1922b1c3a3b0723a877}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!emptyDoc@{emptyDoc}}
+\index{emptyDoc@{emptyDoc}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{emptyDoc()}{emptyDoc()}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a9011e136e388a1922b1c3a3b0723a877} 
+function empty\+Doc (\begin{DoxyParamCaption}\item[{}]{profile}{}\end{DoxyParamCaption})}
+
+\Hypertarget{_documents_page_8jsx_ac26023b9ad2f08177cdb4aecf9ff231c}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!LineItemRow@{LineItemRow}}
+\index{LineItemRow@{LineItemRow}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{LineItemRow()}{LineItemRow()}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_ac26023b9ad2f08177cdb4aecf9ff231c} 
+function Line\+Item\+Row (\begin{DoxyParamCaption}\item[{}]{\{ item, index, on\+Change, on\+Remove, can\+Remove \}}{}\end{DoxyParamCaption})}
+
+
+
+\label{_documents_page_8jsx_doc-var-members}
+\Hypertarget{_documents_page_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_documents_page_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!import@{import}}
+\index{import@{import}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ use\+State \} from \textquotesingle{}react\textquotesingle{}}
+
+\Hypertarget{_documents_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!Modal@{Modal}}
+\index{Modal@{Modal}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{Modal}{Modal}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb} 
+\doxymbox{\hyperlink{_documents_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Modal from components Modal}
+
+\Hypertarget{_documents_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!toast@{toast}}
+\index{toast@{toast}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{toast}{toast}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a} 
+\doxymbox{\hyperlink{_documents_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot toast}
+
+\Hypertarget{_documents_page_8jsx_a74a1a81b4c4ebe33ea4cb3992832ed45}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!TYPE\_BADGE@{TYPE\_BADGE}}
+\index{TYPE\_BADGE@{TYPE\_BADGE}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{TYPE\_BADGE}{TYPE\_BADGE}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a74a1a81b4c4ebe33ea4cb3992832ed45} 
+const TYPE\+\_\+\+BADGE = \{ receipt:\+ \textquotesingle{}badge-\/ghost\textquotesingle{}, invoice:\+ \textquotesingle{}badge-\/primary\textquotesingle{}, proforma:\+ \textquotesingle{}badge-\/info\textquotesingle{}, wz:\+ \textquotesingle{}badge-\/warning\textquotesingle{}, kp:\+ \textquotesingle{}badge-\/success\textquotesingle{}, kw:\+ \textquotesingle{}badge-\/danger\textquotesingle{} \}}
+
+\Hypertarget{_documents_page_8jsx_a11341b6bc7729f496282ff4b78b1ffa5}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!TYPE\_MAP@{TYPE\_MAP}}
+\index{TYPE\_MAP@{TYPE\_MAP}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{TYPE\_MAP}{TYPE\_MAP}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a11341b6bc7729f496282ff4b78b1ffa5} 
+const TYPE\+\_\+\+MAP = \{ receipt:\+ \textquotesingle{}Paragon\textquotesingle{}, invoice:\+ \textquotesingle{}Faktura VAT\textquotesingle{}, proforma:\+ \textquotesingle{}Proforma\textquotesingle{}, wz:\+ \textquotesingle{}WZ\textquotesingle{}, kp:\+ \textquotesingle{}KP\textquotesingle{}, kw:\+ \textquotesingle{}KW\textquotesingle{} \}}
+
+\Hypertarget{_documents_page_8jsx_a7cc09151bf8fa9a2bc0eb49d6d22d9c4}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!TYPE\_PREFIX@{TYPE\_PREFIX}}
+\index{TYPE\_PREFIX@{TYPE\_PREFIX}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{TYPE\_PREFIX}{TYPE\_PREFIX}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a7cc09151bf8fa9a2bc0eb49d6d22d9c4} 
+const TYPE\+\_\+\+PREFIX = \{ receipt:\+ \textquotesingle{}PAR\textquotesingle{}, invoice:\+ \textquotesingle{}FV\textquotesingle{}, proforma:\+ \textquotesingle{}PRO\textquotesingle{}, wz:\+ \textquotesingle{}WZ\textquotesingle{}, kp:\+ \textquotesingle{}KP\textquotesingle{}, kw:\+ \textquotesingle{}KW\textquotesingle{} \}}
+
+\Hypertarget{_documents_page_8jsx_a4c27f54dc26a87191adecfd7f2de9347}\index{DocumentsPage.jsx@{DocumentsPage.jsx}!VAT\_RATES@{VAT\_RATES}}
+\index{VAT\_RATES@{VAT\_RATES}!DocumentsPage.jsx@{DocumentsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{VAT\_RATES}{VAT\_RATES}}
+{\footnotesize\ttfamily \label{_documents_page_8jsx_a4c27f54dc26a87191adecfd7f2de9347} 
+const VAT\+\_\+\+RATES = \+[\textquotesingle{}23\textquotesingle{}, \textquotesingle{}8\textquotesingle{}, \textquotesingle{}5\textquotesingle{}, \textquotesingle{}0\textquotesingle{}, \textquotesingle{}zw\textquotesingle{}]\+}
+

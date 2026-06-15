@@ -1,6 +1,4 @@
-/**
- * InvoiceTemplate.jsx — Szablon faktury VAT dla @react-pdf/renderer
- */
+// Szablon faktury VAT dla biblioteki @react-pdf/renderer
 import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer';
 import { calculateLineItem, groupVatRates, calculateInvoiceTotals, formatPLN } from '../../utils/invoiceUtils';
 
@@ -64,7 +62,7 @@ export default function InvoiceTemplate({ invoice }) {
   const vatGroups = groupVatRates(items);
   const totals = calculateInvoiceTotals(items);
 
-  // Kolumny tabeli pozycji: [styl, nagłówek, getter]
+  // Kolumny tabeli z szerokościami i justowaniem.
   const cols = [
     { w: '4%', hdr: 'Lp.', align: 'left' },
     { w: '30%', hdr: 'Nazwa', align: 'left' },
@@ -80,7 +78,7 @@ export default function InvoiceTemplate({ invoice }) {
     <Document title={`Faktura ${invoice?.id}`} author={invoice?.seller?.name} subject="Faktura VAT">
       <Page size="A4" style={s.page}>
 
-        {/* Nagłówek */}
+        // Nagłówek dokumentu
         <View style={s.header}>
           <View style={s.logoBox}><Text style={s.logoText}>S</Text></View>
           <View>
@@ -90,7 +88,7 @@ export default function InvoiceTemplate({ invoice }) {
         </View>
         <View style={s.accentLine} />
 
-        {/* Strony transakcji */}
+        // Dane sprzedawcy i nabywcy
         <View style={s.partiesRow}>
           <View style={s.partyBox}>
             <Text style={s.partyLabel}>Sprzedawca</Text>
@@ -106,7 +104,7 @@ export default function InvoiceTemplate({ invoice }) {
           </View>
         </View>
 
-        {/* Meta */}
+        // Informacje meta (daty, płatność)
         <View style={s.metaRow}>
           {[
             ['Data wystawienia', invoice?.date_issue || invoice?.date],
@@ -121,7 +119,7 @@ export default function InvoiceTemplate({ invoice }) {
           ) : null)}
         </View>
 
-        {/* Tabela pozycji */}
+        // Główna tabela produktów
         <View style={s.tableHeader}>
           {cols.map(c => (
             <Text key={c.hdr} style={[s.thText, { width: c.w, textAlign: c.align }]}>{c.hdr}</Text>
@@ -142,9 +140,9 @@ export default function InvoiceTemplate({ invoice }) {
 
         <View style={s.line} />
 
-        {/* Podsumowanie: stawki VAT + suma końcowa */}
+        // Podsumowanie podatkowe i kwota końcowa
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 20 }}>
-          {/* Rozbicie stawek VAT — wymóg prawny PL */}
+          // Tabela rozbicia stawek VAT
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 7, color: C.muted, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>
               Podsumowanie stawek VAT
@@ -164,7 +162,7 @@ export default function InvoiceTemplate({ invoice }) {
             ))}
           </View>
 
-          {/* Suma końcowa */}
+          // Kwota całkowita
           <View style={s.totalBox}>
             <Text style={s.totalLabel}>Do zapłaty</Text>
             <Text style={s.totalValue}>{formatPLN(totals.gross)}</Text>
@@ -173,7 +171,7 @@ export default function InvoiceTemplate({ invoice }) {
           </View>
         </View>
 
-        {/* Dane do przelewu */}
+        // Informacje o koncie bankowym
         {invoice?.seller?.bank && (
           <View style={{ marginTop: 14, padding: '10 12', backgroundColor: C.bg, borderRadius: 6 }}>
             <Text style={[s.partyLabel, { marginBottom: 4 }]}>Dane do przelewu</Text>
@@ -182,7 +180,7 @@ export default function InvoiceTemplate({ invoice }) {
           </View>
         )}
 
-        {/* Podpisy */}
+        // Miejsca na pieczęć i podpisy
         <View style={s.footer}>
           <View style={s.footerBox}>
             <Text style={s.footerLabel}>Wystawił(a)</Text>

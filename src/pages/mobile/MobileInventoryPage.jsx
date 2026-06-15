@@ -5,7 +5,7 @@ import BarcodeScanner from '../../components/BarcodeScanner/BarcodeScanner';
 import toast from 'react-hot-toast';
 import MobileHeader from '../../components/mobile/MobileHeader';
 
-// ── Karta zlecenia na liście ──────────────────────────────────────────────────
+// Karta zlecenia na liście
 function TaskCard({ task, onClick }) {
   const done = task.items && Array.isArray(task.items) ? task.items.filter(i => i.counted_qty !== null).length : 0;
   const total = task.items && Array.isArray(task.items) ? task.items.length : 0;
@@ -42,7 +42,7 @@ function TaskCard({ task, onClick }) {
       <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 10 }}>
         Pozycji: {done}/{total}
       </div>
-      {/* Pasek postępu */}
+      // Pasek postępu
       <div style={{ height: 4, background: 'var(--border-primary)', borderRadius: 2 }}>
         <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent)', borderRadius: 2, transition: 'width 0.3s' }} />
       </div>
@@ -50,7 +50,7 @@ function TaskCard({ task, onClick }) {
   );
 }
 
-// ── Widok aktywnego zadania ───────────────────────────────────────────────────
+// Widok aktywnego zadania
 function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
   const { findProductByBarcode, findProduct } = useStore();
   const [showScanner, setShowScanner] = useState(false);
@@ -85,7 +85,7 @@ function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', fontFamily: 'var(--font-sans)', color: 'var(--text-heading)' }}>
 
-      {/* Nagłówek */}
+      // Nagłówek
       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bg-card)', display: 'flex', alignItems: 'center', gap: 12 }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '1.3rem' }}>←</button>
         <div style={{ flex: 1 }}>
@@ -95,7 +95,7 @@ function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
         <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{done}/{total}</span>
       </div>
 
-      {/* Przycisk skanera */}
+      // Przycisk skanera
       <div style={{ padding: '16px 20px' }}>
         <button
           onClick={() => setShowScanner(true)}
@@ -112,7 +112,7 @@ function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
         </button>
       </div>
 
-      {/* Lista pozycji */}
+      // Lista pozycji
       <div style={{ padding: '0 20px', paddingBottom: 100 }}>
         {task.items && Array.isArray(task.items) && task.items.map((item, idx) => {
           const counted = item.counted_qty;
@@ -164,7 +164,7 @@ function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
           );
         })}
 
-        {/* Przycisk zakończ na dole listy */}
+        // Przycisk zakończ na dole listy
         <div style={{ marginTop: 24, marginBottom: 10 }}>
           <button
             onClick={() => setShowConfirm(true)}
@@ -182,7 +182,7 @@ function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
         </div>
       </div>
 
-      {/* Premium Glassmorphic Confirmation Modal */}
+      // Premium Glassmorphic Confirmation Modal
       {showConfirm && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -244,7 +244,7 @@ function ActiveTaskView({ task, onBack, onUpdate, onUpdateStatus }) {
   );
 }
 
-/* Główny widok Magazyniera (PWA) obsługujący inwentaryzacje. Oferuje skanowanie kodów przez aparat, walidację zliczanych ilości oraz zamykanie zleceń */
+// Główny widok Magazyniera (PWA) obsługujący inwentaryzacje. Oferuje skanowanie kodów przez aparat, walidację zliczanych ilości oraz zamykanie zleceń
 export default function MobileInventoryPage() {
   const { employees, mobileSession, inventories, saveInventory } = useStore();
   const [activeTaskId, setActiveTaskId] = useState(null);
@@ -289,7 +289,7 @@ export default function MobileInventoryPage() {
     saveInventory({ ...task, status: newStatus });
   }
 
-  // ── Widok aktywnego zadania ───────────────────────────────────────────────
+  // Widok aktywnego zadania
   if (activeTask) {
     return (
       <ActiveTaskView
@@ -301,7 +301,7 @@ export default function MobileInventoryPage() {
     );
   }
 
-  // ── Lista zleceń ─────────────────────────────────────────────────────────
+  // Lista zleceń
   const userTasks = inventories.filter(t => 
     (t.assigned_to && t.assigned_to === userId) ||
     (t.assigned_name && t.assigned_name.toLowerCase() === userName.toLowerCase())
@@ -314,7 +314,7 @@ export default function MobileInventoryPage() {
       <MobileHeader title="Sklep Mobile" subtitle="Moduł inwentaryzacji" />
       <div style={{ padding: '20px' }}>
 
-        {/* Statystyki */}
+        // Statystyki
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 14, padding: '14px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--warning)' }}>{activeTasks.length}</div>
@@ -326,7 +326,7 @@ export default function MobileInventoryPage() {
           </div>
         </div>
 
-        {/* Aktywne zlecenia */}
+        // Aktywne zlecenia
         {activeTasks.length > 0 && (
           <>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 10 }}>
@@ -338,7 +338,7 @@ export default function MobileInventoryPage() {
           </>
         )}
 
-        {/* Zakończone */}
+        // Zakończone
         {completedTasks.length > 0 && (
           <>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 10, marginTop: 20 }}>

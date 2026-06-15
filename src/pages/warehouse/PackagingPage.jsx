@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { 
-  FiPackage, FiRefreshCw, FiAlertCircle, FiArrowUp, FiArrowDown, 
-  FiCheck, FiUsers, FiDollarSign, FiClock, FiEye, FiTrendingUp 
+import {
+  FiPackage, FiRefreshCw, FiAlertCircle, FiArrowUp, FiArrowDown,
+  FiCheck, FiUsers, FiDollarSign, FiClock, FiEye, FiTrendingUp
 } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
@@ -14,9 +14,9 @@ import toast from 'react-hot-toast';
   manualne korekty oraz spisy strat z logowaniem do logów audytu systemowego.
 */
 export default function PackagingPage() {
-  const { 
-    packaging, refreshData, loading, updatePackagingQty, 
-    customers, suppliers, transactions 
+  const {
+    packaging, refreshData, loading, updatePackagingQty,
+    customers, suppliers, transactions
   } = useStore();
   const { profile } = useAuth();
 
@@ -42,7 +42,7 @@ export default function PackagingPage() {
   // Metryki dynamiczne
   const totalPalletsQty = pallets.reduce((sum, p) => sum + Number(p.qty || 0), 0);
   const totalBagsQty = bags.reduce((sum, p) => sum + Number(p.qty || 0), 0);
-  
+
   // Wycena kaucji paletowej (EUR: 30 PLN, EUR2: 25 PLN, EUR3: 20 PLN, Półpaleta: 15 PLN)
   const calculatePalletValue = (name, qty) => {
     const num = Number(qty || 0);
@@ -157,10 +157,10 @@ export default function PackagingPage() {
         </div>
       </div>
 
-      {/* PANEL METRYK / KPI */}
+      // Panel metryk i kluczowych wskaźników (KPI).
       <div className="grid-3 mb-24">
-        
-        {/* KPI 1: Wartość Kaucji Paletowej */}
+
+        // Suma wartości kaucji za palety.
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.03) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
           <div className="flex-between mb-8">
             <span className="stat-label" style={{ color: 'var(--text-secondary)' }}>Wycena kaucji paletowej</span>
@@ -170,7 +170,7 @@ export default function PackagingPage() {
           <div className="text-xs text-muted mt-4">Wartość bilansowa palet na magazynie</div>
         </div>
 
-        {/* KPI 2: Palety na stanie */}
+        // Aktualna liczba palet na magazynie.
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
           <div className="flex-between mb-8">
             <span className="stat-label" style={{ color: 'var(--text-secondary)' }}>Palety na magazynie</span>
@@ -180,7 +180,7 @@ export default function PackagingPage() {
           <div className="text-xs text-muted mt-4">Łączny wolumen EUR / Półpalet</div>
         </div>
 
-        {/* KPI 3: Worki i Kartony w obiegu */}
+        // Ilość worków i kartonów w obiegu.
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.03) 100%)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
           <div className="flex-between mb-8">
             <span className="stat-label" style={{ color: 'var(--text-secondary)' }}>Worki w obiegu</span>
@@ -192,24 +192,24 @@ export default function PackagingPage() {
 
       </div>
 
-      {/* DEDYKOWANE ZAKŁADKI nawigacyjne */}
+      // Zakładki nawigacyjne widoku opakowań.
       <div className="tabs mb-24" style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--border-light)', paddingBottom: 8 }}>
-        <button 
-          className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-ghost'}`} 
+        <button
+          className={`btn ${activeTab === 'inventory' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('inventory')}
           style={{ display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <FiPackage size={16} /> Ewidencja Stanów
         </button>
-        <button 
-          className={`btn ${activeTab === 'balances' ? 'btn-primary' : 'btn-ghost'}`} 
+        <button
+          className={`btn ${activeTab === 'balances' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('balances')}
           style={{ display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <FiUsers size={16} /> Kaucje i Salda Kontrahentów
         </button>
-        <button 
-          className={`btn ${activeTab === 'logs' ? 'btn-primary' : 'btn-ghost'}`} 
+        <button
+          className={`btn ${activeTab === 'logs' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('logs')}
           style={{ display: 'flex', alignItems: 'center', gap: 6 }}
         >
@@ -217,15 +217,15 @@ export default function PackagingPage() {
         </button>
       </div>
 
-      {/* TAB 1: EWIDENCJA STANÓW */}
+      // Zakładka ewidencji obecnych stanów opakowań.
       {activeTab === 'inventory' && (
         <div>
           {loading && packaging.length === 0 ? (
             <div className="text-center p-40 text-muted animate-pulse">Ładowanie rejestru opakowań...</div>
           ) : (
             <div className="grid-3 mb-24">
-              
-              {/* KOLUMNA 1: Palety kaucjonowane */}
+
+              // Lista dostępnych palet kaucjonowanych.
               <div className="card p-16" style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
                 <h3 className="mb-12" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 700, borderBottom: '1px solid var(--border-light)', paddingBottom: 8, margin: '0 0 12px 0' }}>
                   <span>🪵</span> Dostępność Palet EUR
@@ -257,7 +257,7 @@ export default function PackagingPage() {
                 </div>
               </div>
 
-              {/* KOLUMNA 2: Worki i opakowania foliowe */}
+              // Lista worków i opakowań foliowych.
               <div className="card p-16" style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
                 <h3 className="mb-12" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 700, borderBottom: '1px solid var(--border-light)', paddingBottom: 8, margin: '0 0 12px 0' }}>
                   <span>🛍️</span> Worki i Etykiety EAN
@@ -289,7 +289,7 @@ export default function PackagingPage() {
                 </div>
               </div>
 
-              {/* KOLUMNA 3: Opakowania kartonowe i zbiorcze */}
+              // Lista opakowań kartonowych i zbiorczych.
               <div className="card p-16" style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-light)' }}>
                 <h3 className="mb-12" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 700, borderBottom: '1px solid var(--border-light)', paddingBottom: 8, margin: '0 0 12px 0' }}>
                   <span>📦</span> Kartony i Skrzynki
@@ -326,7 +326,7 @@ export default function PackagingPage() {
         </div>
       )}
 
-      {/* TAB 2: KAUCJE I SALDA KONTRAHENTÓW */}
+      // Zakładka sald kaucji i kontrahentów.
       {activeTab === 'balances' && (
         <div className="animate-fadeIn">
           <div className="table-container">
@@ -374,7 +374,7 @@ export default function PackagingPage() {
         </div>
       )}
 
-      {/* TAB 3: KSIĘGA RUCHÓW (LOGI OPAKOWAŃ) */}
+      // Zakładka logów i historii ruchów opakowań.
       {activeTab === 'logs' && (
         <div className="animate-fadeIn">
           {loadingLogs ? (
@@ -401,10 +401,9 @@ export default function PackagingPage() {
                         </td>
                         <td style={{ fontWeight: 500 }}>{log.user_name || 'System'}</td>
                         <td>
-                          <span className={`badge ${
-                            log.action === 'stock' && extra.op_type?.includes('strat') ? 'badge-danger' :
-                            log.action === 'stock' && extra.qty_change > 0 ? 'badge-success' : 'badge-ghost'
-                          }`}>
+                          <span className={`badge ${log.action === 'stock' && extra.op_type?.includes('strat') ? 'badge-danger' :
+                              log.action === 'stock' && extra.qty_change > 0 ? 'badge-success' : 'badge-ghost'
+                            }`}>
                             {extra.op_type || log.action}
                           </span>
                         </td>
@@ -412,8 +411,8 @@ export default function PackagingPage() {
                           {log.description}
                         </td>
                         <td style={{ textAlign: 'right' }}>
-                          <button 
-                            className="btn btn-ghost btn-icon btn-sm" 
+                          <button
+                            className="btn btn-ghost btn-icon btn-sm"
                             onClick={() => { setSelectedLog(log); setShowLogModal(true); }}
                             title="Szczegóły operacji"
                           >
@@ -435,7 +434,7 @@ export default function PackagingPage() {
         </div>
       )}
 
-      {/* MODAL: MANUALNE WNOSZENIE / WYNOSZENIE OPAKOWAŃ */}
+      // Modal ręcznego wnoszenia lub wynoszenia opakowań.
       <Modal
         isOpen={showAdjust}
         onClose={() => setShowAdjust(false)}
@@ -443,8 +442,8 @@ export default function PackagingPage() {
         footer={
           <>
             <button className="btn btn-secondary" onClick={() => setShowAdjust(false)}>Anuluj</button>
-            <button 
-              className="btn" 
+            <button
+              className="btn"
               onClick={handleAdjust}
               style={{
                 background: adjustType === 'in' ? 'var(--success, #16a34a)' : 'var(--danger, #dc2626)',
@@ -466,32 +465,32 @@ export default function PackagingPage() {
             <div className="input-row mb-16">
               <div className="input-group">
                 <label>Operacja</label>
-                <input 
-                  className="input" 
-                  value={adjustType === 'in' ? '➕ Wnoszenie (Dodanie)' : '➖ Wynoszenie (Zdjęcie)'} 
-                  disabled 
+                <input
+                  className="input"
+                  value={adjustType === 'in' ? '➕ Wnoszenie (Dodanie)' : '➖ Wynoszenie (Zdjęcie)'}
+                  disabled
                   style={{ fontWeight: 600, color: adjustType === 'in' ? 'var(--success)' : 'var(--danger)', background: 'var(--bg-secondary)' }}
                 />
               </div>
               <div className="input-group">
                 <label>Ilość sztuk *</label>
-                <input 
-                  className="input" 
-                  type="number" 
+                <input
+                  className="input"
+                  type="number"
                   placeholder="0"
-                  value={adjustQty} 
-                  onChange={e => setAdjustQty(e.target.value)} 
-                  autoFocus 
+                  value={adjustQty}
+                  onChange={e => setAdjustQty(e.target.value)}
+                  autoFocus
                 />
               </div>
             </div>
 
             <div className="input-group mb-16">
               <label>Magazynier realizujący (Z sesji)</label>
-              <input 
-                className="input" 
-                value={profile?.full_name || 'System'} 
-                disabled 
+              <input
+                className="input"
+                value={profile?.full_name || 'System'}
+                disabled
                 style={{ fontWeight: 500, background: 'var(--bg-secondary)' }}
               />
             </div>
@@ -499,10 +498,10 @@ export default function PackagingPage() {
             {adjustType === 'out' && (
               <div className="mb-16 card p-12 animate-fadeIn" style={{ background: 'rgba(220, 38, 38, 0.03)', border: '1px solid rgba(220, 38, 38, 0.1)', borderRadius: 8 }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: 'var(--danger, #dc2626)' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={isLoss} 
-                    onChange={e => setIsLoss(e.target.checked)} 
+                  <input
+                    type="checkbox"
+                    checked={isLoss}
+                    onChange={e => setIsLoss(e.target.checked)}
                     style={{ width: 16, height: 16 }}
                   />
                   <span>Spisz jako stratę (Protokół zużycia/uszkodzenia opakowań)</span>
@@ -515,19 +514,19 @@ export default function PackagingPage() {
 
             <div className="input-group">
               <label>Uzasadnienie korekty (Komentarz) *</label>
-              <textarea 
-                className="input" 
+              <textarea
+                className="input"
                 rows="3"
-                value={adjustNote} 
-                onChange={e => setAdjustNote(e.target.value)} 
-                placeholder="Podaj przyczynę zmiany ilości opakowań (np. Uszkodzenie 3 palet podczas rozładunku, Przyjęcie 15 palet EUR ze zwrotów od klientów...)" 
+                value={adjustNote}
+                onChange={e => setAdjustNote(e.target.value)}
+                placeholder="Podaj przyczynę zmiany ilości opakowań (np. Uszkodzenie 3 palet podczas rozładunku, Przyjęcie 15 palet EUR ze zwrotów od klientów...)"
               />
             </div>
           </div>
         )}
       </Modal>
 
-      {/* MODAL: SZCZEGÓŁOWY PODGLĄD RUCHU OPAKOWAŃ */}
+      // Modal szczegółowego podglądu pojedynczego logu opakowań.
       <Modal
         isOpen={showLogModal}
         onClose={() => setShowLogModal(false)}

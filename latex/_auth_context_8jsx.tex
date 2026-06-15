@@ -1,0 +1,71 @@
+\doxysection{src/\+contexts/\+\+Auth\+Context.jsx File Reference}
+\hypertarget{_auth_context_8jsx}{}\label{_auth_context_8jsx}\index{src/contexts/AuthContext.jsx@{src/contexts/AuthContext.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \doxymbox{\hyperlink{_auth_context_8jsx_af74ea6e19167ef11e03415d2ae44ad92}{Auth\+Provider}} (\{ children \})
+\item 
+function export \doxymbox{\hyperlink{_auth_context_8jsx_a4eed4c28686c3f2840aaaa42797f45db}{use\+Auth}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_auth_context_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ create\+Context, use\+Context, use\+State, use\+Effect, use\+Callback \} from \textquotesingle{}react\textquotesingle{}
+\item 
+const \doxymbox{\hyperlink{_auth_context_8jsx_afac7ad17681f4f2c54c0288338f9a360}{Auth\+Context}} = create\+Context(null)
+\item 
+const \doxymbox{\hyperlink{_auth_context_8jsx_ac2dd2e2a06a2f9fba4f8accf3496fea2}{DEMO\+\_\+\+USERS}}
+\end{DoxyCompactItemize}
+
+
+\label{_auth_context_8jsx_doc-func-members}
+\Hypertarget{_auth_context_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_auth_context_8jsx_af74ea6e19167ef11e03415d2ae44ad92}\index{AuthContext.jsx@{AuthContext.jsx}!AuthProvider@{AuthProvider}}
+\index{AuthProvider@{AuthProvider}!AuthContext.jsx@{AuthContext.jsx}}
+\doxysubsubsection{\texorpdfstring{AuthProvider()}{AuthProvider()}}
+{\footnotesize\ttfamily \label{_auth_context_8jsx_af74ea6e19167ef11e03415d2ae44ad92} 
+function export Auth\+Provider (\begin{DoxyParamCaption}\item[{}]{\{ children \}}{}\end{DoxyParamCaption})}
+
+\Hypertarget{_auth_context_8jsx_a4eed4c28686c3f2840aaaa42797f45db}\index{AuthContext.jsx@{AuthContext.jsx}!useAuth@{useAuth}}
+\index{useAuth@{useAuth}!AuthContext.jsx@{AuthContext.jsx}}
+\doxysubsubsection{\texorpdfstring{useAuth()}{useAuth()}}
+{\footnotesize\ttfamily \label{_auth_context_8jsx_a4eed4c28686c3f2840aaaa42797f45db} 
+function export use\+Auth (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{_auth_context_8jsx_doc-var-members}
+\Hypertarget{_auth_context_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_auth_context_8jsx_afac7ad17681f4f2c54c0288338f9a360}\index{AuthContext.jsx@{AuthContext.jsx}!AuthContext@{AuthContext}}
+\index{AuthContext@{AuthContext}!AuthContext.jsx@{AuthContext.jsx}}
+\doxysubsubsection{\texorpdfstring{AuthContext}{AuthContext}}
+{\footnotesize\ttfamily \label{_auth_context_8jsx_afac7ad17681f4f2c54c0288338f9a360} 
+export default Auth\+Context = create\+Context(null)}
+
+\Hypertarget{_auth_context_8jsx_ac2dd2e2a06a2f9fba4f8accf3496fea2}\index{AuthContext.jsx@{AuthContext.jsx}!DEMO\_USERS@{DEMO\_USERS}}
+\index{DEMO\_USERS@{DEMO\_USERS}!AuthContext.jsx@{AuthContext.jsx}}
+\doxysubsubsection{\texorpdfstring{DEMO\_USERS}{DEMO\_USERS}}
+{\footnotesize\ttfamily \label{_auth_context_8jsx_ac2dd2e2a06a2f9fba4f8accf3496fea2} 
+const DEMO\+\_\+\+USERS}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ [}
+\DoxyCodeLine{\ \ \{\ id:\ \textcolor{charliteral}{'1'},\ full\_name:\ \textcolor{stringliteral}{'Jan\ Kowalski'},\ role:\ \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.ADMIN,\ pin:\ \textcolor{stringliteral}{'11111111'},\ email:\ \textcolor{stringliteral}{'admin@sklep.pl'},\ avatar\_url:\ \textcolor{keyword}{null}\ \},}
+\DoxyCodeLine{\ \ \{\ id:\ \textcolor{charliteral}{'2'},\ full\_name:\ \textcolor{stringliteral}{'Anna\ Nowak'},\ role:\ \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.SHIFT\_MANAGER,\ pin:\ \textcolor{stringliteral}{'22222222'},\ email:\ \textcolor{stringliteral}{'kierownik@sklep.pl'},\ avatar\_url:\ \textcolor{keyword}{null}\ \},}
+\DoxyCodeLine{\ \ \{\ id:\ \textcolor{charliteral}{'3'},\ full\_name:\ \textcolor{stringliteral}{'Piotr\ Wiśniewski'},\ role:\ \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.CASHIER,\ pin:\ \textcolor{stringliteral}{'33333333'},\ email:\ \textcolor{stringliteral}{'kasjer@sklep.pl'},\ avatar\_url:\ \textcolor{keyword}{null}\ \},}
+\DoxyCodeLine{\ \ \{\ id:\ \textcolor{charliteral}{'4'},\ full\_name:\ \textcolor{stringliteral}{'Maria\ Zielińska'},\ role:\ \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.WAREHOUSE\_WORKER,\ pin:\ \textcolor{stringliteral}{'44444444'},\ email:\ \textcolor{stringliteral}{'magazyn@sklep.pl'},\ avatar\_url:\ \textcolor{keyword}{null}\ \},}
+\DoxyCodeLine{\ \ \{\ id:\ \textcolor{charliteral}{'5'},\ full\_name:\ \textcolor{stringliteral}{'Tomasz\ Lewandowski'},\ role:\ \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.WAREHOUSE\_MANAGER,\ pin:\ \textcolor{stringliteral}{'55555555'},\ email:\ \textcolor{stringliteral}{'kier.magazyn@sklep.pl'},\ avatar\_url:\ \textcolor{keyword}{null}\ \},}
+\DoxyCodeLine{\ \ \{\ id:\ \textcolor{charliteral}{'6'},\ full\_name:\ \textcolor{stringliteral}{'Katarzyna\ Dąbrowska'},\ role:\ \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.SALES\_MANAGER,\ pin:\ \textcolor{stringliteral}{'66666666'},\ email:\ \textcolor{stringliteral}{'kier.sprzedaz@sklep.pl'},\ avatar\_url:\ \textcolor{keyword}{null}\ \},}
+\DoxyCodeLine{\ \ \{\ id:\ \textcolor{charliteral}{'7'},\ full\_name:\ \textcolor{stringliteral}{'Andrzej\ Majewski'},\ role:\ \doxymbox{\hyperlink{rbac_8js_a656bbade8ec4805fb13dbaf752073b71}{ROLES}}.CLEANER,\ pin:\ \textcolor{stringliteral}{'77777777'},\ email:\ \textcolor{stringliteral}{'sprzatanie@sklep.pl'},\ avatar\_url:\ \textcolor{keyword}{null}\ \},}
+\DoxyCodeLine{]}
+
+\end{DoxyCode}
+\Hypertarget{_auth_context_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{AuthContext.jsx@{AuthContext.jsx}!import@{import}}
+\index{import@{import}!AuthContext.jsx@{AuthContext.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_auth_context_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ create\+Context, use\+Context, use\+State, use\+Effect, use\+Callback \} from \textquotesingle{}react\textquotesingle{}}
+

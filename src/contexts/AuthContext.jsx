@@ -1,39 +1,30 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { ROLES, ROLE_LABELS, hasPermission, hasAnyPermission, getNavItems } from '../utils/rbac';
 
 const AuthContext = createContext(null);
 
-/* Tablica predefiniowanych użytkowników testowych (demo), używana przy braku połączenia z bazą */
-const DEMO_USERS = [
-  { id: '1', full_name: 'Jan Kowalski', role: ROLES.ADMIN, pin: '11111111', email: 'admin@sklep.pl', avatar_url: null },
-  { id: '2', full_name: 'Anna Nowak', role: ROLES.SHIFT_MANAGER, pin: '22222222', email: 'kierownik@sklep.pl', avatar_url: null },
-  { id: '3', full_name: 'Piotr Wiśniewski', role: ROLES.CASHIER, pin: '33333333', email: 'kasjer@sklep.pl', avatar_url: null },
-  { id: '4', full_name: 'Maria Zielińska', role: ROLES.WAREHOUSE_WORKER, pin: '44444444', email: 'magazyn@sklep.pl', avatar_url: null },
-  { id: '5', full_name: 'Tomasz Lewandowski', role: ROLES.WAREHOUSE_MANAGER, pin: '55555555', email: 'kier.magazyn@sklep.pl', avatar_url: null },
-  { id: '6', full_name: 'Katarzyna Dąbrowska', role: ROLES.SALES_MANAGER, pin: '66666666', email: 'kier.sprzedaz@sklep.pl', avatar_url: null },
-  { id: '7', full_name: 'Andrzej Majewski', role: ROLES.CLEANER, pin: '77777777', email: 'sprzatanie@sklep.pl', avatar_url: null },
-];
 
-/* Główny komponent dostarczający kontekst autoryzacji, zarządzający sesją i uprawnieniami */
+
+// Główny dostawca (Provider) kontekstu autoryzacji, zarządzający sesją użytkownika oraz jego uprawnieniami (RBAC).
 export function AuthProvider({ children }) {
-  /* Stan przechowujący podstawowe dane zalogowanego użytkownika (np. ID, email) */
+  // Podstawowe dane uwierzytelnionego użytkownika zwracane przez Supabase (m.in. ID, email).
   const [user, setUser] = useState(null);
   
-  /* Stan przechowujący szczegółowy profil użytkownika (rola, imię, inicjały itp.) */
+  // Szczegółowe dane profilowe pracownika, takie jak przypisana rola, pełne imię i nazwisko oraz numer PIN.
   const [profile, setProfile] = useState(null);
   
-  /* Stan określający, czy trwa weryfikacja sesji podczas uruchamiania aplikacji */
+  // Flaga określająca, czy aktualnie trwa proces weryfikacji i ładowania sesji z bazy danych.
   const [loading, setLoading] = useState(true);
   
-  /* Stan informujący, czy aplikacja działa w trybie demonstracyjnym (offline/bez Supabase) */
-  const [isDemoMode, setIsDemoMode] = useState(false);
+
 
   useEffect(() => {
     checkSession();
   }, []);
 
-  /* Funkcja asynchroniczna weryfikująca aktywną sesję użytkownika na starcie aplikacji */
+  // Główna funkcja weryfikująca token i przywracająca aktywną sesję użytkownika podczas inicjalizacji aplikacji.
   async function checkSession() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -70,7 +61,6 @@ export function AuthProvider({ children }) {
             if (error.code === '42P01' || (error.message && error.message.includes('relation'))) {
               setUser({ id: parsed.id });
               setProfile(parsed);
-              setIsDemoMode(false);
               setLoading(false);
               return;
             }
@@ -79,7 +69,6 @@ export function AuthProvider({ children }) {
           if (error || !activeSession) {
             // Invalid session or logged out from elsewhere
             localStorage.removeItem('local_user');
-            setIsDemoMode(true);
             setLoading(false);
             return;
           }
@@ -91,7 +80,6 @@ export function AuthProvider({ children }) {
           if (now - lastSeen > thirtyMinutes) {
             await supabase.from('active_sessions').delete().eq('id', activeSession.id);
             localStorage.removeItem('local_user');
-            setIsDemoMode(true);
             setLoading(false);
             return;
           }
@@ -99,63 +87,20 @@ export function AuthProvider({ children }) {
           // Update last seen
           await supabase.from('active_sessions').update({ last_seen_at: new Date().toISOString() }).eq('id', activeSession.id);
         } else {
-          // Bypass active_sessions check for offline/demo users
           setUser({ id: parsed.id });
           setProfile(parsed);
-          setIsDemoMode(!isValidUuid(parsed.id));
         }
-      } else {
-        setIsDemoMode(true);
       }
     } catch {
-      setIsDemoMode(true);
+      // Ignoruj błędy ładowania sesji
     } finally {
       setLoading(false);
     }
   }
 
-  /* Funkcja asynchroniczna pobierająca szczegółowy profil pracownika z bazy na podstawie userId */
-  async function fetchProfile(userId) {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
 
-      if (error) throw error;
-      setProfile(data);
-    } catch {
-      // If profile fetch fails, use first demo user
-      setProfile(DEMO_USERS[0]);
-      setIsDemoMode(true);
-    }
-  }
-
-  /* Funkcja logująca użytkownika na konto testowe w trybie demonstracyjnym */
-  const loginWithDemo = useCallback((userId) => {
-    const demoUser = DEMO_USERS.find(u => u.id === userId);
-    if (demoUser) {
-      setProfile(demoUser);
-      setUser({ id: demoUser.id, email: demoUser.email });
-      setIsDemoMode(true);
-    }
-  }, []);
-
-  /* Funkcja asynchroniczna weryfikująca kod PIN i logująca użytkownika w modułach POS/Kiosk */
+  // Logowanie przeznaczone dla aplikacji POS oraz Kiosk, wykorzystujące autoryzację szybkim kodem PIN.
   const loginWithPin = useCallback(async (pin) => {
-    // In demo mode, check demo users
-    if (isDemoMode || !import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
-      const demoUser = DEMO_USERS.find(u => u.pin === pin);
-      if (demoUser) {
-        setProfile(demoUser);
-        setUser({ id: demoUser.id, email: demoUser.email });
-        localStorage.setItem('local_user', JSON.stringify(demoUser));
-        return { success: true };
-      }
-      return { success: false, error: 'Nieprawidłowy PIN' };
-    }
-
     // Real Supabase auth would go here
     try {
       const { data, error } = await supabase
@@ -172,9 +117,9 @@ export function AuthProvider({ children }) {
     } catch {
       return { success: false, error: 'Błąd połączenia z serwerem' };
     }
-  }, [isDemoMode]);
+  }, []);
 
-  /* Funkcja asynchroniczna autoryzująca użytkownika tradycyjnym loginem i hasłem z wykorzystaniem Supabase */
+  // Tradycyjne logowanie do panelu z użyciem loginu i hasła. Zawiera też logikę lokalnego konta awaryjnego (admin).
   const loginWithCredentials = useCallback(async (username, password) => {
     // 1. Zawsze działające konto awaryjne: admin / admin
     if (username === 'admin' && password === 'admin') {
@@ -217,26 +162,9 @@ export function AuthProvider({ children }) {
       setProfile(emergencyAdmin);
       setUser({ id: emergencyAdmin.id, email: emergencyAdmin.email });
       localStorage.setItem('local_user', JSON.stringify(emergencyAdmin));
-      setIsDemoMode(true);
       return { success: true };
     }
 
-    // 2. W trybie demo (brak URL), pozwalamy logować się za pomocą pierwszego imienia jako loginu
-    if (!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co')) {
-      const uName = username.toLowerCase();
-      const demoUser = DEMO_USERS.find(u => 
-        u.email.split('@')[0].toLowerCase() === uName || 
-        u.full_name.split(' ')[0].toLowerCase() === uName
-      );
-      // W wersji demo akceptujemy puste hasło lub 'haslo'
-      if (demoUser && (password === 'haslo' || password === '')) {
-        setProfile(demoUser);
-        setUser({ id: demoUser.id, email: demoUser.email });
-        localStorage.setItem('local_user', JSON.stringify(demoUser));
-        return { success: true };
-      }
-      return { success: false, error: 'Nieprawidłowa nazwa użytkownika lub hasło (Tryb offline)' };
-    }
 
     // 3. Prawdziwe logowanie w Supabase za pomocą system_login i system_password
     try {
@@ -291,15 +219,14 @@ export function AuthProvider({ children }) {
       setUser({ id: data.id });
       setProfile(data);
       localStorage.setItem('local_user', JSON.stringify(data));
-      setIsDemoMode(false);
       return { success: true };
     } catch (err) {
       console.error(err);
       return { success: false, error: 'Błąd połączenia z serwerem' };
     }
-  }, [isDemoMode]);
+  }, []);
 
-  /* Funkcja asynchroniczna czyszcząca sesję i wylogowująca użytkownika ze wszystkich urządzeń typu web */
+  // Bezpieczne wylogowanie z instancji Supabase, usunięcie sesji urządzenia z bazy oraz wyczyszczenie pamięci lokalnej.
   const logout = useCallback(async () => {
     const deviceId = localStorage.getItem('system_device_id');
     
@@ -320,7 +247,7 @@ export function AuthProvider({ children }) {
       }
     }
 
-    if (!isDemoMode && profile) {
+    if (profile) {
       await supabase.auth.signOut();
       
       if (deviceId) {
@@ -333,26 +260,23 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('local_user');
     setUser(null);
     setProfile(null);
-  }, [isDemoMode, profile]);
+  }, [profile]);
 
-  /* Funkcja sprawdzająca, czy zalogowany pracownik posiada wskazane pojedyncze uprawnienie (RBAC) */
+  // Funkcja pomocnicza RBAC do sprawdzania, czy zalogowany pracownik posiada dane konkretne uprawnienie.
   const can = useCallback((permission) => {
     return hasPermission(profile?.role, permission);
   }, [profile]);
 
-  /* Funkcja sprawdzająca, czy zalogowany pracownik posiada przynajmniej jedno ze wskazanych uprawnień */
+  // Funkcja pomocnicza RBAC weryfikująca, czy pracownik posiada przynajmniej jedno uprawnienie z podanej listy.
   const canAny = useCallback((permissions) => {
     return hasAnyPermission(profile?.role, permissions);
   }, [profile]);
 
-  /* Obiekt kontekstu udostępniany do wszystkich komponentów potomnych aplikacji */
+  // Zestaw danych i funkcji autoryzacyjnych udostępniany wszystkim komponentom otoczonym przez AuthProvider.
   const value = {
     user,
     profile,
     loading,
-    isDemoMode,
-    demoUsers: DEMO_USERS,
-    loginWithDemo,
     loginWithPin,
     loginWithCredentials,
     logout,
@@ -367,7 +291,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/* Niestandardowy hook ułatwiający dostęp do kontekstu autoryzacji w komponentach funkcyjnych */
+// Niestandardowy hook (custom hook) ułatwiający pobieranie danych z AuthContext wewnątrz komponentów funkcyjnych.
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

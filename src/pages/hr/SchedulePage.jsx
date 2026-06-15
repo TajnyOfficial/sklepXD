@@ -23,12 +23,12 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/* Graficzny kreator grafików (Harmonogram) oparty na kalendarzu tygodniowym: planowanie przypisanych zmian (od-do) dla każdego pracownika */
+// Graficzny kreator grafików (Harmonogram) oparty na kalendarzu tygodniowym: planowanie przypisanych zmian (od-do) dla każdego pracownika
 export default function SchedulePage() {
-  /* Funkcje i zbiory danych dot. pracowników i ich wpisów w grafiku pobrane z globalnego stanu */
+  // Funkcje i zbiory danych dot. pracowników i ich wpisów w grafiku pobrane z globalnego stanu
   const { employees, schedules, saveSchedule, deleteSchedule } = useStore();
 
-  /* Stan zarządzający "wstęgą czasu" (aktualnie oglądany tydzień, na bazie biblioteki date-fns) */
+  // Stan zarządzający "wstęgą czasu" (aktualnie oglądany tydzień, na bazie biblioteki date-fns)
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Start of the week (Monday)
@@ -55,7 +55,7 @@ export default function SchedulePage() {
   const goToToday = () => setCurrentDate(new Date());
 
   // Modal handlers
-  /* Funkcja otwierająca okno modyfikacji pojedynczej komórki (dzień + pracownik). Rozpoznaje czy kliknięto w nową czy istniejącą zmianę */
+  // Funkcja otwierająca okno modyfikacji pojedynczej komórki (dzień + pracownik). Rozpoznaje czy kliknięto w nową czy istniejącą zmianę
   const openShiftModal = (employee, date, shift = null) => {
     setEditingEmployee(employee);
     setEditingDate(date);
@@ -71,7 +71,7 @@ export default function SchedulePage() {
     setIsModalOpen(true);
   };
 
-  /* Złożenie pakietu danych o godzinach i dacie zmiany, po czym przesłanie go do bazy w celu zapisania zaplanowanego grafiku */
+  // Złożenie pakietu danych o godzinach i dacie zmiany, po czym przesłanie go do bazy w celu zapisania zaplanowanego grafiku
   const handleSave = () => {
     const shiftData = {
       id: selectedShift?.id,
@@ -125,7 +125,7 @@ export default function SchedulePage() {
           gridTemplateColumns: '200px repeat(7, 1fr)',
           borderCollapse: 'collapse'
         }}>
-          {/* Header Row */}
+          // Header Row
           <div className="schedule-header-cell" style={{
             padding: 16,
             background: 'var(--bg-tertiary)',
@@ -168,7 +168,7 @@ export default function SchedulePage() {
             </div>
           ))}
 
-          {/* Employee Rows */}
+          // Employee Rows
           {employees.filter(e => e.active !== false && e.is_active !== false).map(emp => (
             <Fragment key={emp.id}>
               <div className="schedule-cell employee-cell" style={{
@@ -241,12 +241,12 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      {/* Modal Style Hack for hidden buttons hover effect */}
+      // Modal Style Hack for hidden buttons hover effect
       <style>{`
         .day-cell:hover .add-shift-btn { opacity: 1 !important; }
       `}</style>
 
-      {/* Shift Modal */}
+      // Shift Modal
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>

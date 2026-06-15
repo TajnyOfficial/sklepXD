@@ -6,6 +6,7 @@ import { InvoiceDocument } from './InvoiceDocument';
 import { useStore } from '../../contexts/StoreContext';
 import toast from 'react-hot-toast';
 
+// Przycisk pobierania faktury PDF. Konwertuje dane zamówienia i renderuje dokument.
 export const InvoiceDownloadBtn = ({ invoiceData, fileName, className = "btn btn-primary" }) => {
   const { shopSettings } = useStore();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -23,10 +24,10 @@ export const InvoiceDownloadBtn = ({ invoiceData, fileName, className = "btn btn
     const toastId = toast.loading("Przygotowywanie dokumentu PDF...");
 
    try {
-      // Pobieramy nienaruszone dane prosto z InvoicesPage
+      // Uzupełnienie danych faktury o dane sprzedawcy.
       const finalData = {
         ...invoiceData,
-        note: invoiceData.note, // JAWNE I SZTYWNE PRZEKAZANIE POLA UWAG
+        note: invoiceData.note, // Jawne przekazanie uwag
         seller: {
           name: shopSettings.name,
           address: shopSettings.address,
@@ -41,7 +42,7 @@ export const InvoiceDownloadBtn = ({ invoiceData, fileName, className = "btn btn
 
       finalData.number = finalData.number || finalData.id || "B/N";
 
-      // Renderowanie PDF bez zewnętrznych, psujących wszystko funkcji
+      // Generowanie bloba PDF.
       const blob = await pdf(<InvoiceDocument data={finalData} />).toBlob();
 
       const safeNumber = String(finalData.number).replace(/[\/\\?%*:|"<>]/g, '_');

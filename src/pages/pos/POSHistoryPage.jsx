@@ -6,16 +6,16 @@ import {
   FiFileText, FiLogIn, FiLogOut, FiArrowUpCircle, FiArrowDownCircle
 } from 'react-icons/fi';
 
-/* Zbiór identyfikatorów określających, jakie dokładnie operacje uważa się za zdarzenia "typowe" dla pracy na kasie (np. raport X, wpłata KP) */
+// Zbiór identyfikatorów określających, jakie dokładnie operacje uważa się za zdarzenia "typowe" dla pracy na kasie (np. raport X, wpłata KP)
 const POS_LOG_TYPES = new Set(['login', 'logout', 'deposit', 'withdrawal', 'sale', 'report_x', 'report_z', 'cash_in', 'cash_out']);
 
-/* Komponent wyświetlający listę zdarzeń przypisanych tylko i wyłącznie do punktu sprzedaży (historia paragonów, szuflad) */
+// Komponent wyświetlający listę zdarzeń przypisanych tylko i wyłącznie do punktu sprzedaży (historia paragonów, szuflad)
 export default function POSHistoryPage() {
-  /* Pobranie całego rejestru zdarzeń kasowych i przygotowanie stanu filtru widoku (np. 'wszystkie', 'tylko logowania') */
+  // Pobranie całego rejestru zdarzeń kasowych i przygotowanie stanu filtru widoku (np. 'wszystkie', 'tylko logowania')
   const { posLogs = [] } = useStore();
   const [filter, setFilter] = useState('all');
 
-  /* Mechanizm oddzielający zaawansowane logi systemowe (np. zmiana ról admina) od prostych zdarzeń sprzętowych POS */
+  // Mechanizm oddzielający zaawansowane logi systemowe (np. zmiana ról admina) od prostych zdarzeń sprzętowych POS
   const posOnlyLogs = posLogs.filter(log => {
     const type = (log.type || '').toLowerCase();
     // Przyjmij log jeśli: jest typem POS, lub rejestr wygląda jak kasa, lub typ to login/logout na urządzeniu kasowym

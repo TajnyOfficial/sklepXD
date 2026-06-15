@@ -1,0 +1,64 @@
+\doxysection{src/\+hooks/\+use\+Barcode\+Scanner\+Input.js File Reference}
+\hypertarget{use_barcode_scanner_input_8js}{}\label{use_barcode_scanner_input_8js}\index{src/hooks/useBarcodeScannerInput.js@{src/hooks/useBarcodeScannerInput.js}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \doxymbox{\hyperlink{use_barcode_scanner_input_8js_a08f1fa9c96827596f6d925c43fea24a2}{use\+Barcode\+Scanner\+Input}} (on\+Scan, options=\{\})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{use_barcode_scanner_input_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ use\+Effect, use\+Ref, use\+Callback \} from \textquotesingle{}react\textquotesingle{}
+\item 
+const \doxymbox{\hyperlink{use_barcode_scanner_input_8js_a4088c4c0882c9f30e0eea94872387d79}{DEFAULT\+\_\+\+OPTIONS}}
+\end{DoxyCompactItemize}
+
+
+\label{use_barcode_scanner_input_8js_doc-func-members}
+\Hypertarget{use_barcode_scanner_input_8js_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{use_barcode_scanner_input_8js_a08f1fa9c96827596f6d925c43fea24a2}\index{useBarcodeScannerInput.js@{useBarcodeScannerInput.js}!useBarcodeScannerInput@{useBarcodeScannerInput}}
+\index{useBarcodeScannerInput@{useBarcodeScannerInput}!useBarcodeScannerInput.js@{useBarcodeScannerInput.js}}
+\doxysubsubsection{\texorpdfstring{useBarcodeScannerInput()}{useBarcodeScannerInput()}}
+{\footnotesize\ttfamily \label{use_barcode_scanner_input_8js_a08f1fa9c96827596f6d925c43fea24a2} 
+function export use\+Barcode\+Scanner\+Input (\begin{DoxyParamCaption}\item[{}]{on\+Scan}{, }\item[{}]{options}{ = {\ttfamily \{\}}}\end{DoxyParamCaption})}
+
+
+
+\label{use_barcode_scanner_input_8js_doc-var-members}
+\Hypertarget{use_barcode_scanner_input_8js_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{use_barcode_scanner_input_8js_a4088c4c0882c9f30e0eea94872387d79}\index{useBarcodeScannerInput.js@{useBarcodeScannerInput.js}!DEFAULT\_OPTIONS@{DEFAULT\_OPTIONS}}
+\index{DEFAULT\_OPTIONS@{DEFAULT\_OPTIONS}!useBarcodeScannerInput.js@{useBarcodeScannerInput.js}}
+\doxysubsubsection{\texorpdfstring{DEFAULT\_OPTIONS}{DEFAULT\_OPTIONS}}
+{\footnotesize\ttfamily \label{use_barcode_scanner_input_8js_a4088c4c0882c9f30e0eea94872387d79} 
+const DEFAULT\+\_\+\+OPTIONS}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \{}
+\DoxyCodeLine{\ \ minLength:\ 3,\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ scannerSpeedMs:\ 50,\ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ disabled:\ \textcolor{keyword}{false},\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\Hypertarget{use_barcode_scanner_input_8js_a59be084da8908b7d77ff34b25cd84488}\index{useBarcodeScannerInput.js@{useBarcodeScannerInput.js}!import@{import}}
+\index{import@{import}!useBarcodeScannerInput.js@{useBarcodeScannerInput.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{use_barcode_scanner_input_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ use\+Effect, use\+Ref, use\+Callback \} from \textquotesingle{}react\textquotesingle{}}
+
+Niestandardowy Hook do globalnej obsługi sprzętowych skanerów kodów kreskowych (USB/\+\+Bluetooth).
+
+Fizyczne skanery kodów funkcjonują w systemie operacyjnym jako symulatory niezwykle szybkiej klawiatury. Wciskają serię klawiszy w ułamkach sekundy (\texorpdfstring{$<$}{<} 50ms) i domyślnie zakańczają ją klawiszem "{}\+Enter"{}.
+
+Zadaniem tego hooka jest odseparowanie i zignorowanie wirtualnych naciśnięć pochodzących z powolnego (naturalnego) pisania człowieka, a wyizolowanie i "{}złapanie"{} wyłącznie bardzo szybkich ciągów znaków pochodzących prosto z optyki lasera sprzętowego skanera.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Function\}} & on\+Scan -\/ Wywołanie zwrotne (callback) uruchamiane z rozpoznanym kodem (string) jako parametrem \\
+\hline
+{\em \{\+Object\}} & \+[options]\+ -\/ Opcje konfiguracyjne (czas tolerancji milisekund, flaga wyłączająca hook {\ttfamily disabled}) \\
+\hline
+\end{DoxyParams}

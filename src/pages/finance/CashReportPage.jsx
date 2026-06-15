@@ -163,7 +163,7 @@ export default function CashReportPage() {
 
       <div className="grid-2 mb-24" style={{ gap: 24, alignItems: 'start' }}>
         
-        {/* PANEL: DZIENNY BILANS */}
+        // PANEL: DZIENNY BILANS
         <div className="card">
           <h3 className="mb-16">Dzienny bilans kasy — {new Date().toLocaleDateString('pl-PL')}</h3>
           {[
@@ -201,7 +201,7 @@ export default function CashReportPage() {
           </div>
         </div>
 
-        {/* PANEL: DZISIEJSZE OPERACJE */}
+        // PANEL: DZISIEJSZE OPERACJE
         <div className="table-container card">
           <h3 className="mb-16">Dzisiejsze operacje (Wpłaty/Wypłaty)</h3>
           {ops.length === 0 ? (
@@ -225,7 +225,7 @@ export default function CashReportPage() {
         </div>
       </div>
 
-      {/* PANEL: ARCHIWUM RAPORTÓW */}
+      // PANEL: ARCHIWUM RAPORTÓW
       <h3 className="mb-16 flex items-center gap-8"><FiPrinter /> Archiwum wygenerowanych raportów</h3>
       <div className="table-container card">
         {historyReports.length === 0 ? (
@@ -255,7 +255,7 @@ export default function CashReportPage() {
         )}
       </div>
 
-      {/* MODAL DO DODAWANIA OPERACJI */}
+      // MODAL DO DODAWANIA OPERACJI
       <Modal 
         isOpen={showModal} 
         onClose={() => setShowModal(false)} 

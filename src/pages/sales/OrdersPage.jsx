@@ -16,12 +16,12 @@ const EMPTY_ORDER = {
   note: ''
 };
 
-/* Moduł do zarządzania zamówieniami zewnętrznymi (Click&Collect, Rezerwacje) z obsługą zaliczek i statusów realizacji */
+// Moduł do zarządzania zamówieniami zewnętrznymi (Click&Collect, Rezerwacje) z obsługą zaliczek i statusów realizacji
 export default function OrdersPage() {
-  /* Pobranie listy klientów i flagi połączenia z Supabase ze StoreContext (zamówienia korzystają prosto z DB) */
+  // Pobranie listy klientów i flagi połączenia z Supabase ze StoreContext (zamówienia korzystają prosto z DB)
   const { customers, isSupabase } = useStore();
   
-  /* Lokalne stany przechowujące pobrane zamówienia, parametry filtrowania oraz ustawienia modala edycji */
+  // Lokalne stany przechowujące pobrane zamówienia, parametry filtrowania oraz ustawienia modala edycji
   const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -33,7 +33,7 @@ export default function OrdersPage() {
     fetchOrders();
   }, [isSupabase]);
 
-  /* Zdalne pobranie najnowszych zamówień z tabeli 'orders' w Supabase z sortowaniem od najnowszych */
+  // Zdalne pobranie najnowszych zamówień z tabeli 'orders' w Supabase z sortowaniem od najnowszych
   async function fetchOrders() {
     if (!isSupabase) return;
     setLoading(true);
@@ -48,7 +48,7 @@ export default function OrdersPage() {
     }
   }
 
-  /* Tablica zamówień przefiltrowana przez aktualnie wpisane w wyszukiwarkę słowo (po nazwie klienta lub numerze zamówienia) */
+  // Tablica zamówień przefiltrowana przez aktualnie wpisane w wyszukiwarkę słowo (po nazwie klienta lub numerze zamówienia)
   const filtered = orders.filter(o => {
     const q = search.toLowerCase();
     const cust = customers.find(c => c.id === o.customer_id);
@@ -56,14 +56,14 @@ export default function OrdersPage() {
     return o.order_number.toLowerCase().includes(q) || custName.includes(q);
   });
 
-  /* Wyzerowanie formularza i przygotowanie automatycznego numeru dla nowo tworzonego zamówienia */
+  // Wyzerowanie formularza i przygotowanie automatycznego numeru dla nowo tworzonego zamówienia
   function openAdd() {
     setEditing(null);
     setForm({ ...EMPTY_ORDER, order_number: `ZAM/${Date.now()}` });
     setShowModal(true);
   }
 
-  /* Załadowanie istniejącego zamówienia do formatki edycyjnej (z parsowaniem dat) */
+  // Załadowanie istniejącego zamówienia do formatki edycyjnej (z parsowaniem dat)
   function openEdit(order) {
     setEditing(order);
     setForm({
@@ -73,7 +73,7 @@ export default function OrdersPage() {
     setShowModal(true);
   }
 
-  /* Wygenerowanie poprawnego payloadu i insert/update rekordu zamówienia w bazie Supabase na podstawie wypełnionych danych */
+  // Wygenerowanie poprawnego payloadu i insert/update rekordu zamówienia w bazie Supabase na podstawie wypełnionych danych
   async function handleSave() {
     if (!isSupabase) return toast.error('Wymagane połączenie z Supabase');
     try {
@@ -104,7 +104,7 @@ export default function OrdersPage() {
     }
   }
 
-  /* Procedura trwałego kasowania wybranego zamówienia z potwierdzeniem akcji użytkownika */
+  // Procedura trwałego kasowania wybranego zamówienia z potwierdzeniem akcji użytkownika
   async function handleDelete(orderId) {
     if (!confirm('Usunąć to zamówienie?')) return;
     if (!isSupabase) return;
@@ -118,7 +118,7 @@ export default function OrdersPage() {
     }
   }
 
-  /* Szybka, jedno-polowa aktualizacja statusu (np. z 'Nowe' na 'Gotowe') bezpośrednio z poziomu tabelki (w locie) */
+  // Szybka, jedno-polowa aktualizacja statusu (np. z 'Nowe' na 'Gotowe') bezpośrednio z poziomu tabelki (w locie)
   async function handleStatusChange(orderId, newStatus) {
     if (!isSupabase) return;
     try {

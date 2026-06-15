@@ -1,0 +1,102 @@
+\doxysection{src/\+apps/\+\+POSApp.jsx File Reference}
+\hypertarget{_p_o_s_app_8jsx}{}\label{_p_o_s_app_8jsx}\index{src/apps/POSApp.jsx@{src/apps/POSApp.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function \doxymbox{\hyperlink{_p_o_s_app_8jsx_a28457216146ebe3321f2c13138f5f35d}{Register\+Selection}} ()
+\item 
+function \doxymbox{\hyperlink{_p_o_s_app_8jsx_ab85967c328b71d0d362d037025266212}{POSPin\+Login}} (\{ selected\+Register \})
+\item 
+function \doxymbox{\hyperlink{_p_o_s_app_8jsx_a90314b70970c3c23b5f279e7e4148e6e}{POSTopbar}} (\{ session \})
+\item 
+function \doxymbox{\hyperlink{_p_o_s_app_8jsx_a2bed73be1b11dd31c74285c0c32e8031}{POSInner}} ()
+\item 
+function default \doxymbox{\hyperlink{_p_o_s_app_8jsx_a2ffa0bb695d6df83d7bee4f8105eed4e}{POSApp}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_p_o_s_app_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ use\+State, use\+Effect, use\+Callback \} from \textquotesingle{}react\textquotesingle{}
+\item 
+\doxymbox{\hyperlink{_p_o_s_app_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} POSPage from pages pos \doxymbox{\hyperlink{_p_o_s_app_8jsx_a83ded2d86c28f43073db1fbf72ab69d2}{POSPage}}
+\item 
+\doxymbox{\hyperlink{_p_o_s_app_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Cash\+Drawer\+Page from pages pos \doxymbox{\hyperlink{_p_o_s_app_8jsx_a858872b54f6ebf7af520d0171ab709d1}{Cash\+Drawer\+Page}}
+\end{DoxyCompactItemize}
+
+
+\label{_p_o_s_app_8jsx_doc-func-members}
+\Hypertarget{_p_o_s_app_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_p_o_s_app_8jsx_a2ffa0bb695d6df83d7bee4f8105eed4e}\index{POSApp.jsx@{POSApp.jsx}!POSApp@{POSApp}}
+\index{POSApp@{POSApp}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{POSApp()}{POSApp()}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_a2ffa0bb695d6df83d7bee4f8105eed4e} 
+function default POSApp (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{_p_o_s_app_8jsx_a2bed73be1b11dd31c74285c0c32e8031}\index{POSApp.jsx@{POSApp.jsx}!POSInner@{POSInner}}
+\index{POSInner@{POSInner}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{POSInner()}{POSInner()}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_a2bed73be1b11dd31c74285c0c32e8031} 
+function POSInner (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{_p_o_s_app_8jsx_ab85967c328b71d0d362d037025266212}\index{POSApp.jsx@{POSApp.jsx}!POSPinLogin@{POSPinLogin}}
+\index{POSPinLogin@{POSPinLogin}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{POSPinLogin()}{POSPinLogin()}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_ab85967c328b71d0d362d037025266212} 
+function POSPin\+Login (\begin{DoxyParamCaption}\item[{}]{\{ selected\+Register \}}{}\end{DoxyParamCaption})}
+
+Ekran logowania za pomocą kodu PIN dla kasjerów. Wyświetlany natychmiast po wybraniu konkretnej kasy.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Object\}} & props Właściwości komponentu \\
+\hline
+{\em \{string\}} & props.\+selected\+Register -\/ Nazwa aktualnie wybranego stanowiska kasowego \\
+\hline
+\end{DoxyParams}
+\Hypertarget{_p_o_s_app_8jsx_a90314b70970c3c23b5f279e7e4148e6e}\index{POSApp.jsx@{POSApp.jsx}!POSTopbar@{POSTopbar}}
+\index{POSTopbar@{POSTopbar}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{POSTopbar()}{POSTopbar()}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_a90314b70970c3c23b5f279e7e4148e6e} 
+function POSTopbar (\begin{DoxyParamCaption}\item[{}]{\{ session \}}{}\end{DoxyParamCaption})}
+
+Górny pasek nawigacyjny, unikalny dla środowiska POS. Zawiera dane zalogowanego kasjera, informację o stanowisku oraz szybkie nawigacje do widoku koszyka lub otwierania szuflady na gotówkę.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Object\}} & props Właściwości komponentu \\
+\hline
+{\em \{\+Object\}} & props.\+session -\/ Aktualna sesja zawierająca wybraną kasę i użytkownika \\
+\hline
+\end{DoxyParams}
+\Hypertarget{_p_o_s_app_8jsx_a28457216146ebe3321f2c13138f5f35d}\index{POSApp.jsx@{POSApp.jsx}!RegisterSelection@{RegisterSelection}}
+\index{RegisterSelection@{RegisterSelection}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{RegisterSelection()}{RegisterSelection()}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_a28457216146ebe3321f2c13138f5f35d} 
+function Register\+Selection (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Ekran wyboru stanowiska kasowego. Wymuszany na początku sesji POS, aby przypisać transakcje i logi do odpowiedniej fizycznej kasy (np. "{}\+Kasa 1"{}, "{}\+Kasa 2"{}). 
+
+\label{_p_o_s_app_8jsx_doc-var-members}
+\Hypertarget{_p_o_s_app_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_p_o_s_app_8jsx_a858872b54f6ebf7af520d0171ab709d1}\index{POSApp.jsx@{POSApp.jsx}!CashDrawerPage@{CashDrawerPage}}
+\index{CashDrawerPage@{CashDrawerPage}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{CashDrawerPage}{CashDrawerPage}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_a858872b54f6ebf7af520d0171ab709d1} 
+\doxymbox{\hyperlink{_p_o_s_app_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Cash\+Drawer\+Page from pages pos Cash\+Drawer\+Page}
+
+\Hypertarget{_p_o_s_app_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{POSApp.jsx@{POSApp.jsx}!import@{import}}
+\index{import@{import}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ use\+State, use\+Effect, use\+Callback \} from \textquotesingle{}react\textquotesingle{}}
+
+Moduł (Aplikacja) Punktu Sprzedaży (POS).
+
+Izolowane środowisko kasowe zoptymalizowane pod obsługę dotykową i skanery kodów. Funkcjonalności:\+ Wybór kasy, logowanie szybkim kodem PIN, dedykowany pasek górny. \Hypertarget{_p_o_s_app_8jsx_a83ded2d86c28f43073db1fbf72ab69d2}\index{POSApp.jsx@{POSApp.jsx}!POSPage@{POSPage}}
+\index{POSPage@{POSPage}!POSApp.jsx@{POSApp.jsx}}
+\doxysubsubsection{\texorpdfstring{POSPage}{POSPage}}
+{\footnotesize\ttfamily \label{_p_o_s_app_8jsx_a83ded2d86c28f43073db1fbf72ab69d2} 
+\doxymbox{\hyperlink{_p_o_s_app_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} POSPage from pages pos POSPage}
+

@@ -4,12 +4,12 @@ import toast from 'react-hot-toast';
 import { useStore } from '../../contexts/StoreContext';
 import Modal from '../../components/Modal';
 
-/* Komponent pozwalający na aktualizację globalnych ustawień konfiguracyjnych i profilu całego systemu (np. NIP, VAT, nazwa) oraz kategorii */
+// Komponent pozwalający na aktualizację globalnych ustawień konfiguracyjnych i profilu całego systemu (np. NIP, VAT, nazwa) oraz kategorii
 export default function StoreSettingsPage() {
-  /* Odczytanie bieżących ustawień firmy wraz z funkcją zlecającą ich docelowy zapis/nadpis w bazie danych Supabase */
+  // Odczytanie bieżących ustawień firmy wraz z funkcją zlecającą ich docelowy zapis/nadpis w bazie danych Supabase
   const { shopSettings, updateShopSettings, categories, saveCategory, deleteCategory } = useStore();
   
-  /* Lokalny stan formularza służący do przetrzymywania "szkicu" zmian przed pomyślnym zatwierdzeniem przyciskiem Zapisz */
+  // Lokalny stan formularza służący do przetrzymywania "szkicu" zmian przed pomyślnym zatwierdzeniem przyciskiem Zapisz
   const [store, setStore] = useState(shopSettings);
 
   // Category management
@@ -32,7 +32,7 @@ export default function StoreSettingsPage() {
     return <div className="page p-24">Wczytywanie ustawień...</div>;
   }
 
-  /* Obsługa akcji zatwierdzenia i przesłania ustawień konfiguracyjnych z powrotem do funkcji aktualizacyjnej w StoreContext */
+  // Obsługa akcji zatwierdzenia i przesłania ustawień konfiguracyjnych z powrotem do funkcji aktualizacyjnej w StoreContext
   function handleSave() {
     updateShopSettings(store);
     toast.success('Ustawienia sklepu zostały zapisane!');

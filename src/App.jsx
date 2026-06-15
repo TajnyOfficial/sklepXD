@@ -16,20 +16,20 @@ import {
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 
-// === POS Module ===
+// POS Module
 import POSHistoryPage from './pages/pos/POSHistoryPage';
 
-// === Sales Module ===
+// Sales Module
 import CustomersPage from './pages/sales/CustomersPage';
 import OrdersPage from './pages/sales/OrdersPage';
 
-// === Returns Module ===
+// Returns Module
 import ReturnsPage from './pages/returns/ReturnsPage';
 
-// === Documents Module ===
+// Documents Module
 import DocumentsPage from './pages/documents/DocumentsPage';
 
-// === Warehouse Module ===
+// Warehouse Module
 import ProductCatalogPage from './pages/warehouse/ProductCatalogPage';
 import StockOverviewPage from './pages/warehouse/StockOverviewPage';
 import LocationsPage from './pages/warehouse/LocationsPage';
@@ -37,32 +37,32 @@ import AlertsPage from './pages/warehouse/AlertsPage';
 import TransfersPage from './pages/warehouse/TransfersPage';
 import PackagingPage from './pages/warehouse/PackagingPage';
 
-// === Deliveries Module ===
+// Deliveries Module
 import DeliveriesPage from './pages/deliveries/DeliveriesPage';
 import SuppliersPage from './pages/deliveries/SuppliersPage';
 import DeliverySchedulePage from './pages/deliveries/DeliverySchedulePage';
 
-// === Inventory Module ===
+// Inventory Module
 import InventoryPage from './pages/inventory/InventoryPage';
 
-// === Finance Module ===
+// Finance Module
 import InvoicesPage from './pages/finance/InvoicesPage';
 import ExpensesPage from './pages/finance/ExpensesPage';
 import PaymentsPage from './pages/finance/PaymentsPage';
 import CashReportPage from './pages/finance/CashReportPage';
 import AnalyticsPage from './pages/finance/AnalyticsPage';
 
-// === HR Module ===
+// HR Module
 import TimeTrackingPage from './pages/hr/TimeTrackingPage';
 import SchedulePage from './pages/hr/SchedulePage';
 import AbsencesPage from './pages/hr/AbsencesPage';
 import EmployeesPage from './pages/hr/EmployeesPage';
 
-// === Communication Module ===
+// Communication Module
 import AnnouncementsPage from './pages/communication/AnnouncementsPage';
 import TasksPage from './pages/communication/TasksPage';
 
-// === Admin Module ===
+// Admin Module
 import RolesPage from './pages/admin/RolesPage';
 import StoreSettingsPage from './pages/admin/StoreSettingsPage';
 import AdditionalSettingsPage from './pages/admin/AdditionalSettingsPage';
@@ -70,37 +70,37 @@ import AuditLogPage from './pages/admin/AuditLogPage';
 import SecurityPage from './pages/admin/SecurityPage';
 
 
-// === Kiosk i Mobile — teraz osobne aplikacje pod /kiosk/ i /mobile/ ===
+// Kiosk i Mobile — teraz osobne aplikacje pod /kiosk/ i /mobile/
 // Dostępne pod URL-ami: /kiosk/  /pos/  /mobile/
 // (wbudowane multi-entry w vite.config.js)
 
-/* Słownik mapujący tekstowe nazwy ikon z bazy danych na odpowiadające im komponenty biblioteki react-icons */
+// Mapowanie nazw ikon z bazy danych na komponenty z react-icons.
 const ICON_MAP = {
   FiHome, FiShoppingCart, FiClipboard, FiRotateCcw, FiUsers,
   FiFileText, FiPackage, FiTruck, FiCheckSquare, FiDollarSign,
   FiClock, FiMessageSquare, FiSettings, FiGrid, FiVideo
 };
 
-/* Komponent renderujący boczny pasek nawigacyjny z wielopoziomowym menu, szybkimi linkami oraz profilem pracownika */
+// Boczny pasek nawigacyjny z wielopoziomowym menu i profilem użytkownika.
 function Sidebar({ navItems, collapsed, onToggle }) {
-  /* Hook służący do programowej zmiany ścieżki routingu */
+  // Nawigacja programowa po ścieżkach React Routera.
   const navigate = useNavigate();
   
-  /* Hook przechowujący aktualną ścieżkę w przeglądarce */
+  // Odczyt aktualnej ścieżki (URL) w przeglądarce.
   const location = useLocation();
   
-  /* Zmienne autoryzacyjne: dane zalogowanego pracownika oraz funkcja wylogowywania */
+  // Profil zalogowanego pracownika i akcja wylogowania.
   const { profile, logout } = useAuth();
   
-  /* Stan mapujący ID węzłów menu na ich rozwinięcie/zwinięcie */
+  // Stan otwarcia i zamknięcia poszczególnych folderów menu.
   const [expandedItems, setExpandedItems] = useState({});
 
-  /* Funkcja memoizowana do przełączania stanu rozwinięcia konkretnego elementu nadrzędnego w menu */
+  // Przełącznik widoczności elementów podrzędnych w menu bocznym.
   const toggleExpand = useCallback((id) => {
     setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
   }, []);
 
-  /* Funkcja sprawdzająca czy dany element menu prowadzi do aktualnie odwiedzanej podstrony */
+  // Weryfikacja, czy dana ścieżka z menu odpowiada aktualnemu URL.
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
@@ -161,7 +161,7 @@ function Sidebar({ navItems, collapsed, onToggle }) {
         })}
       </nav>
 
-      {/* ── Linki do zewnętrznych aplikacji ───────────────────────── */}
+      // ── Linki do zewnętrznych aplikacji ─────────────────────────
       {!collapsed && (
         <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)', marginTop: 4 }}>
           <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontWeight: 600 }}>Aplikacje</div>
@@ -198,21 +198,21 @@ function Sidebar({ navItems, collapsed, onToggle }) {
   );
 }
 
-/* Główny kontener strukturalny systemu dla zalogowanego użytkownika definiujący wszystkie kluczowe routingi (widoki ERP) */
+// Główny layout i router wewnętrzny dla uwierzytelnionych pracowników (widoki ERP).
 function AppLayout() {
-  /* Stan autoryzacji używany do odczytania roli bieżącego pracownika */
+  // Profil zalogowanego pracownika.
   const { profile } = useAuth();
   
-  /* Pobranie globalnych ustawień w celu nasłuchiwania na ewentualne zmiany uprawnień w konfiguracji */
+  // Globalne ustawienia sklepu i konfiguracja ról.
   const { shopSettings } = useStore();
   
-  /* Zmienna memoizowana zawierająca wygenerowaną strukturę elementów nawigacji dostępnych dla danej roli */
+  // Dynamicznie generowane menu nawigacji na podstawie roli pracownika.
   const navItems = useMemo(() => getNavItems(profile?.role), [profile?.role, shopSettings?.role_permissions]);
 
-  /* Stan określający widoczność i rozmiar bocznego paska nawigacyjnego (Sidebar) */
+  // Kontrola zwijania i rozwijania paska bocznego (Sidebar).
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
-  /* Funkcja do nawigowania programowego w ramach react-router */
+  // Metoda do programowej zmiany stron.
   const navigate = useNavigate();
 
   return (
@@ -232,15 +232,15 @@ function AppLayout() {
             <Route path="/pos" element={<Navigate to="/sales/pos-history" replace />} />
             <Route path="/sales/pos-history" element={<POSHistoryPage />} />
 
-            {/* Sales */}
+            // Sales
             <Route path="/sales/orders" element={<OrdersPage />} />
             <Route path="/sales/returns" element={<ReturnsPage />} />
 
-            {/* Contractors */}
+            // Contractors
             <Route path="/contractors/customers" element={<CustomersPage />} />
             <Route path="/contractors/suppliers" element={<SuppliersPage />} />
 
-            {/* Warehouse */}
+            // Warehouse
             <Route path="/warehouse/products" element={<ProductCatalogPage />} />
             <Route path="/warehouse/stock" element={<StockOverviewPage />} />
             <Route path="/warehouse/locations" element={<LocationsPage />} />
@@ -249,20 +249,20 @@ function AppLayout() {
             <Route path="/warehouse/inventory" element={<InventoryPage />} />
             <Route path="/warehouse/packaging" element={<PackagingPage />} />
 
-            {/* Deliveries */}
+            // Deliveries
             <Route path="/deliveries" element={<DeliveriesPage />} />
             <Route path="/deliveries/schedule" element={<DeliverySchedulePage />} />
 
 
 
-            {/* Finance */}
+            // Finance
             <Route path="/finance/invoices" element={<InvoicesPage />} />
             <Route path="/finance/expenses" element={<ExpensesPage />} />
             <Route path="/finance/payments" element={<PaymentsPage />} />
             <Route path="/finance/cash" element={<CashReportPage />} />
             <Route path="/finance/analytics" element={<AnalyticsPage />} />
 
-            {/* HR */}
+            // HR
             <Route path="/hr/time" element={<TimeTrackingPage />} />
             <Route path="/hr/schedule" element={<SchedulePage />} />
             <Route path="/hr/absences" element={<AbsencesPage />} />
@@ -271,14 +271,14 @@ function AppLayout() {
             <Route path="/hr/announcements" element={<AnnouncementsPage />} />
             <Route path="/hr/tasks" element={<TasksPage />} />
 
-            {/* Admin */}
+            // Admin
             <Route path="/admin/roles" element={<RolesPage />} />
             <Route path="/admin/settings" element={<StoreSettingsPage />} />
             <Route path="/admin/additional" element={<AdditionalSettingsPage />} />
             <Route path="/admin/audit" element={<AuditLogPage />} />
             <Route path="/admin/security" element={<SecurityPage />} />
 
-            {/* Catch-all redirect */}
+            // Catch-all redirect
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
@@ -287,9 +287,9 @@ function AppLayout() {
   );
 }
 
-/* Nadrzędny komponent weryfikujący sesję i decydujący pomiędzy widokiem logowania a załadowaniem reszty systemu */
+// Nadrzędny komponent decydujący o wyświetleniu ekranu logowania lub załadowaniu aplikacji.
 export default function App() {
-  /* Stany pochodzące z kontekstu autoryzacji informujące o ważności sesji oraz procesie jej wczytywania */
+  // Flagi sesji i autoryzacji zarządzające dostępem.
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -305,7 +305,7 @@ export default function App() {
   return (
     <StoreProvider>
       <Routes>
-        {/* Główna aplikacja z autentykacją */}
+        // Główna aplikacja z autentykacją
         <Route
           path="/*"
           element={!isAuthenticated ? <LoginPage /> : <AppLayout />}

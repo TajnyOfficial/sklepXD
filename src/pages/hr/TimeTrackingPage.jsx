@@ -3,7 +3,7 @@ import { useStore } from '../../contexts/StoreContext';
 import { supabase } from '../../lib/supabase';
 import { FiClock, FiCalendar, FiUser, FiInfo, FiRefreshCw } from 'react-icons/fi';
 
-/* Ewidencja Czasu Pracy (RCP): agreguje surowe dane o "odbiciach" w Kiosku i wyświetla je jako czytelne raporty + live tracking z wykorzystaniem Supabase Realtime */
+// Ewidencja Czasu Pracy (RCP): agreguje surowe dane o "odbiciach" w Kiosku i wyświetla je jako czytelne raporty + live tracking z wykorzystaniem Supabase Realtime
 export default function TimeTrackingPage() {
   const { attendance: initialAttendance, employees, isSupabase } = useStore();
   const [attendance, setAttendance] = useState(initialAttendance);
@@ -16,7 +16,7 @@ export default function TimeTrackingPage() {
     setAttendance(initialAttendance);
   }, [initialAttendance]);
 
-  /* Główna funkcja synchronizująca: wymusza twarde dociągnięcie ostatnich 500 wpisów (time_entries) prosto z tabeli PostgreSQL */
+  // Główna funkcja synchronizująca: wymusza twarde dociągnięcie ostatnich 500 wpisów (time_entries) prosto z tabeli PostgreSQL
   const refreshData = useCallback(async () => {
     if (!isSupabase) return;
     setRefreshing(true);
@@ -37,7 +37,7 @@ export default function TimeTrackingPage() {
     }
   }, [isSupabase]);
 
-  /* Mechanizm automatycznego podtrzymywania świeżości danych: łączy polling (co 30s) z natychmiastowymi powiadomieniami WebSockets (Supabase Realtime) */
+  // Mechanizm automatycznego podtrzymywania świeżości danych: łączy polling (co 30s) z natychmiastowymi powiadomieniami WebSockets (Supabase Realtime)
   useEffect(() => {
     if (!isSupabase) return;
 
@@ -58,7 +58,7 @@ export default function TimeTrackingPage() {
     };
   }, [isSupabase, refreshData]);
 
-  /* Proces ETL (Extract, Transform, Load) dla frontendu: łączy wpisy czasowe z nazwami pracowników i wylicza czas trwania (tzw. Enriching) */
+  // Proces ETL (Extract, Transform, Load) dla frontendu: łączy wpisy czasowe z nazwami pracowników i wylicza czas trwania (tzw. Enriching)
   const enrichedEntries = useMemo(() => {
     return attendance
       .filter(a => a.clock_in.startsWith(selectedMonth))
@@ -89,7 +89,7 @@ export default function TimeTrackingPage() {
       });
   }, [attendance, employees, selectedMonth]);
 
-  /* Silnik agregacyjny tworzący "Ranking/Podsumowanie": grupuje przepracowane godziny z całego miesiąca sumując je na każdego pracownika z osobna */
+  // Silnik agregacyjny tworzący "Ranking/Podsumowanie": grupuje przepracowane godziny z całego miesiąca sumując je na każdego pracownika z osobna
   const employeeSummaries = useMemo(() => {
     const summary = {};
     

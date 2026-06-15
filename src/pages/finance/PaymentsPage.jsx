@@ -133,7 +133,7 @@ export default function PaymentsPage() {
       ) : (
         <div className="grid-2" style={{ gap: 24 }}>
           
-          {/* TABELA: NALEŻNOŚCI */}
+          // TABELA: NALEŻNOŚCI
           <div className="card">
             <h3 className="mb-16 flex items-center" style={{ color: 'var(--success)', display: 'flex', gap: '8px' }}>
               <FiArrowUpCircle size={18} /> Czekamy na wpłatę (Należności)
@@ -173,7 +173,7 @@ export default function PaymentsPage() {
             )}
           </div>
 
-          {/* TABELA: ZOBOWIĄZANIA */}
+          // TABELA: ZOBOWIĄZANIA
           <div className="card">
             <h3 className="mb-16 flex items-center" style={{ color: 'var(--danger)', display: 'flex', gap: '8px' }}>
               <FiArrowDownCircle size={18} /> Musimy zapłacić (Zobowiązania)

@@ -7,12 +7,12 @@ import toast from 'react-hot-toast';
 
 const DEMO = [];
 
-/* Rejestr Przesunięć Międzymagazynowych (MM) śledzący transport wewnętrzny pomiędzy różnymi lokalizacjami w sklepie */
+// Rejestr Przesunięć Międzymagazynowych (MM) śledzący transport wewnętrzny pomiędzy różnymi lokalizacjami w sklepie
 export default function TransfersPage() {
-  /* Odczyt struktury magazynowej w celu zasilenia listy wyboru lokalizacji 'od' i 'do' */
+  // Odczyt struktury magazynowej w celu zasilenia listy wyboru lokalizacji 'od' i 'do'
   const { products, warehouseLocations } = useStore();
   
-  /* Tymczasowy lokalny stan dla dokumentów MM (docelowo powinien być zastąpiony tabelą Supabase tak jak Orders) */
+  // Tymczasowy lokalny stan dla dokumentów MM (docelowo powinien być zastąpiony tabelą Supabase tak jak Orders)
   const [transfers, setTransfers] = useState(DEMO);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ from: '', to: '', items: [{ product_name: '', qty: '' }], note: '' });
@@ -21,7 +21,7 @@ export default function TransfersPage() {
   function removeItem(i) { setForm(p => ({ ...p, items: p.items.filter((_, idx) => idx !== i) })); }
   function updateItem(i, field, val) { setForm(p => ({ ...p, items: p.items.map((item, idx) => idx === i ? { ...item, [field]: val } : item) })); }
 
-  /* Wygenerowanie i dodanie nowego dokumentu MM z poprawnym przeliczeniem statusu i weryfikacją pozycji dodanych przez użytkownika */
+  // Wygenerowanie i dodanie nowego dokumentu MM z poprawnym przeliczeniem statusu i weryfikacją pozycji dodanych przez użytkownika
   function handleSave() {
     if (!form.from || !form.to) { toast.error('Podaj lokalizację źródłową i docelową'); return; }
     if (form.from === form.to) { toast.error('Lokalizacja docelowa musi być inna niż źródłowa'); return; }

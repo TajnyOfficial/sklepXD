@@ -44,7 +44,7 @@ export default function AdditionalSettingsPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
 
-        {/* Integracje */}
+        // Integracje
         <div className="card">
           <div className="flex-between mb-16">
             <h3>Integracje zewnętrzne</h3>

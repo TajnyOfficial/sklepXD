@@ -5,15 +5,15 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 
-// Importy poszczególnych modułów aplikacji (sub-aplikacji)
+// Importy poszczególnych modułów aplikacji
 import App from './App.jsx';
 import KioskApp from './apps/KioskApp';
 import POSApp from './apps/POSApp';
 import MobileApp from './apps/MobileApp';
 
-/* Główna brama routingu decydująca, którą z sub-aplikacji (Kiosk, POS, Mobile, Panel) załadować na podstawie URL */
+// Główny router kierujący ruch do odpowiedniej aplikacji na podstawie prefiksu w URL (Kiosk, POS, Mobile, Panel).
 function RootGateway() {
-  /* Aktualna ścieżka z paska adresu przeglądarki */
+  // Pobranie bieżącej ścieżki z adresu przeglądarki.
   const path = window.location.pathname;
 
   if (path.startsWith('/kiosk')) {
@@ -28,7 +28,7 @@ function RootGateway() {
     return <MobileApp />;
   }
 
-  // Fallback dla głównej aplikacji panelu administracyjnego
+  // Domyślna aplikacja (Panel Administracyjny) ładująca się dla wszystkich innych ścieżek.
   return (
     <BrowserRouter>
       <AuthProvider>
@@ -38,8 +38,7 @@ function RootGateway() {
   );
 }
 
-// Inicjalizacja głównego korzenia (root) aplikacji React 18+
-// Renderuje bramę RootGateway otoczoną StrictMode oraz globalnym Toasterem do powiadomień
+// Inicjalizacja React 18: renderowanie RootGateway ze StrictMode i globalnym systemem powiadomień Toaster.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RootGateway />

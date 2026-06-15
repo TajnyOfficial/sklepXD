@@ -21,12 +21,12 @@ const QUICK_TILES = [
   { id: 'advice', name: 'Konsultacja fachowa', price: 0, icon: '💡' },
 ];
 
-/* Zaawansowany i odporny na błędy terminal sprzedażowy (POS) integrujący sprzęt, transakcje, koszyk oraz wydruki paragonów */
+// Zaawansowany i odporny na błędy terminal sprzedażowy (POS) integrujący sprzęt, transakcje, koszyk oraz wydruki paragonów
 export default function POSPage() {
-  /* Import obszernego zestawu funkcji sklepowych takich jak: koszyk, magazyn, dokumenty końcowe i logi audytu */
+  // Import obszernego zestawu funkcji sklepowych takich jak: koszyk, magazyn, dokumenty końcowe i logi audytu
   const { products, findProduct, findProductByBarcode, getCrossSellProducts, customers, getCustomerDiscount, addTransaction, updateProductStock, saveDocument, addPosLog, posSession } = useStore();
   
-  /* Pobranie identyfikatora sprzedawcy oraz weryfikacja jego uprawnień (np. do zniżek lub anulowania) */
+  // Pobranie identyfikatora sprzedawcy oraz weryfikacja jego uprawnień (np. do zniżek lub anulowania)
   const { profile, can } = useAuth();
 
   const [cart, setCart] = useState([]);
@@ -44,7 +44,7 @@ export default function POSPage() {
   const [isSearchingNip, setIsSearchingNip] = useState(false);
   const searchRef = useRef(null);
 
-  /* Główna logika dodawania asortymentu do paragonu; automatycznie podbija ilość lub dodaje unikalny nowy wiersz z ceną */
+  // Główna logika dodawania asortymentu do paragonu; automatycznie podbija ilość lub dodaje unikalny nowy wiersz z ceną
   const addToCart = useCallback((product, qty = 1) => {
     if (!product) return;
     setCart(prev => {
@@ -77,7 +77,7 @@ export default function POSPage() {
     toast.success(`Dodano: ${product.name}`, { duration: 1500 });
   }, [getCrossSellProducts]);
 
-  /* Nasłuchiwacz zdarzeń podłączonego czytnika kodów kreskowych (emulacja klawiatury + enter), zablokowany gdy trwa płatność */
+  // Nasłuchiwacz zdarzeń podłączonego czytnika kodów kreskowych (emulacja klawiatury + enter), zablokowany gdy trwa płatność
   useBarcodeScannerInput(useCallback((scannedCode) => {
     if (!scannedCode) return;
     const found = findProductByBarcode(scannedCode) || findProduct(scannedCode)[0];
@@ -89,7 +89,7 @@ export default function POSPage() {
     }
   }, [findProductByBarcode, findProduct, addToCart]), { disabled: showPayment });
 
-  /* Obsługa wyszukiwarki ręcznej: odpala wyszukiwanie dopiero od 2 znaków aby zmniejszyć obciążenie interfejsu */
+  // Obsługa wyszukiwarki ręcznej: odpala wyszukiwanie dopiero od 2 znaków aby zmniejszyć obciążenie interfejsu
   const handleSearch = useCallback((query) => {
     setSearchQuery(query);
     if (query && query.trim().length >= 2) {
@@ -171,7 +171,7 @@ export default function POSPage() {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [cashGiven, setCashGiven] = useState('');
 
-  /* Funkcja weryfikująca kontrahenta w lokalnej bazie, a przy jej braku odpytująca bezpośrednio serwery Ministerstwa Finansów (Biała lista) */
+  // Funkcja weryfikująca kontrahenta w lokalnej bazie, a przy jej braku odpytująca bezpośrednio serwery Ministerstwa Finansów (Biała lista)
   const handleNipLookup = async () => {
     const cleanNip = nip.replace(/[^0-9]/g, '');
     if (cleanNip.length !== 10) {
@@ -239,7 +239,7 @@ export default function POSPage() {
     setIsSearchingNip(false);
   };
 
-  /* Otwarcie okna zamykającego transakcję (finalizacja); resetuje uprzednio wpisane dane kontrahenta, zabezpieczając koszyk */
+  // Otwarcie okna zamykającego transakcję (finalizacja); resetuje uprzednio wpisane dane kontrahenta, zabezpieczając koszyk
   function openPayment() {
     if (cart.length === 0) return;
     setShowPayment(true);
@@ -251,7 +251,7 @@ export default function POSPage() {
     setBuyerAddress('');
   }
 
-  /* Najbardziej krytyczna funkcja systemu; zdejmuje stany magazynowe, zapisuje paragony, zamyka płatność i czyści koszyk w jednej fali */
+  // Najbardziej krytyczna funkcja systemu; zdejmuje stany magazynowe, zapisuje paragony, zamyka płatność i czyści koszyk w jednej fali
   async function processPayment() {
     try {
       const txnId = String(Date.now());
@@ -323,7 +323,7 @@ export default function POSPage() {
     }
   }
 
-  /* Funkcjonalność odłożenia koszyka na później ("zaparkowania"), zapisująca go lokalnie w przeglądarce kasjera */
+  // Funkcjonalność odłożenia koszyka na później ("zaparkowania"), zapisująca go lokalnie w przeglądarce kasjera
   function parkReceipt() {
     if (cart.length === 0) return;
     const parked = JSON.parse(localStorage.getItem('parkedReceipts') || '[]');
@@ -342,9 +342,9 @@ export default function POSPage() {
 
   return (
     <div className="pos-layout">
-      {/* Left: Products */}
+      // Left: Products
       <div className="pos-products">
-        {/* Search bar */}
+        // Search bar
         <div style={{ position: 'relative', marginBottom: 16 }}>
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: 1, position: 'relative' }}>
@@ -387,7 +387,7 @@ export default function POSPage() {
             </button>
           </div>
 
-          {/* Search results dropdown */}
+          // Search results dropdown
           {showSearch && searchResults.length > 0 && (
             <div style={{
               position: 'absolute',
@@ -438,7 +438,7 @@ export default function POSPage() {
           )}
         </div>
 
-        {/* Quick tiles */}
+        // Quick tiles
         {showTiles && (
           <div>
             <h4 className="text-muted" style={{ marginBottom: 8, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -460,7 +460,7 @@ export default function POSPage() {
           </div>
         )}
 
-        {/* Cross-sell suggestions */}
+        // Cross-sell suggestions
         {crossSellProducts.length > 0 && (
           <div className="card mt-16" style={{ borderColor: 'var(--accent-border)', background: 'var(--accent-bg)' }}>
             <div className="flex-between mb-8">
@@ -491,7 +491,7 @@ export default function POSPage() {
         )}
       </div>
 
-      {/* Right: Cart */}
+      // Right: Cart
       <div className="pos-cart">
         <div className="pos-cart-header">
           <h3 style={{ fontSize: '1rem' }}>
@@ -511,7 +511,7 @@ export default function POSPage() {
         </div>
 
 
-        {/* Cart items */}
+        // Cart items
         <div className="pos-cart-items">
           {cart.length === 0 ? (
             <div className="empty-state" style={{ padding: '40px 20px' }}>
@@ -550,7 +550,7 @@ export default function POSPage() {
           )}
         </div>
 
-        {/* Summary */}
+        // Summary
         <div className="pos-cart-summary">
           <div className="flex-between text-sm" style={{ marginBottom: 4 }}>
             <span className="text-muted">Suma częściowa</span>
@@ -586,7 +586,7 @@ export default function POSPage() {
         </div>
       </div>
 
-      {/* Payment Modal */}
+      // Payment Modal
       {showPayment && (
         <div className="modal-overlay" onClick={() => setShowPayment(false)}>
           <div className="modal modal-lg" onClick={e => e.stopPropagation()}>
@@ -732,7 +732,7 @@ export default function POSPage() {
         </div>
       )}
 
-      {/* Camera Scanner Modal */}
+      // Camera Scanner Modal
       {showScanner && (
         <BarcodeScanner
           onConfirm={handleCameraScan}

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { FiX } from 'react-icons/fi';
 
-/* Uniwersalny komponent nakładki w formie okna modalnego, blokujący przewijanie strony i obsługujący Escape */
+// Uniwersalna nakładka blokująca tło (Modal). Obsługuje zamykanie klawiszem Escape.
 export default function Modal({ isOpen, onClose, title, size = '', children, footer }) {
-  /* Referencja do tła (backdrop) używana do zamykania modala przy kliknięciu na obszar obok okienka */
+  // Referencja do tła, aby kliknięcie poza oknem zamykało modal.
   const overlayRef = useRef(null);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function Modal({ isOpen, onClose, title, size = '', children, foo
   }, [isOpen]);
 
   useEffect(() => {
-    /* Funkcja pomocnicza zamykająca okno modalne pod wpływem naciśnięcia klawisza Escape */
+    // Zamknij modal po wciśnięciu klawisza Escape.
     function onKey(e) { if (e.key === 'Escape') onClose(); }
     if (isOpen) window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

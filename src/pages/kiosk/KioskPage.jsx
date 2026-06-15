@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import toast from 'react-hot-toast';
 
-// ── Zegar na żywo ────────────────────────────────────────────────────────────
+// Zegar na żywo
 function LiveClock() {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -25,7 +25,7 @@ function LiveClock() {
   );
 }
 
-// ── Wyświetlacz PIN ─────────────────────────────────────────────────────────
+// Wyświetlacz PIN
 function PinDisplay({ value }) {
   const dots = Array.from({ length: 4 }, (_, i) => ({
     filled: i < value.length,
@@ -51,7 +51,7 @@ function PinDisplay({ value }) {
   );
 }
 
-// ── Klawisz klawiatury numerycznej ───────────────────────────────────────────
+// Klawisz klawiatury numerycznej
 function NumKey({ label, sub, onClick, danger, wide }) {
   const [pressed, setPressed] = useState(false);
   return (
@@ -86,7 +86,7 @@ function NumKey({ label, sub, onClick, danger, wide }) {
   );
 }
 
-// ── Status po wpisaniu PIN ────────────────────────────────────────────────────
+// Status po wpisaniu PIN
 const STATUS_CONFIG = {
   idle: { bg: 'var(--bg-primary)', color: 'var(--text-primary)', icon: '', text: '' },
   checking: { bg: 'var(--bg-card)', color: 'var(--text-muted)', icon: '⏳', text: 'Weryfikacja...' },
@@ -95,7 +95,7 @@ const STATUS_CONFIG = {
   error: { bg: 'var(--danger-bg)', color: 'var(--danger)', icon: '❌', text: 'Błąd' },
 };
 
-/* Statyczny ekran powitalny terminala (Rejestracja Czasu Pracy) z wbudowanym zegarem i klawiaturą PIN umożliwiającą rozpoczęcie oraz zakończenie zmiany pracownika */
+// Statyczny ekran powitalny terminala (Rejestracja Czasu Pracy) z wbudowanym zegarem i klawiaturą PIN umożliwiającą rozpoczęcie oraz zakończenie zmiany pracownika
 export default function KioskPage() {
   const { clockInOutEmployee } = useStore();
   const [pin, setPin] = useState('');

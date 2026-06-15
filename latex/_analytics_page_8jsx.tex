@@ -1,0 +1,95 @@
+\doxysection{src/\+pages/\+finance/\+\+Analytics\+Page.jsx File Reference}
+\hypertarget{_analytics_page_8jsx}{}\label{_analytics_page_8jsx}\index{src/pages/finance/AnalyticsPage.jsx@{src/pages/finance/AnalyticsPage.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function default \doxymbox{\hyperlink{_analytics_page_8jsx_a241b298cd2327ba6ca3801ec156d3330}{Analytics\+Page}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_analytics_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \doxymbox{\hyperlink{_analytics_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04}{React}}
+\item 
+import \doxymbox{\hyperlink{_analytics_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \doxymbox{\hyperlink{helpers_8js_a80da30ad61600031580cff63fac33683}{format\+Currency}} \} from \textquotesingle{}../\+../\+utils/\+helpers\textquotesingle{}
+\item 
+\doxymbox{\hyperlink{_analytics_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot \doxymbox{\hyperlink{_analytics_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}{toast}}
+\item 
+const \doxymbox{\hyperlink{_analytics_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}} = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+URL
+\item 
+const \doxymbox{\hyperlink{_analytics_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}} = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+ANON\+\_\+\+KEY
+\item 
+const \doxymbox{\hyperlink{_analytics_page_8jsx_a4835e349e6bbb23837da2bcb675e423c}{supabase}} = create\+Client(\doxymbox{\hyperlink{_analytics_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}}, \doxymbox{\hyperlink{_analytics_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}})
+\item 
+const \doxymbox{\hyperlink{_analytics_page_8jsx_aea834b6dbcba95025e8ca456a77d0c13}{Custom\+Tooltip}}
+\end{DoxyCompactItemize}
+
+
+\label{_analytics_page_8jsx_doc-func-members}
+\Hypertarget{_analytics_page_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_analytics_page_8jsx_a241b298cd2327ba6ca3801ec156d3330}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!AnalyticsPage@{AnalyticsPage}}
+\index{AnalyticsPage@{AnalyticsPage}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{AnalyticsPage()}{AnalyticsPage()}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_a241b298cd2327ba6ca3801ec156d3330} 
+function default Analytics\+Page (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{_analytics_page_8jsx_doc-var-members}
+\Hypertarget{_analytics_page_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_analytics_page_8jsx_aea834b6dbcba95025e8ca456a77d0c13}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!CustomTooltip@{CustomTooltip}}
+\index{CustomTooltip@{CustomTooltip}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{CustomTooltip}{CustomTooltip}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_aea834b6dbcba95025e8ca456a77d0c13} 
+const Custom\+Tooltip}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ (\{\ active,\ payload,\ label\ \})\ =>\ \{}
+\DoxyCodeLine{\ \ \textcolor{keywordflow}{if}\ (!active\ ||\ !payload)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{null};}
+\DoxyCodeLine{\ \ \textcolor{keywordflow}{return}\ (}
+\DoxyCodeLine{\ \ \ \ <div\ style=\{\{\ background:\ \textcolor{stringliteral}{'\#1a1c28'},\ border:\ \textcolor{stringliteral}{'1px\ solid\ \#2a2d3e'},\ borderRadius:\ 8,\ padding:\ \textcolor{stringliteral}{'8px\ 12px'},\ fontSize:\ \textcolor{stringliteral}{'0.8rem'}\ \}\}>}
+\DoxyCodeLine{\ \ \ \ \ \ <div\ style=\{\{\ fontWeight:\ 600,\ marginBottom:\ 4\ \}\}>\{label\}</div>}
+\DoxyCodeLine{\ \ \ \ \ \ \{payload.map((p,\ i)\ =>\ <div\ key=\{i\}\ style=\{\{\ color:\ p.color\ \}\}>\{p.name\}:\ \{\doxymbox{\hyperlink{helpers_8js_a80da30ad61600031580cff63fac33683}{formatCurrency}}(p.value)\}</div>)\}}
+\DoxyCodeLine{\ \ \ \ </div>}
+\DoxyCodeLine{\ \ );}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\Hypertarget{_analytics_page_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!import@{import}}
+\index{import@{import}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \doxymbox{\hyperlink{helpers_8js_a80da30ad61600031580cff63fac33683}{format\+Currency}} \} from \textquotesingle{}../\+../\+utils/\+helpers\textquotesingle{}}
+
+\Hypertarget{_analytics_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!React@{React}}
+\index{React@{React}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{React}{React}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04} 
+\doxymbox{\hyperlink{_analytics_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} React}
+
+\Hypertarget{_analytics_page_8jsx_a4835e349e6bbb23837da2bcb675e423c}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!supabase@{supabase}}
+\index{supabase@{supabase}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabase}{supabase}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_a4835e349e6bbb23837da2bcb675e423c} 
+const supabase = create\+Client(\doxymbox{\hyperlink{_analytics_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}}, \doxymbox{\hyperlink{_analytics_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}})}
+
+\Hypertarget{_analytics_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!supabaseAnonKey@{supabaseAnonKey}}
+\index{supabaseAnonKey@{supabaseAnonKey}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabaseAnonKey}{supabaseAnonKey}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_a86795d5e5667931ab7381f32ebd00f46} 
+const supabase\+Anon\+Key = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+ANON\+\_\+\+KEY}
+
+\Hypertarget{_analytics_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!supabaseUrl@{supabaseUrl}}
+\index{supabaseUrl@{supabaseUrl}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabaseUrl}{supabaseUrl}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_ab12664b12f6ee28c247c6245953d9bee} 
+const supabase\+Url = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+URL}
+
+\Hypertarget{_analytics_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}\index{AnalyticsPage.jsx@{AnalyticsPage.jsx}!toast@{toast}}
+\index{toast@{toast}!AnalyticsPage.jsx@{AnalyticsPage.jsx}}
+\doxysubsubsection{\texorpdfstring{toast}{toast}}
+{\footnotesize\ttfamily \label{_analytics_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a} 
+\doxymbox{\hyperlink{_analytics_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot toast}
+

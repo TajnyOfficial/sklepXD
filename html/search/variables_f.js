@@ -1,0 +1,17 @@
+var searchData=
+[
+  ['s_0',['s',['../_invoice_template_8jsx.html#aa081f6dbad4a9b0f8df1870c26bd4577',1,'InvoiceTemplate.jsx']]],
+  ['scan_5fanimation_5fcss_1',['SCAN_ANIMATION_CSS',['../_barcode_scanner_8jsx.html#a11296f7556bd7b2f5422e474aab04d4f',1,'BarcodeScanner.jsx']]],
+  ['schedulepage_2',['SchedulePage',['../_app_8jsx.html#a9bdafa61e94210f005f2271714feeb04',1,'App.jsx']]],
+  ['securitypage_3',['SecurityPage',['../_app_8jsx.html#a406784ab2c15e74546ae5c6267de89f6',1,'App.jsx']]],
+  ['status_5fconfig_4',['STATUS_CONFIG',['../_kiosk_page_8jsx.html#a10624e11d3ad9b82899187c846a8f2fb',1,'KioskPage.jsx']]],
+  ['statuses_5',['STATUSES',['../_tasks_page_8jsx.html#a5a06f4abd1c3db5845451539cdbd023f',1,'TasksPage.jsx']]],
+  ['stockoverviewpage_6',['StockOverviewPage',['../_app_8jsx.html#ae349bed0d12e4d78c6e75b12f7617d4d',1,'App.jsx']]],
+  ['storecontext_7',['StoreContext',['../_store_context_8jsx.html#a9fd62eaa322120d90e90c480824da8dd',1,'StoreContext.jsx']]],
+  ['storesettingspage_8',['StoreSettingsPage',['../_app_8jsx.html#ad5952ad7d81d666a189191363a0ec502',1,'App.jsx']]],
+  ['styles_9',['styles',['../_invoice_document_8jsx.html#a66a53e42c69ca6e92f8c7dc78b679fbd',1,'InvoiceDocument.jsx']]],
+  ['supabase_10',['supabase',['../supabase_8js.html#ae1bce7915776eb9660abe127f1b355d1',1,'supabase:&#160;supabase.js'],['../_analytics_page_8jsx.html#a4835e349e6bbb23837da2bcb675e423c',1,'supabase:&#160;AnalyticsPage.jsx'],['../_cash_report_page_8jsx.html#a4835e349e6bbb23837da2bcb675e423c',1,'supabase:&#160;CashReportPage.jsx'],['../_expenses_page_8jsx.html#a4835e349e6bbb23837da2bcb675e423c',1,'supabase:&#160;ExpensesPage.jsx'],['../_invoices_page_8jsx.html#a4835e349e6bbb23837da2bcb675e423c',1,'supabase:&#160;InvoicesPage.jsx'],['../_payments_page_8jsx.html#a4835e349e6bbb23837da2bcb675e423c',1,'supabase:&#160;PaymentsPage.jsx'],['../scratch__test__supabase_8js.html#a4835e349e6bbb23837da2bcb675e423c',1,'supabase:&#160;scratch_test_supabase.js']]],
+  ['supabaseanonkey_11',['supabaseAnonKey',['../supabase_8js.html#a86795d5e5667931ab7381f32ebd00f46',1,'supabaseAnonKey:&#160;supabase.js'],['../_analytics_page_8jsx.html#a86795d5e5667931ab7381f32ebd00f46',1,'supabaseAnonKey:&#160;AnalyticsPage.jsx'],['../_cash_report_page_8jsx.html#a86795d5e5667931ab7381f32ebd00f46',1,'supabaseAnonKey:&#160;CashReportPage.jsx'],['../_expenses_page_8jsx.html#a86795d5e5667931ab7381f32ebd00f46',1,'supabaseAnonKey:&#160;ExpensesPage.jsx'],['../_invoices_page_8jsx.html#a86795d5e5667931ab7381f32ebd00f46',1,'supabaseAnonKey:&#160;InvoicesPage.jsx'],['../_payments_page_8jsx.html#a86795d5e5667931ab7381f32ebd00f46',1,'supabaseAnonKey:&#160;PaymentsPage.jsx']]],
+  ['supabaseurl_12',['supabaseUrl',['../supabase_8js.html#ab12664b12f6ee28c247c6245953d9bee',1,'supabaseUrl:&#160;supabase.js'],['../_analytics_page_8jsx.html#ab12664b12f6ee28c247c6245953d9bee',1,'supabaseUrl:&#160;AnalyticsPage.jsx'],['../_cash_report_page_8jsx.html#ab12664b12f6ee28c247c6245953d9bee',1,'supabaseUrl:&#160;CashReportPage.jsx'],['../_expenses_page_8jsx.html#ab12664b12f6ee28c247c6245953d9bee',1,'supabaseUrl:&#160;ExpensesPage.jsx'],['../_invoices_page_8jsx.html#ab12664b12f6ee28c247c6245953d9bee',1,'supabaseUrl:&#160;InvoicesPage.jsx'],['../_payments_page_8jsx.html#ab12664b12f6ee28c247c6245953d9bee',1,'supabaseUrl:&#160;PaymentsPage.jsx'],['../scratch__test__supabase_8js.html#ab12664b12f6ee28c247c6245953d9bee',1,'supabaseUrl:&#160;scratch_test_supabase.js']]],
+  ['supplierspage_13',['SuppliersPage',['../_app_8jsx.html#a1bf29a6434600afe00594fe3737e64df',1,'App.jsx']]]
+];

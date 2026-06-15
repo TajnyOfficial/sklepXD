@@ -10,18 +10,18 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-/* Ekran powitalny panelu administracyjnego (Dashboard) wyświetlający dzisiejsze statystyki i ostrzeżenia magazynowe */
+// Ekran powitalny panelu administracyjnego (Dashboard) wyświetlający dzisiejsze statystyki i ostrzeżenia magazynowe
 export default function DashboardPage() {
-  /* Odczytanie z głównego stanu sklepu list: produktów, transakcji z kasy POS oraz dokumentów, a także helpera do sprawdzania braków na magazynie */
+  // Odczytanie z głównego stanu sklepu list: produktów, transakcji z kasy POS oraz dokumentów, a także helpera do sprawdzania braków na magazynie
   const { products, transactions, documents, getLowStockProducts, categories, saveProduct } = useStore();
   
-  /* Pobranie profilu aktualnego użytkownika wraz z funkcją weryfikującą dostęp na bazie ról (RBAC) */
+  // Pobranie profilu aktualnego użytkownika wraz z funkcją weryfikującą dostęp na bazie ról (RBAC)
   const { profile, can } = useAuth();
 
-  /* Stan do obsługi wpisywania cen bezpośrednio w alertach */
+  // Stan do obsługi wpisywania cen bezpośrednio w alertach
   const [priceValues, setPriceValues] = useState({});
 
-  /* Filtrowanie wszystkich transakcji tylko do tych wygenerowanych dzisiaj w celu stworzenia statystyk dobowych */
+  // Filtrowanie wszystkich transakcji tylko do tych wygenerowanych dzisiaj w celu stworzenia statystyk dobowych
   const todayTransactions = transactions.filter(t => {
     if (!t.created_at) return false;
     const localTxDate = new Date(t.created_at).toLocaleDateString('en-CA');
@@ -29,13 +29,13 @@ export default function DashboardPage() {
     return localTxDate === localToday;
   });
 
-  /* Zsumowanie łącznego dochodu (Obrót dzisiaj) z przefiltrowanych transakcji dobowych */
+  // Zsumowanie łącznego dochodu (Obrót dzisiaj) z przefiltrowanych transakcji dobowych
   const todayRevenue = todayTransactions.reduce((sum, t) => sum + (parseFloat(t.total) || 0), 0);
   
-  /* Odczyt ilości wszystkich zarejestrowanych zwrotów towarowych z bazy dokumentów */
+  // Odczyt ilości wszystkich zarejestrowanych zwrotów towarowych z bazy dokumentów
   const totalReturns = documents ? documents.filter(d => d.type === 'return').length : 0;
   
-  /* Pobranie tablicy produktów, których stan magazynowy jest poniżej minimum */
+  // Pobranie tablicy produktów, których stan magazynowy jest poniżej minimum
   const lowStock = getLowStockProducts();
 
   // Wyszukiwanie produktów z kategorii "Wyprzedaż" bez ustalonej ceny sprzedaży (null lub 0)
@@ -85,7 +85,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats Grid */}
+      // Stats Grid
       {can(PERMISSIONS.POS_ACCESS) && (
         <div className="grid-4 mb-24">
           <div className="stat-card">
@@ -128,7 +128,7 @@ export default function DashboardPage() {
 
       <div className="grid-2" style={{ gap: 24 }}>
         
-        {/* Zamieniona sekcja ostatnich transakcji -> ALERTY OGÓLNE */}
+        // Zamieniona sekcja ostatnich transakcji -> ALERTY OGÓLNE
         <div className="card">
           <div className="flex-between mb-16">
             <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Szybkie uzupełnianie ceny bezpośrednio z Dashboardu */}
+                  // Szybkie uzupełnianie ceny bezpośrednio z Dashboardu
                   <div style={{ 
                     display: 'flex', 
                     gap: 8, 
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Low stock alerts */}
+        // Low stock alerts
         <div className="card">
           <div className="flex-between mb-16">
             <h3>

@@ -10,7 +10,7 @@ import Modal from '../../components/Modal';
 import { InvoiceDownloadBtn } from '../../components/Invoice/InvoiceDownloadBtn';
 import toast from 'react-hot-toast';
 
-// ── Stałe ────────────────────────────────────────────────────────────────────
+// Stałe
 const TYPE_MAP = { receipt: 'Paragon', invoice: 'Faktura VAT', proforma: 'Proforma', wz: 'WZ', kp: 'KP', kw: 'KW' };
 const TYPE_PREFIX = { receipt: 'PAR', invoice: 'FV', proforma: 'PRO', wz: 'WZ', kp: 'KP', kw: 'KW' };
 const TYPE_BADGE = { receipt: 'badge-ghost', invoice: 'badge-primary', proforma: 'badge-info', wz: 'badge-warning', kp: 'badge-success', kw: 'badge-danger' };
@@ -36,7 +36,7 @@ function emptyDoc(profile) {
   };
 }
 
-// ── Komponent wiersza pozycji ─────────────────────────────────────────────────
+// Komponent wiersza pozycji
 function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
   const net = (parseFloat(item.qty) || 0) * (parseFloat(item.price_net) || 0);
   const vat = ['zw'].includes(item.vat_rate) ? 0 : net * (parseFloat(item.vat_rate) / 100);
@@ -96,7 +96,7 @@ function LineItemRow({ item, index, onChange, onRemove, canRemove }) {
   );
 }
 
-/* Centralne Archiwum Dokumentów (Paragony, WZ, Faktury). Oferuje zaawansowany kreator nowych faktur oraz podgląd stylizowany na kartkę A4 (Premium Sheet View) */
+// Centralne Archiwum Dokumentów (Paragony, WZ, Faktury). Oferuje zaawansowany kreator nowych faktur oraz podgląd stylizowany na kartkę A4 (Premium Sheet View)
 export default function DocumentsPage() {
   const { documents, saveDocument, customers, profile } = useStore();
   const [typeFilter, setTypeFilter] = useState('all');
@@ -121,7 +121,7 @@ export default function DocumentsPage() {
     return true;
   });
 
-  // ── Obsługa formularza ────────────────────────────────────────────────────
+  // Obsługa formularza
   function handleAdd() {
     setForm(emptyDoc(profile));
     setShowModal(true);
@@ -185,7 +185,7 @@ export default function DocumentsPage() {
     setShowPdfModal(true);
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // Render
   return (
     <div className="page animate-fadeIn">
       <div className="page-header">
@@ -199,7 +199,7 @@ export default function DocumentsPage() {
         </div>
       </div>
 
-      {/* Filtry */}
+      // Filtry
       <div className="flex gap-12 mb-16" style={{ alignItems: 'center' }}>
         <div style={{ flex: 1, position: 'relative' }}>
           <FiSearch style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -211,7 +211,7 @@ export default function DocumentsPage() {
         </select>
       </div>
 
-      {/* Tabela */}
+      // Tabela
       <div className="table-container">
         <table>
           <thead>
@@ -246,10 +246,10 @@ export default function DocumentsPage() {
         </table>
       </div>
 
-      {/* ── Modal: Nowy dokument (pełny formularz faktury) ── */}
+      // ── Modal: Nowy dokument (pełny formularz faktury) ──
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Nowy dokument" size="modal-lg" footer={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          {/* Przycisk PDF wewnątrz modala — widoczny gdy formularz jest gotowy */}
+          // Przycisk PDF wewnątrz modala — widoczny gdy formularz jest gotowy
           {form && form.type === 'invoice' && (
             <InvoiceDownloadBtn invoiceData={form} />
           )}
@@ -262,7 +262,7 @@ export default function DocumentsPage() {
         {form && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-            {/* Typ i daty */}
+            // Typ i daty
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
               <div className="input-group">
                 <label>Typ dokumentu</label>
@@ -291,7 +291,7 @@ export default function DocumentsPage() {
               </select>
             </div>
 
-            {/* Sprzedawca i Nabywca */}
+            // Sprzedawca i Nabywca
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>Sprzedawca</div>
@@ -328,7 +328,7 @@ export default function DocumentsPage() {
               </div>
             </div>
 
-            {/* Pozycje na fakturze */}
+            // Pozycje na fakturze
             <div>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
                 Pozycje na fakturze *
@@ -371,7 +371,7 @@ export default function DocumentsPage() {
         )}
       </Modal>
 
-      {/* ── Modal: Pobierz PDF istniejącego dokumentu ── */}
+      // ── Modal: Pobierz PDF istniejącego dokumentu ──
       <Modal
         isOpen={showPdfModal}
         onClose={() => setShowPdfModal(false)}
@@ -407,7 +407,7 @@ export default function DocumentsPage() {
         )}
       </Modal>
 
-      {/* ── Modal: Podgląd dokumentu (Premium Sheet View) ── */}
+      // ── Modal: Podgląd dokumentu (Premium Sheet View) ──
       <Modal
         isOpen={showPreviewModal}
         onClose={() => setShowPreviewModal(false)}
@@ -431,7 +431,7 @@ export default function DocumentsPage() {
             fontFamily: 'var(--font-sans)',
             lineHeight: 1.5,
           }}>
-            {/* Header: Logo, Typ & Numer */}
+            // Header: Logo, Typ & Numer
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--border-primary)', paddingBottom: 16, marginBottom: 20 }}>
               <div>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -447,13 +447,13 @@ export default function DocumentsPage() {
               </div>
             </div>
 
-            {/* Sprzedawca i Nabywca */}
+            // Sprzedawca i Nabywca
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
               <div style={{ padding: 16, background: 'var(--bg-subtle, rgba(255, 255, 255, 0.02))', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-light)', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.05em' }}>
                   Sprzedawca
                 </div>
-                <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: 4 }}>SklepXD Sp. z o.o.</div>
+                <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: 4 }}>Sklep Sp. z o.o.</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 2 }}>ul. Przykładowa 1</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 2 }}>00-001 Warszawa</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>NIP: 1234567890</div>
@@ -473,7 +473,7 @@ export default function DocumentsPage() {
               </div>
             </div>
 
-            {/* Tabela pozycji */}
+            // Tabela pozycji
             <div style={{ overflowX: 'auto', marginBottom: 20 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
@@ -514,7 +514,7 @@ export default function DocumentsPage() {
               </table>
             </div>
 
-            {/* Podsumowanie */}
+            // Podsumowanie
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'start', borderTop: '2px solid var(--border-primary)', paddingTop: 16 }}>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                 <div>Sposób płatności: <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>

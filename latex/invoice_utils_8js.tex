@@ -1,0 +1,60 @@
+\doxysection{src/\+utils/\+invoice\+Utils.js File Reference}
+\hypertarget{invoice_utils_8js}{}\label{invoice_utils_8js}\index{src/utils/invoiceUtils.js@{src/utils/invoiceUtils.js}}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+export const \doxymbox{\hyperlink{invoice_utils_8js_a7f22343365df622cd810152b79b49e77}{calculate\+Invoice\+Data}}
+\item 
+export const \doxymbox{\hyperlink{invoice_utils_8js_affe91d64e62c912fc6b52f92913588b5}{format\+PDFCurrency}}
+\end{DoxyCompactItemize}
+
+
+\label{invoice_utils_8js_doc-var-members}
+\Hypertarget{invoice_utils_8js_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{invoice_utils_8js_a7f22343365df622cd810152b79b49e77}\index{invoiceUtils.js@{invoiceUtils.js}!calculateInvoiceData@{calculateInvoiceData}}
+\index{calculateInvoiceData@{calculateInvoiceData}!invoiceUtils.js@{invoiceUtils.js}}
+\doxysubsubsection{\texorpdfstring{calculateInvoiceData}{calculateInvoiceData}}
+{\footnotesize\ttfamily \label{invoice_utils_8js_a7f22343365df622cd810152b79b49e77} 
+export const calculate\+Invoice\+Data}
+
+Moduł narzędziowy do kalkulacji faktur VAT (zgodnie z polskimi przepisami prawnymi).
+
+Zastosowanie:\+ Zawiera logikę matematyczną i finansową niezbędną do przeliczania wartości netto/\+brutto i grupowania ich na poprawne, wymagane w Polsce "{}podsumowania VAT"{} per stawka. Przelicza pozycje faktury, dodaje wartości cząstkowe dla poszczególnych wierszy i tworzy globalne podsumowanie wartości podzielone na poszczególne stawki VAT.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Object\}} & invoice -\/ Zarys obiektu faktury z danymi nagłówkowymi \\
+\hline
+{\em \{\+Array\}} & invoice.\+items -\/ Lista surowych pozycji faktury (np. \{ qty, unit\+Price\+Net, vat\+Rate \}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{Object\texorpdfstring{$\vert$}{|}null\} Wzbogacony obiekt faktury zawierający {\ttfamily vat\+Summary} i globalne {\ttfamily total} 
+\end{DoxyReturn}
+\Hypertarget{invoice_utils_8js_affe91d64e62c912fc6b52f92913588b5}\index{invoiceUtils.js@{invoiceUtils.js}!formatPDFCurrency@{formatPDFCurrency}}
+\index{formatPDFCurrency@{formatPDFCurrency}!invoiceUtils.js@{invoiceUtils.js}}
+\doxysubsubsection{\texorpdfstring{formatPDFCurrency}{formatPDFCurrency}}
+{\footnotesize\ttfamily \label{invoice_utils_8js_affe91d64e62c912fc6b52f92913588b5} 
+export const format\+PDFCurrency}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ (val)\ =>\ \{}
+\DoxyCodeLine{\ \ \textcolor{keywordflow}{return}\ (val\ ||\ 0).toLocaleString(\textcolor{stringliteral}{'pl-\/PL'},\ \{}
+\DoxyCodeLine{\ \ \ \ minimumFractionDigits:\ 2,}
+\DoxyCodeLine{\ \ \ \ maximumFractionDigits:\ 2}
+\DoxyCodeLine{\ \ \})\ +\ \textcolor{stringliteral}{'\ PLN'};}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+Formatuje liczbę do postaci walutowej przystosowanej pod widok do wydruku (PDF). Wymusza wyświetlanie dwóch miejsc po przecinku bez względu na wartość zerową groszy.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & val -\/ Wartość kwotowa \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Sformatowany ciąg znaków, np. "{}1 500,00 PLN"{} 
+\end{DoxyReturn}

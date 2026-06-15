@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase';
 const TYPES = { vacation: 'Urlop wypocz.', sick_leave: 'L4', on_demand: 'Na żądanie', personal: 'Okolicznościowy', other: 'Inny' };
 const EMPTY = { profile_id: '', type: 'vacation', from: '', to: '', note: '' };
 
-/* Moduł ewidencji nieobecności pracowniczych: urlopy, zwolnienia (L4), wnioski na żądanie. Zawiera prosty workflow akceptacji (Zatwierdź/Odrzuć) */
+// Moduł ewidencji nieobecności pracowniczych: urlopy, zwolnienia (L4), wnioski na żądanie. Zawiera prosty workflow akceptacji (Zatwierdź/Odrzuć)
 export default function AbsencesPage() {
   const { employees } = useStore();
   const { profile } = useAuth();

@@ -1,0 +1,61 @@
+\doxysection{src/\+components/\+\+Barcode\+Scanner/\+\+Barcode\+Scanner.jsx File Reference}
+\hypertarget{_barcode_scanner_8jsx}{}\label{_barcode_scanner_8jsx}\index{src/components/BarcodeScanner/BarcodeScanner.jsx@{src/components/BarcodeScanner/BarcodeScanner.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function \doxymbox{\hyperlink{_barcode_scanner_8jsx_af81380864c1c06dfdfa239f752f4ac4d}{inject\+Scan\+Animation}} ()
+\item 
+function default \doxymbox{\hyperlink{_barcode_scanner_8jsx_a619d29e6d3b6aff7823bc0ba500c79dd}{Barcode\+Scanner}} (\{ on\+Confirm, title=\textquotesingle{}Skanuj kod kreskowy\textquotesingle{}, on\+Close \})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_barcode_scanner_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ use\+State, use\+Effect, use\+Ref, use\+Callback \} from \textquotesingle{}react\textquotesingle{}
+\item 
+const \doxymbox{\hyperlink{_barcode_scanner_8jsx_a11296f7556bd7b2f5422e474aab04d4f}{SCAN\+\_\+\+ANIMATION\+\_\+\+CSS}}
+\end{DoxyCompactItemize}
+
+
+\label{_barcode_scanner_8jsx_doc-func-members}
+\Hypertarget{_barcode_scanner_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_barcode_scanner_8jsx_a619d29e6d3b6aff7823bc0ba500c79dd}\index{BarcodeScanner.jsx@{BarcodeScanner.jsx}!BarcodeScanner@{BarcodeScanner}}
+\index{BarcodeScanner@{BarcodeScanner}!BarcodeScanner.jsx@{BarcodeScanner.jsx}}
+\doxysubsubsection{\texorpdfstring{BarcodeScanner()}{BarcodeScanner()}}
+{\footnotesize\ttfamily \label{_barcode_scanner_8jsx_a619d29e6d3b6aff7823bc0ba500c79dd} 
+function default Barcode\+Scanner (\begin{DoxyParamCaption}\item[{}]{\{ on\+Confirm, title=\textquotesingle{}\+Skanuj kod kreskowy\textquotesingle{}, on\+Close \}}{}\end{DoxyParamCaption})}
+
+\Hypertarget{_barcode_scanner_8jsx_af81380864c1c06dfdfa239f752f4ac4d}\index{BarcodeScanner.jsx@{BarcodeScanner.jsx}!injectScanAnimation@{injectScanAnimation}}
+\index{injectScanAnimation@{injectScanAnimation}!BarcodeScanner.jsx@{BarcodeScanner.jsx}}
+\doxysubsubsection{\texorpdfstring{injectScanAnimation()}{injectScanAnimation()}}
+{\footnotesize\ttfamily \label{_barcode_scanner_8jsx_af81380864c1c06dfdfa239f752f4ac4d} 
+function inject\+Scan\+Animation (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{_barcode_scanner_8jsx_doc-var-members}
+\Hypertarget{_barcode_scanner_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_barcode_scanner_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{BarcodeScanner.jsx@{BarcodeScanner.jsx}!import@{import}}
+\index{import@{import}!BarcodeScanner.jsx@{BarcodeScanner.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_barcode_scanner_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ use\+State, use\+Effect, use\+Ref, use\+Callback \} from \textquotesingle{}react\textquotesingle{}}
+
+Komponent skanera kodów kreskowych (Aparat + Klawiatura). Umożliwia wykorzystanie sprzętowej kamery (np. smartfona, tabletu) do ciągłego nasłuchiwania w poszukiwaniu kodów kreskowych 1D/\+2D przy użyciu biblioteki {\ttfamily @zxing/\+browser}. Wyposażony w system {\ttfamily Fallback} — pozwala ręcznie wpisać kod w sytuacji krytycznej (brak kamery). \Hypertarget{_barcode_scanner_8jsx_a11296f7556bd7b2f5422e474aab04d4f}\index{BarcodeScanner.jsx@{BarcodeScanner.jsx}!SCAN\_ANIMATION\_CSS@{SCAN\_ANIMATION\_CSS}}
+\index{SCAN\_ANIMATION\_CSS@{SCAN\_ANIMATION\_CSS}!BarcodeScanner.jsx@{BarcodeScanner.jsx}}
+\doxysubsubsection{\texorpdfstring{SCAN\_ANIMATION\_CSS}{SCAN\_ANIMATION\_CSS}}
+{\footnotesize\ttfamily \label{_barcode_scanner_8jsx_a11296f7556bd7b2f5422e474aab04d4f} 
+const SCAN\+\_\+\+ANIMATION\+\_\+\+CSS}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \`{}}
+\DoxyCodeLine{\ \ @keyframes\ scanLine\ \{}
+\DoxyCodeLine{\ \ \ \ 0\%\ \ \ \{\ top:\ 8\%;\ \}}
+\DoxyCodeLine{\ \ \ \ 50\%\ \ \{\ top:\ calc(92\%\ -\/\ 2px);\ \}}
+\DoxyCodeLine{\ \ \ \ 100\%\ \{\ top:\ 8\%;\ \}}
+\DoxyCodeLine{\ \ \}}
+\DoxyCodeLine{\`{}}
+
+\end{DoxyCode}

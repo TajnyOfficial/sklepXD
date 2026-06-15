@@ -1,0 +1,100 @@
+\doxysection{src/\+pages/\+finance/\+\+Invoices\+Page.jsx File Reference}
+\hypertarget{_invoices_page_8jsx}{}\label{_invoices_page_8jsx}\index{src/pages/finance/InvoicesPage.jsx@{src/pages/finance/InvoicesPage.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function default \doxymbox{\hyperlink{_invoices_page_8jsx_af2607113d6bfd90f99e11f5c9975d62a}{Invoices\+Page}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \doxymbox{\hyperlink{_invoices_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04}{React}}
+\item 
+import \doxymbox{\hyperlink{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ \doxymbox{\hyperlink{_store_context_8jsx_ad3ce0a54aa63bd46c63bf99e9c7c120c}{use\+Store}} \} from \textquotesingle{}../\+../\+contexts/\+\doxymbox{\hyperlink{_store_context_8jsx_a9fd62eaa322120d90e90c480824da8dd}{Store\+Context}}\textquotesingle{}
+\item 
+\doxymbox{\hyperlink{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Modal from components \doxymbox{\hyperlink{_invoices_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb}{Modal}}
+\item 
+\doxymbox{\hyperlink{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot \doxymbox{\hyperlink{_invoices_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}{toast}}
+\item 
+const \doxymbox{\hyperlink{_invoices_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}} = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+URL
+\item 
+const \doxymbox{\hyperlink{_invoices_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}} = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+ANON\+\_\+\+KEY
+\item 
+const \doxymbox{\hyperlink{_invoices_page_8jsx_a4835e349e6bbb23837da2bcb675e423c}{supabase}} = create\+Client(\doxymbox{\hyperlink{_invoices_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}}, \doxymbox{\hyperlink{_invoices_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}})
+\item 
+const \doxymbox{\hyperlink{_invoices_page_8jsx_aab83498427d3a800db7d84d0eedf14a2}{EMPTY}}
+\end{DoxyCompactItemize}
+
+
+\label{_invoices_page_8jsx_doc-func-members}
+\Hypertarget{_invoices_page_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_invoices_page_8jsx_af2607113d6bfd90f99e11f5c9975d62a}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!InvoicesPage@{InvoicesPage}}
+\index{InvoicesPage@{InvoicesPage}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{InvoicesPage()}{InvoicesPage()}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_af2607113d6bfd90f99e11f5c9975d62a} 
+function default Invoices\+Page (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{_invoices_page_8jsx_doc-var-members}
+\Hypertarget{_invoices_page_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_invoices_page_8jsx_aab83498427d3a800db7d84d0eedf14a2}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!EMPTY@{EMPTY}}
+\index{EMPTY@{EMPTY}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{EMPTY}{EMPTY}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_aab83498427d3a800db7d84d0eedf14a2} 
+const EMPTY}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ =\ \{\ }
+\DoxyCodeLine{\ \ customer:\ \textcolor{stringliteral}{''},\ nip:\ \textcolor{stringliteral}{''},\ address:\ \textcolor{stringliteral}{''},\ due\_days:\ \textcolor{stringliteral}{'14'},\ }
+\DoxyCodeLine{\ \ note:\ \textcolor{stringliteral}{'Prosimy\ o\ terminową\ wpłatę.'},\ }
+\DoxyCodeLine{\ \ is\_mpp:\ \textcolor{keyword}{false},\ }
+\DoxyCodeLine{\ \ items:\ [\{\ name:\ \textcolor{stringliteral}{''},\ qty:\ \textcolor{charliteral}{'1'},\ price:\ \textcolor{stringliteral}{''},\ vatRate:\ \textcolor{stringliteral}{'23'}\ \}]\ }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\Hypertarget{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!import@{import}}
+\index{import@{import}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ \doxymbox{\hyperlink{_store_context_8jsx_ad3ce0a54aa63bd46c63bf99e9c7c120c}{use\+Store}} \} from \textquotesingle{}../\+../\+contexts/\+\doxymbox{\hyperlink{_store_context_8jsx_a9fd62eaa322120d90e90c480824da8dd}{Store\+Context}}\textquotesingle{}}
+
+\Hypertarget{_invoices_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!Modal@{Modal}}
+\index{Modal@{Modal}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{Modal}{Modal}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_abd5b5722ba420a164cba1f75c7207dfb} 
+\doxymbox{\hyperlink{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} Modal from components Modal}
+
+\Hypertarget{_invoices_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!React@{React}}
+\index{React@{React}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{React}{React}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_a8e6a862a904cf8b07c69fae7c44a1a04} 
+\doxymbox{\hyperlink{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} React}
+
+\Hypertarget{_invoices_page_8jsx_a4835e349e6bbb23837da2bcb675e423c}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!supabase@{supabase}}
+\index{supabase@{supabase}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabase}{supabase}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_a4835e349e6bbb23837da2bcb675e423c} 
+const supabase = create\+Client(\doxymbox{\hyperlink{_invoices_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}{supabase\+Url}}, \doxymbox{\hyperlink{_invoices_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}{supabase\+Anon\+Key}})}
+
+\Hypertarget{_invoices_page_8jsx_a86795d5e5667931ab7381f32ebd00f46}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!supabaseAnonKey@{supabaseAnonKey}}
+\index{supabaseAnonKey@{supabaseAnonKey}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabaseAnonKey}{supabaseAnonKey}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_a86795d5e5667931ab7381f32ebd00f46} 
+const supabase\+Anon\+Key = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+ANON\+\_\+\+KEY}
+
+\Hypertarget{_invoices_page_8jsx_ab12664b12f6ee28c247c6245953d9bee}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!supabaseUrl@{supabaseUrl}}
+\index{supabaseUrl@{supabaseUrl}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{supabaseUrl}{supabaseUrl}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_ab12664b12f6ee28c247c6245953d9bee} 
+const supabase\+Url = import.\+meta.\+env.\+VITE\+\_\+\+SUPABASE\+\_\+\+URL}
+
+\Hypertarget{_invoices_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}\index{InvoicesPage.jsx@{InvoicesPage.jsx}!toast@{toast}}
+\index{toast@{toast}!InvoicesPage.jsx@{InvoicesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{toast}{toast}}
+{\footnotesize\ttfamily \label{_invoices_page_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a} 
+\doxymbox{\hyperlink{_invoices_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot toast}
+

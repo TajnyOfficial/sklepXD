@@ -1,0 +1,94 @@
+\doxysection{src/\+contexts/\+\+Store\+Context.jsx File Reference}
+\hypertarget{_store_context_8jsx}{}\label{_store_context_8jsx}\index{src/contexts/StoreContext.jsx@{src/contexts/StoreContext.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \doxymbox{\hyperlink{_store_context_8jsx_a8fc22827682110e925b3c54a7d14621a}{Store\+Provider}} (\{ children \})
+\item 
+function export \doxymbox{\hyperlink{_store_context_8jsx_ad3ce0a54aa63bd46c63bf99e9c7c120c}{use\+Store}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_store_context_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ create\+Context, use\+Context, use\+State, use\+Effect, use\+Callback \} from \textquotesingle{}react\textquotesingle{}
+\item 
+\doxymbox{\hyperlink{_store_context_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot \doxymbox{\hyperlink{_store_context_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}{toast}}
+\item 
+const \doxymbox{\hyperlink{_store_context_8jsx_a9fd62eaa322120d90e90c480824da8dd}{Store\+Context}} = create\+Context(null)
+\item 
+const \doxymbox{\hyperlink{_store_context_8jsx_a98a991b50998d5ab1e26c99cec1256d4}{PRICE\+\_\+\+GROUPS}}
+\item 
+const \doxymbox{\hyperlink{_store_context_8jsx_ae2c2a0fc1150fa8e0225908495619e2c}{CROSS\+\_\+\+SELL\+\_\+\+MAP}} = \{\}
+\end{DoxyCompactItemize}
+
+
+\label{_store_context_8jsx_doc-func-members}
+\Hypertarget{_store_context_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_store_context_8jsx_a8fc22827682110e925b3c54a7d14621a}\index{StoreContext.jsx@{StoreContext.jsx}!StoreProvider@{StoreProvider}}
+\index{StoreProvider@{StoreProvider}!StoreContext.jsx@{StoreContext.jsx}}
+\doxysubsubsection{\texorpdfstring{StoreProvider()}{StoreProvider()}}
+{\footnotesize\ttfamily \label{_store_context_8jsx_a8fc22827682110e925b3c54a7d14621a} 
+function export Store\+Provider (\begin{DoxyParamCaption}\item[{}]{\{ children \}}{}\end{DoxyParamCaption})}
+
+\Hypertarget{_store_context_8jsx_ad3ce0a54aa63bd46c63bf99e9c7c120c}\index{StoreContext.jsx@{StoreContext.jsx}!useStore@{useStore}}
+\index{useStore@{useStore}!StoreContext.jsx@{StoreContext.jsx}}
+\doxysubsubsection{\texorpdfstring{useStore()}{useStore()}}
+{\footnotesize\ttfamily \label{_store_context_8jsx_ad3ce0a54aa63bd46c63bf99e9c7c120c} 
+function export use\+Store (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Niestandardowy Hook dostępowy do głównego magazynu (Store).
+
+\begin{DoxyReturn}{Returns}
+\{Object\} Aktualny stan obiektów (produkty, pracownicy) oraz setery i metody akcji. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em \{\+Error\}} & Jeśli użyty poza $<$\+Store\+Provider$>$ \\
+\hline
+\end{DoxyExceptions}
+
+
+\label{_store_context_8jsx_doc-var-members}
+\Hypertarget{_store_context_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_store_context_8jsx_ae2c2a0fc1150fa8e0225908495619e2c}\index{StoreContext.jsx@{StoreContext.jsx}!CROSS\_SELL\_MAP@{CROSS\_SELL\_MAP}}
+\index{CROSS\_SELL\_MAP@{CROSS\_SELL\_MAP}!StoreContext.jsx@{StoreContext.jsx}}
+\doxysubsubsection{\texorpdfstring{CROSS\_SELL\_MAP}{CROSS\_SELL\_MAP}}
+{\footnotesize\ttfamily \label{_store_context_8jsx_ae2c2a0fc1150fa8e0225908495619e2c} 
+const CROSS\+\_\+\+SELL\+\_\+\+MAP = \{\}}
+
+\Hypertarget{_store_context_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{StoreContext.jsx@{StoreContext.jsx}!import@{import}}
+\index{import@{import}!StoreContext.jsx@{StoreContext.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_store_context_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ create\+Context, use\+Context, use\+State, use\+Effect, use\+Callback \} from \textquotesingle{}react\textquotesingle{}}
+
+\Hypertarget{_store_context_8jsx_a98a991b50998d5ab1e26c99cec1256d4}\index{StoreContext.jsx@{StoreContext.jsx}!PRICE\_GROUPS@{PRICE\_GROUPS}}
+\index{PRICE\_GROUPS@{PRICE\_GROUPS}!StoreContext.jsx@{StoreContext.jsx}}
+\doxysubsubsection{\texorpdfstring{PRICE\_GROUPS}{PRICE\_GROUPS}}
+{\footnotesize\ttfamily \label{_store_context_8jsx_a98a991b50998d5ab1e26c99cec1256d4} 
+const PRICE\+\_\+\+GROUPS}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \{}
+\DoxyCodeLine{\ \ regular:\ \{\ label:\ \textcolor{stringliteral}{'Klient\ detaliczny'},\ discount:\ 0\ \},}
+\DoxyCodeLine{\ \ loyal:\ \{\ label:\ \textcolor{stringliteral}{'Stały\ klient'},\ discount:\ 5\ \},}
+\DoxyCodeLine{\ \ contractor:\ \{\ label:\ \textcolor{stringliteral}{'Wykonawca'},\ discount:\ 10\ \},}
+\DoxyCodeLine{\ \ wholesale:\ \{\ label:\ \textcolor{stringliteral}{'Cena\ hurtowa'},\ discount:\ 15\ \},}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\Hypertarget{_store_context_8jsx_a9fd62eaa322120d90e90c480824da8dd}\index{StoreContext.jsx@{StoreContext.jsx}!StoreContext@{StoreContext}}
+\index{StoreContext@{StoreContext}!StoreContext.jsx@{StoreContext.jsx}}
+\doxysubsubsection{\texorpdfstring{StoreContext}{StoreContext}}
+{\footnotesize\ttfamily \label{_store_context_8jsx_a9fd62eaa322120d90e90c480824da8dd} 
+export default Store\+Context = create\+Context(null)}
+
+\Hypertarget{_store_context_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a}\index{StoreContext.jsx@{StoreContext.jsx}!toast@{toast}}
+\index{toast@{toast}!StoreContext.jsx@{StoreContext.jsx}}
+\doxysubsubsection{\texorpdfstring{toast}{toast}}
+{\footnotesize\ttfamily \label{_store_context_8jsx_a4eaa40e8b94a5835d76cfb6f3316695a} 
+\doxymbox{\hyperlink{_store_context_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} toast from react hot toast}
+

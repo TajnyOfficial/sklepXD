@@ -6,7 +6,7 @@ import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 const EMPTY = { customer: '', receipt: '', items: [{ name: '', qty: '1' }], reason: '', quarantine: 'na_magazyn' };
 
-/* Moduł RMA (Zwroty i Reklamacje): rejestracja zwracanego towaru z decyzją systemową (wraca na stan magazynowy vs trafia na straty) */
+// Moduł RMA (Zwroty i Reklamacje): rejestracja zwracanego towaru z decyzją systemową (wraca na stan magazynowy vs trafia na straty)
 export default function ReturnsPage() {
   const { returnsList = [], saveReturn, updateReturnStatus, addPosLog, profile } = useStore();
   const [showModal, setShowModal] = useState(false);
@@ -151,7 +151,7 @@ export default function ReturnsPage() {
         </table>
       </div>
 
-      {/* Modal: nowy zwrot */}
+      // Modal: nowy zwrot
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -169,7 +169,7 @@ export default function ReturnsPage() {
           <div className="input-group"><label>Nr paragonu/FV</label><input className="input" value={form.receipt} onChange={F('receipt')} /></div>
         </div>
 
-        {/* Status towaru — przyciski kafelkowe */}
+        // Status towaru — przyciski kafelkowe
         <div className="input-group mb-20">
           <label style={{ marginBottom: 10, display: 'block' }}>Status towaru</label>
           <div style={{ display: 'flex', gap: 12 }}>
@@ -222,7 +222,7 @@ export default function ReturnsPage() {
         </div>
       </Modal>
 
-      {/* Modal: podgląd zwrotu */}
+      // Modal: podgląd zwrotu
       <Modal
         isOpen={showView}
         onClose={() => setShowView(false)}

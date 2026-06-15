@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 const StoreContext = createContext(null);
 
-/* Słownik konfiguracji grup cenowych używanych do obliczania zniżek w POS */
+// Konfiguracja dostępnych grup cenowych, określająca etykiety oraz wartości procentowe zniżek dla klientów POS.
 const PRICE_GROUPS = {
   regular: { label: 'Klient detaliczny', discount: 0 },
   loyal: { label: 'Stały klient', discount: 5 },
@@ -14,48 +14,48 @@ const PRICE_GROUPS = {
   wholesale: { label: 'Cena hurtowa', discount: 15 },
 };
 
-/* Słownik produktów powiązanych służący do sugestii komplementarnych podczas zakupów */
+// Słownik mapujący produkty na sugerowane towary komplementarne (cross-selling) w trakcie sprzedaży.
 const CROSS_SELL_MAP = {};
 
-/* Główny dostawca stanu aplikacji zarządzający danymi (produkty, klienci), transakcjami i komunikacją z Supabase */
+// Główny dostawca (Provider) stanu biznesowego aplikacji. Przechowuje i synchronizuje dane produktów, klientów i transakcji.
 export function StoreProvider({ children }) {
-  /* Stan uwierzytelnienia pobierany z AuthContext */
+  // Aktualny status uwierzytelnienia oraz profil zalogowanego pracownika pobrane z AuthContext.
   const { isAuthenticated, profile } = useAuth();
 
-  /* Flaga określająca czy aplikacja jest połączona z instancją Supabase */
+  // Weryfikacja dostępności zmiennych środowiskowych Supabase, decydująca o trybie działania aplikacji.
   const isSupabase = !!import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co');
 
-  /* Stan przechowujący listę wszystkich produktów */
+  // Stan przechowujący pełen katalog dostępnych w sklepie produktów, pobrany z bazy danych.
   const [products, setProducts] = useState([]);
 
-  /* Stan przechowujący listę kategorii asortymentu */
+  // Stan przechowujący drzewo lub listę kategorii ułatwiających pogrupowanie asortymentu w widokach POS.
   const [categories, setCategories] = useState([]);
 
-  /* Stan przechowujący bazę klientów */
+  // Kartoteka zapisanych w systemie klientów, służąca do wystawiania dokumentów imiennych i fakturowania.
   const [customers, setCustomers] = useState([]);
 
-  /* Stan przechowujący listę dostawców zewnętrznych */
+  // Baza podmiotów dostarczających towary do sklepu, niezbędna przy dokumentach PZ i przyjęciach zewnętrznych.
   const [suppliers, setSuppliers] = useState([]);
 
-  /* Stan przechowujący listę pracowników sklepu */
+  // Lista personelu sklepu z ich podstawowymi danymi, używana do przypisywania transakcji i dokumentów.
   const [employees, setEmployees] = useState([]);
 
-  /* Stan przechowujący zarejestrowane transakcje (paragony/faktury z POS) */
+  // Rejestr zrealizowanych na stanowiskach POS transakcji kasowych, takich jak paragony i faktury.
   const [transactions, setTransactions] = useState([]);
 
-  /* Stan przechowujący wystawione dokumenty kasowe i handlowe */
+  // Historia wystawionych dokumentów biznesowych (faktury, korekty) pobrana z tabeli 'documents'.
   const [documents, setDocuments] = useState([]);
 
-  /* Stan przechowujący zgłoszone zwroty towarów */
+  // Rejestr zgłoszonych zwrotów konsumenckich oraz reklamacji obsługiwanych w sklepie i magazynie.
   const [returnsList, setReturnsList] = useState([]);
 
-  /* Stan przechowujący logi rejestracji czasu pracy (wejścia/wyjścia) */
+  // Logi z informacjami o rozpoczęciu (clock in) oraz zakończeniu (clock out) pracy przez pracowników.
   const [attendance, setAttendance] = useState([]);
 
-  /* Stan przechowujący lokalizacje magazynowe (regały/półki) */
+  // Definicje miejsc składowania w magazynie (np. strefy, regały, półki) do zarządzania rozmieszczeniem towaru.
   const [warehouseLocations, setWarehouseLocations] = useState([]);
 
-  /* Stany dla nowych funkcji magazynowych, dostaw i opakowań */
+  // Rozbudowane stany biznesowe obejmujące ruchy magazynowe, zarządzanie opakowaniami oraz inwentaryzacje.
   const [stockMovements, setStockMovements] = useState([]);
   const [packaging, setPackaging] = useState([]);
   const [inventories, setInventories] = useState(() => {
@@ -141,7 +141,7 @@ export function StoreProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
 
-  /* Funkcja aktualizująca ustawienia sklepu i synchronizująca je z Supabase */
+  // Funkcja zapisująca nowe dane firmy (np. NIP, adres) oraz parametry kas w bazie i pamięci lokalnej.
   const updateShopSettings = useCallback(async (newSettings) => {
     setShopSettings(newSettings);
     localStorage.setItem('shop_settings', JSON.stringify(newSettings));
@@ -171,7 +171,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase]);
 
-  /* Funkcja aktualizująca definicje ról i uprawnień pracowników */
+  // Mechanizm synchronizujący i odświeżający mapowanie ról oraz ich konkretnych uprawnień systemowych.
   const updateRolePermissions = useCallback(async (newRoles, newLabels, newPermissions) => {
     for (const k in ROLES) delete ROLES[k];
     Object.assign(ROLES, newRoles);
@@ -217,7 +217,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, shopSettings]);
 
-  /* Funkcja dodająca wpis do dziennika logów audytu stanowiska POS */
+  // Funkcja dodająca wpis do ścieżki audytu dla operacji wrażliwych wykonywanych na stanowiskach kasowych.
   const addPosLog = useCallback(async (type, user, register, details, amount = null, extra = null) => {
     const newLog = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
@@ -260,7 +260,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, employees]);
 
-  /* Funkcja asynchroniczna wymuszająca wyłączność logowania danego urządzenia (np. POS/Mobile) */
+  // Mechanizm blokujący możliwość jednoczesnego logowania z wielu urządzeń, rejestrujący unikalną sesję.
   const enforceDeviceLogin = async (employeeId, appType) => {
     if (!isSupabase) return { success: true };
     try {
@@ -302,7 +302,7 @@ export function StoreProvider({ children }) {
     }
   };
 
-  /* Funkcja asynchroniczna rejestrująca wylogowanie i usuwająca sesję urządzenia */
+  // Funkcja sprzątająca, która usuwa aktywną sesję przypisaną do konkretnego fizycznego urządzenia.
   const enforceDeviceLogout = async (appType) => {
     if (!isSupabase) return;
     const deviceId = localStorage.getItem(`${appType}_device_id`);
@@ -415,7 +415,7 @@ export function StoreProvider({ children }) {
     };
   }, [isAuthenticated, isSupabase]);
 
-  /* Główna funkcja ładująca dane sklepu, produktów, klientów i dokumentów z Supabase */
+  // Główna, asynchroniczna funkcja pobierająca z bazy Supabase całościowy pakiet danych (produkty, klienci, faktury) niezbędnych do pracy.
   async function loadData() {
     setLoading(true);
     let supabaseWorks = false;
@@ -433,11 +433,7 @@ export function StoreProvider({ children }) {
       setCategories([]);
       setCustomers([]);
       setSuppliers([]);
-      setEmployees([
-        { id: 'emp-1', name: 'Jan Kowalski', full_name: 'Jan Kowalski', role: 'admin', active: true, pin: '1111' },
-        { id: 'emp-2', name: 'Anna Nowak', full_name: 'Anna Nowak', role: 'shift_manager', active: true, pin: '2222' },
-        { id: 'emp-3', name: 'Piotr Wiśniewski', full_name: 'Piotr Wiśniewski', role: 'cashier', active: true, pin: '3333' }
-      ]);
+      setEmployees([]);
       setTransactions([]);
       setDocuments([]);
 
@@ -451,25 +447,7 @@ export function StoreProvider({ children }) {
 
       try {
         const savedInvs = localStorage.getItem('store_inventories');
-        setInventories(savedInvs ? JSON.parse(savedInvs) : [
-          {
-            id: 'demo-inv-1',
-            number: 'INW/2026/03/001',
-            type: 'partial',
-            scope: 'Elektronarzędzia',
-            status: 'assigned',
-            blind: false,
-            items: [
-              { sku: 'NAR-WU-B13', name: 'Wiertarka udarowa Bosch GSB 13RE', system_qty: 12, counted_qty: null },
-              { sku: 'NAR-SK-M50', name: 'Szlifierka kątowa Makita GA5030', system_qty: 8, counted_qty: null }
-            ],
-            count: 0,
-            diff: 0,
-            date: new Date().toISOString().split('T')[0],
-            assigned_to: 'emp-1',
-            assigned_name: 'Jan Kowalski'
-          }
-        ]);
+        setInventories(savedInvs ? JSON.parse(savedInvs) : []);
       } catch (e) {
         console.error('Failed to parse store_inventories:', e);
       }
@@ -970,9 +948,9 @@ export function StoreProvider({ children }) {
     return products.filter(p => p.stock_qty <= p.min_stock && p.min_stock > 0);
   }, [products]);
 
-  // ── Tryb Supabase vs Demo ─────────────────────────────────────────────────
+  // Tryb Supabase vs Demo
 
-  // ── PRODUKTY ─────────────────────────────────────────────────────────────
+  // PRODUKTY
   const saveProduct = useCallback(async (productData, existingId = null) => {
     const row = {
       name: productData.name,
@@ -1301,7 +1279,7 @@ export function StoreProvider({ children }) {
     });
   }, [isSupabase]);
 
-  // ── PRACOWNICY ────────────────────────────────────────────────────────────
+  // PRACOWNICY
   const saveEmployee = useCallback(async (empData, existingId = null) => {
     const roleMap = {
       'Administrator': 'admin',
@@ -1512,7 +1490,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, employees]);
 
-  // ── DOKUMENTY ─────────────────────────────────────────────────────────────
+  // DOKUMENTY
   const saveDocument = useCallback(async (docData) => {
     // Walidacja UUID dla issued_by (Supabase wymaga poprawnego formatu)
     const isValidUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
@@ -1562,7 +1540,7 @@ export function StoreProvider({ children }) {
     setDocuments(prev => prev.map(d => (d.id === docId || d._db_id === docId) ? { ...d, status: newStatus } : d));
   }, [isSupabase, documents]);
 
-  // ── ZWROTY ────────────────────────────────────────────────────────────────
+  // ZWROTY
   const saveReturn = useCallback(async (returnData) => {
     const row = {
       return_number: returnData.number || `ZW/${Date.now()}`,
@@ -1600,7 +1578,7 @@ export function StoreProvider({ children }) {
     setReturnsList(prev => prev.map(r => r.id === returnId ? { ...r, status: newStatus } : r));
   }, [isSupabase]);
 
-  // ── TRANSAKCJE ────────────────────────────────────────────────────────────
+  // TRANSAKCJE
   const addTransaction = useCallback(async (transaction) => {
     const isValidUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
     const sellerId = isValidUUID(transaction.seller_id) ? transaction.seller_id : null;
@@ -1632,7 +1610,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase]);
 
-  // ── KLIENCI ───────────────────────────────────────────────────────────────
+  // KLIENCI
   const saveCustomer = useCallback(async (custData, existingId = null) => {
     const row = {
       type: custData.type || 'person',
@@ -1691,7 +1669,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, customers, addPosLog, profile]);
 
-  // ── INWENTARYZACJE (INVENTORIES) ──────────────────────────────────────────
+  // INWENTARYZACJE (INVENTORIES)
   const saveInventory = useCallback(async (invData) => {
     // Mapuj status do bazy danych
     const dbStatus = invData.status === 'assigned' ? 'planned' : invData.status;
@@ -1833,7 +1811,7 @@ export function StoreProvider({ children }) {
     });
   }, [isSupabase, products, employees, addPosLog, profile]);
 
-  // ── GRAFIK (SCHEDULES) ────────────────────────────────────────────────────
+  // GRAFIK (SCHEDULES)
   const saveSchedule = useCallback(async (schedData) => {
     const row = {
       profile_id: schedData.profile_id,
@@ -1924,11 +1902,11 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, schedules, employees, addPosLog, profile]);
 
-  // ── Stare funkcje (zachowane dla kompatybilności) ─────────────────────────
+  // Stare funkcje (zachowane dla kompatybilności)
   const addDocument = saveDocument;
 
 
-  // ── DOSTAWCY ─────────────────────────────────────────────────────────────
+  // DOSTAWCY
   const saveSupplier = useCallback(async (supData, existingId = null) => {
     const row = {
       name: supData.name,
@@ -1987,7 +1965,7 @@ export function StoreProvider({ children }) {
     }
   }, [isSupabase, suppliers, addPosLog, profile]);
 
-  // ── KATEGORIE ─────────────────────────────────────────────────────────────
+  // KATEGORIE
   const saveCategory = useCallback(async (catData, existingId = null) => {
     const row = {
       name: catData.name,

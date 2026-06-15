@@ -1,0 +1,284 @@
+\doxysection{src/\+utils/\+helpers.js File Reference}
+\hypertarget{helpers_8js}{}\label{helpers_8js}\index{src/utils/helpers.js@{src/utils/helpers.js}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a80da30ad61600031580cff63fac33683}{format\+Currency}} (amount)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_afaf6d67e1a072061754bacc46018adf5}{format\+Date}} (date)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_ad78a8a59e6d82b6136f40eae82f34408}{format\+Date\+Time}} (date)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a5d4967b3506a65404318c93384fe2fcd}{format\+Time\+Ago}} (date)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a3604840d2a492da58d6af0fca2fa32d0}{format\+Time}} (date)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_ad80c46e7c44dae8bc2e09f3fbcfbaa2d}{generate\+Doc\+Number}} (prefix, sequence)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a159a19b1a68cc92c2b5a92517f2a617a}{truncate}} (str, max\+Length=40)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a1ad40f3419b667ff81e8cb4ef3fb33e4}{class\+Names}} (...classes)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a802f7455658d82338fa44e583cd6726a}{debounce}} (fn, delay=300)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_ab16588aa6c1330789e9fd4c766a2c41b}{get\+Initials}} (name)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a9e5fce8e20b6c5080200894d6877fd1a}{calculate\+VAT}} (net\+Amount, vat\+Rate)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_aeb1959696b978e2f82fb498822d1a0c9}{calculate\+Gross\+From\+Net}} (net\+Amount, vat\+Rate)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_a3b2f281e887d4265ec584b08d9a21955}{calculate\+Net\+From\+Gross}} (gross\+Amount, vat\+Rate)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_aa35af5a50ca6a771ff36d34d5d25c049}{calculate\+Margin}} (sell\+Price, purchase\+Price)
+\item 
+function export \doxymbox{\hyperlink{helpers_8js_adc68a96858dac6bdb3c59a2b71157d1d}{calculate\+Markup}} (sell\+Price, purchase\+Price)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{helpers_8js_a59be084da8908b7d77ff34b25cd84488}{import}} \{ format, format\+Distance\+To\+Now \} from \textquotesingle{}date-\/fns\textquotesingle{}
+\end{DoxyCompactItemize}
+
+
+\label{helpers_8js_doc-func-members}
+\Hypertarget{helpers_8js_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{helpers_8js_aeb1959696b978e2f82fb498822d1a0c9}\index{helpers.js@{helpers.js}!calculateGrossFromNet@{calculateGrossFromNet}}
+\index{calculateGrossFromNet@{calculateGrossFromNet}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{calculateGrossFromNet()}{calculateGrossFromNet()}}
+{\footnotesize\ttfamily \label{helpers_8js_aeb1959696b978e2f82fb498822d1a0c9} 
+function export calculate\+Gross\+From\+Net (\begin{DoxyParamCaption}\item[{}]{net\+Amount}{, }\item[{}]{vat\+Rate}{}\end{DoxyParamCaption})}
+
+Zwraca całkowitą kwotę brutto na podstawie kwoty netto. 
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & net\+Amount -\/ Kwota netto \\
+\hline
+{\em \{number\}} & vat\+Rate -\/ Stawka podatku VAT (w \%) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} Całkowita kwota brutto 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_aa35af5a50ca6a771ff36d34d5d25c049}\index{helpers.js@{helpers.js}!calculateMargin@{calculateMargin}}
+\index{calculateMargin@{calculateMargin}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{calculateMargin()}{calculateMargin()}}
+{\footnotesize\ttfamily \label{helpers_8js_aa35af5a50ca6a771ff36d34d5d25c049} 
+function export calculate\+Margin (\begin{DoxyParamCaption}\item[{}]{sell\+Price}{, }\item[{}]{purchase\+Price}{}\end{DoxyParamCaption})}
+
+Oblicza wskaźnik rentowności w stosunku do ceny sprzedaży (marżę procentową). (Cena sprzedaży -\/ Koszt) /\+ Cena Sprzedaży 
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & sell\+Price -\/ Ustalona cena sprzedaży produktu \\
+\hline
+{\em \{number\}} & purchase\+Price -\/ Koszt zakupu/\+nabycia \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} Marża w ujęciu procentowym 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_adc68a96858dac6bdb3c59a2b71157d1d}\index{helpers.js@{helpers.js}!calculateMarkup@{calculateMarkup}}
+\index{calculateMarkup@{calculateMarkup}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{calculateMarkup()}{calculateMarkup()}}
+{\footnotesize\ttfamily \label{helpers_8js_adc68a96858dac6bdb3c59a2b71157d1d} 
+function export calculate\+Markup (\begin{DoxyParamCaption}\item[{}]{sell\+Price}{, }\item[{}]{purchase\+Price}{}\end{DoxyParamCaption})}
+
+Oblicza narzut procentowy względem kosztów zakupu produktu. (Cena sprzedaży -\/ Koszt) /\+ Koszt 
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & sell\+Price -\/ Ustalona cena sprzedaży produktu \\
+\hline
+{\em \{number\}} & purchase\+Price -\/ Koszt zakupu/\+nabycia \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} Narzut wyrażony w procentach 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a3b2f281e887d4265ec584b08d9a21955}\index{helpers.js@{helpers.js}!calculateNetFromGross@{calculateNetFromGross}}
+\index{calculateNetFromGross@{calculateNetFromGross}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{calculateNetFromGross()}{calculateNetFromGross()}}
+{\footnotesize\ttfamily \label{helpers_8js_a3b2f281e887d4265ec584b08d9a21955} 
+function export calculate\+Net\+From\+Gross (\begin{DoxyParamCaption}\item[{}]{gross\+Amount}{, }\item[{}]{vat\+Rate}{}\end{DoxyParamCaption})}
+
+Odwraca proces i wylicza kwotę netto ze znanej kwoty brutto. 
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & gross\+Amount -\/ Kwota brutto \\
+\hline
+{\em \{number\}} & vat\+Rate -\/ Stawka podatku VAT (w \%) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} Podstawowa kwota netto 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a9e5fce8e20b6c5080200894d6877fd1a}\index{helpers.js@{helpers.js}!calculateVAT@{calculateVAT}}
+\index{calculateVAT@{calculateVAT}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{calculateVAT()}{calculateVAT()}}
+{\footnotesize\ttfamily \label{helpers_8js_a9e5fce8e20b6c5080200894d6877fd1a} 
+function export calculate\+VAT (\begin{DoxyParamCaption}\item[{}]{net\+Amount}{, }\item[{}]{vat\+Rate}{}\end{DoxyParamCaption})}
+
+Oblicza wartość kwotową podatku VAT z podanej kwoty netto. 
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & net\+Amount -\/ Kwota netto \\
+\hline
+{\em \{number\}} & vat\+Rate -\/ Stawka podatku VAT (w \%) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{number\} Wartość podatku 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a1ad40f3419b667ff81e8cb4ef3fb33e4}\index{helpers.js@{helpers.js}!classNames@{classNames}}
+\index{classNames@{classNames}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{classNames()}{classNames()}}
+{\footnotesize\ttfamily \label{helpers_8js_a1ad40f3419b667ff81e8cb4ef3fb33e4} 
+function export class\+Names (\begin{DoxyParamCaption}\item[{}]{...}{}\end{DoxyParamCaption})}
+
+Dynamicznie łączy nazwy klas CSS w jeden ciąg znaków (filtrując pustę argumenty). 
+\begin{DoxyParams}{Parameters}
+{\em \{...\+string\}} & classes -\/ Lista klas do złączenia \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Ciąg znaków z klasami CSS 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a802f7455658d82338fa44e583cd6726a}\index{helpers.js@{helpers.js}!debounce@{debounce}}
+\index{debounce@{debounce}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{debounce()}{debounce()}}
+{\footnotesize\ttfamily \label{helpers_8js_a802f7455658d82338fa44e583cd6726a} 
+function export debounce (\begin{DoxyParamCaption}\item[{}]{fn}{, }\item[{}]{delay}{ = {\ttfamily 300}}\end{DoxyParamCaption})}
+
+Optymalizator wydajności -\/ Debounce. Opóźnia wykonanie funkcji aż upłynie podany czas od ostatniego jej wywołania. Idealne pod suwaki cenowe i inputy wyszukiwarek tekstowych.
+
+
+\begin{DoxyParams}{Parameters}
+{\em \{\+Function\}} & fn -\/ Funkcja do opóźnienia \\
+\hline
+{\em \{number\}} & \+[delay=300]\+ -\/ Czas w milisekundach \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{Function\} Funkcja odkładająca wykonanie w czasie 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a80da30ad61600031580cff63fac33683}\index{helpers.js@{helpers.js}!formatCurrency@{formatCurrency}}
+\index{formatCurrency@{formatCurrency}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{formatCurrency()}{formatCurrency()}}
+{\footnotesize\ttfamily \label{helpers_8js_a80da30ad61600031580cff63fac33683} 
+function export format\+Currency (\begin{DoxyParamCaption}\item[{}]{amount}{}\end{DoxyParamCaption})}
+
+Formatuje podaną kwotę na format walutowy (polski złoty). 
+\begin{DoxyParams}{Parameters}
+{\em \{number\}} & amount -\/ Kwota w postaci liczbowej \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Sformatowana wartość np. "{}150,00 zł"{} 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_afaf6d67e1a072061754bacc46018adf5}\index{helpers.js@{helpers.js}!formatDate@{formatDate}}
+\index{formatDate@{formatDate}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{formatDate()}{formatDate()}}
+{\footnotesize\ttfamily \label{helpers_8js_afaf6d67e1a072061754bacc46018adf5} 
+function export format\+Date (\begin{DoxyParamCaption}\item[{}]{date}{}\end{DoxyParamCaption})}
+
+Formatuje pełną datę do podstawowego zapisu dzień-\/miesiąc-\/rok. 
+\begin{DoxyParams}{Parameters}
+{\em \{string\texorpdfstring{$\vert$}{|}\+Date\}} & date -\/ Obiekt daty lub ciąg znaków (ISO) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Data w formacie "{}\+DD.\+MM.\+YYYY"{} 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_ad78a8a59e6d82b6136f40eae82f34408}\index{helpers.js@{helpers.js}!formatDateTime@{formatDateTime}}
+\index{formatDateTime@{formatDateTime}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{formatDateTime()}{formatDateTime()}}
+{\footnotesize\ttfamily \label{helpers_8js_ad78a8a59e6d82b6136f40eae82f34408} 
+function export format\+Date\+Time (\begin{DoxyParamCaption}\item[{}]{date}{}\end{DoxyParamCaption})}
+
+Formatuje datę ze wskazaniem na dokładny czas (godziny i minuty). 
+\begin{DoxyParams}{Parameters}
+{\em \{string\texorpdfstring{$\vert$}{|}\+Date\}} & date -\/ Obiekt daty lub ciąg znaków \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Data i czas w formacie "{}\+DD.\+MM.\+YYYY HH:\+mm"{} 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a3604840d2a492da58d6af0fca2fa32d0}\index{helpers.js@{helpers.js}!formatTime@{formatTime}}
+\index{formatTime@{formatTime}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{formatTime()}{formatTime()}}
+{\footnotesize\ttfamily \label{helpers_8js_a3604840d2a492da58d6af0fca2fa32d0} 
+function export format\+Time (\begin{DoxyParamCaption}\item[{}]{date}{}\end{DoxyParamCaption})}
+
+Zwraca samą godzinę z podanej daty. 
+\begin{DoxyParams}{Parameters}
+{\em \{string\texorpdfstring{$\vert$}{|}\+Date\}} & date -\/ Obiekt daty \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Czas w formacie "{}\+HH:\+mm"{} 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a5d4967b3506a65404318c93384fe2fcd}\index{helpers.js@{helpers.js}!formatTimeAgo@{formatTimeAgo}}
+\index{formatTimeAgo@{formatTimeAgo}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{formatTimeAgo()}{formatTimeAgo()}}
+{\footnotesize\ttfamily \label{helpers_8js_a5d4967b3506a65404318c93384fe2fcd} 
+function export format\+Time\+Ago (\begin{DoxyParamCaption}\item[{}]{date}{}\end{DoxyParamCaption})}
+
+Zwraca czas względny od podanej daty (np. "{}3 minuty temu"{}). 
+\begin{DoxyParams}{Parameters}
+{\em \{string\texorpdfstring{$\vert$}{|}\+Date\}} & date -\/ Obiekt daty \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Zlokalizowany czas względny (pl) 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_ad80c46e7c44dae8bc2e09f3fbcfbaa2d}\index{helpers.js@{helpers.js}!generateDocNumber@{generateDocNumber}}
+\index{generateDocNumber@{generateDocNumber}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{generateDocNumber()}{generateDocNumber()}}
+{\footnotesize\ttfamily \label{helpers_8js_ad80c46e7c44dae8bc2e09f3fbcfbaa2d} 
+function export generate\+Doc\+Number (\begin{DoxyParamCaption}\item[{}]{prefix}{, }\item[{}]{sequence}{}\end{DoxyParamCaption})}
+
+Generuje sformatowany numer ewidencyjny dokumentu magazynowego/\+handlowego. 
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & prefix -\/ Przedrostek dokumentu (np. "{}\+FV"{}, "{}\+WZ"{}, "{}\+PZ"{}) \\
+\hline
+{\em \{number\}} & sequence -\/ Kolejny numer w systemie \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Numer np. "{}\+FV/\+2026/\+05/\+0014"{} 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_ab16588aa6c1330789e9fd4c766a2c41b}\index{helpers.js@{helpers.js}!getInitials@{getInitials}}
+\index{getInitials@{getInitials}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{getInitials()}{getInitials()}}
+{\footnotesize\ttfamily \label{helpers_8js_ab16588aa6c1330789e9fd4c766a2c41b} 
+function export get\+Initials (\begin{DoxyParamCaption}\item[{}]{name}{}\end{DoxyParamCaption})}
+
+Generuje wielkoliterowe inicjały z pełnego imienia i nazwiska. Wykorzystywane główne na awatarach użytkowników. 
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & name -\/ Imię i nazwisko (lub nazwa) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Dwuliterowe inicjały (np. "{}\+JK"{}) 
+\end{DoxyReturn}
+\Hypertarget{helpers_8js_a159a19b1a68cc92c2b5a92517f2a617a}\index{helpers.js@{helpers.js}!truncate@{truncate}}
+\index{truncate@{truncate}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{truncate()}{truncate()}}
+{\footnotesize\ttfamily \label{helpers_8js_a159a19b1a68cc92c2b5a92517f2a617a} 
+function export truncate (\begin{DoxyParamCaption}\item[{}]{str}{, }\item[{}]{max\+Length}{ = {\ttfamily 40}}\end{DoxyParamCaption})}
+
+Przycina ciąg znaków do wskazanej długości, dodając wielokropek. 
+\begin{DoxyParams}{Parameters}
+{\em \{string\}} & str -\/ Tekst do skrócenia \\
+\hline
+{\em \{number\}} & \+[max\+Length=40]\+ -\/ Maksymalna dozwolona długość \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\{string\} Przycięty tekst 
+\end{DoxyReturn}
+
+
+\label{helpers_8js_doc-var-members}
+\Hypertarget{helpers_8js_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{helpers_8js_a59be084da8908b7d77ff34b25cd84488}\index{helpers.js@{helpers.js}!import@{import}}
+\index{import@{import}!helpers.js@{helpers.js}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{helpers_8js_a59be084da8908b7d77ff34b25cd84488} 
+import \{ format, format\+Distance\+To\+Now \} from \textquotesingle{}date-\/fns\textquotesingle{}}
+

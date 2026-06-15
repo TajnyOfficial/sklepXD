@@ -1,10 +1,5 @@
-/**
- * Moduł (Aplikacja) Mobilnego Asystenta Sklepu.
- * 
- * Zoptymalizowany pod urządzenia przenośne (smartfony, terminale zebra).
- * Służy głównie do inwentaryzacji, przyjmowania dostaw i szybkiego sprawdzania stanów.
- * Interfejs opiera się na dolnym pasku nawigacyjnym (Bottom Navigation).
- */
+// Moduł aplikacji mobilnej dla pracowników sklepu.
+// Służy do inwentaryzacji, dostaw i sprawdzania stanów magazynowych.
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
@@ -18,10 +13,7 @@ import MobileDeliveriesPage from '../pages/mobile/MobileDeliveriesPage';
 import MobileReceiveDeliveryPage from '../pages/mobile/MobileReceiveDeliveryPage';
 import { FiClipboard, FiPackage, FiSearch, FiLogOut, FiTablet, FiTruck } from 'react-icons/fi';
 
-/**
- * Ekran logowania kodem PIN dla pracowników na urządzeniach mobilnych.
- * Identyfikuje osobę obsługującą skaner przed dopuszczeniem jej do pracy.
- */
+// Ekran logowania PIN do autoryzacji pracownika przed pracą z terminalem.
 function MobilePinLogin() {
   const { employees, updateMobileSession, addPosLog, enforceDeviceLogin } = useStore();
   const [pin, setPin] = useState('');
@@ -102,7 +94,7 @@ function MobilePinLogin() {
       background: 'var(--bg-primary)',
       fontFamily: 'var(--font-sans)', padding: '24px 20px',
     }}>
-      {/* Header */}
+      // Header
       <div style={{ textAlign: 'center', marginBottom: 36 }}>
         <div style={{
           width: 60, height: 60, borderRadius: '4px', margin: '0 auto 16px',
@@ -121,7 +113,7 @@ function MobilePinLogin() {
         background: 'var(--bg-card)', border: '1px solid var(--border-primary)', borderRadius: '4px',
         padding: '32px 28px', width: '100%', maxWidth: 320,
       }}>
-        {/* PIN dots */}
+        // PIN dots
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 28 }}>
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i} style={{
@@ -166,11 +158,7 @@ function MobilePinLogin() {
 }
 
 
-/**
- * Dolny pasek nawigacyjny (Bottom Navigation).
- * Ergonomiczny interfejs charakterystyczny dla systemów operacyjnych urządzeń mobilnych.
- * Pozwala na szybkie przełączanie między inwentaryzacją, stanami i skanerem, używając kciuka.
- */
+// Dolny pasek nawigacyjny, ułatwiający przełączanie głównych widoków kciukiem.
 function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -224,11 +212,7 @@ function BottomNav() {
   );
 }
 
-/**
- * Szablon (Layout) wizualny aplikacji mobilnej.
- * Obejmuje obszar ze ścieżkami (Routes) zajmujący większość ekranu 
- * oraz przytwierdzony na stałe dolny pasek (BottomNav).
- */
+// Szablon ekranów mobilnych — wyświetla wybrany widok i dolną nawigację.
 function MobileLayout() {
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 64 }}>
@@ -245,6 +229,7 @@ function MobileLayout() {
   );
 }
 
+// Sprawdza logowanie pracownika i renderuje właściwy ekran (logowanie lub aplikację).
 function MobileInner() {
   const { mobileSession } = useStore();
   const session = mobileSession || { mobileUser: null };
@@ -265,7 +250,7 @@ function MobileInner() {
   );
 }
 
-/* Punkt startowy (Root) aplikacji mobilnej. Odpowiada za dostarczenie kontekstów (Store, Auth) i ustawienie bazowej ścieżki routingu na "/mobile" */
+// Główny komponent (Router) ustawiający ścieżkę /mobile i dostarczający kontekst stanu.
 export default function MobileApp() {
   return (
     <AuthProvider>

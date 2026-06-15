@@ -1,15 +1,15 @@
 import { useStore } from '../../contexts/StoreContext';
 import { getInitials } from '../../utils/helpers';
 
-/* Komponent nagłówka dedykowany dla aplikacji mobilnej z identyfikacją i uprawnieniami aktualnie zalogowanego usera */
+// Pasek nagłówkowy aplikacji mobilnej. Wyświetla dane i rolę zalogowanego pracownika.
 export default function MobileHeader({ title = 'Sklep Mobile', subtitle = '' }) {
-  /* Odczytanie sesji mobilnej z głównego StoreContext */
+  // Odczyt sesji pracownika.
   const { mobileSession } = useStore();
   
-  /* Imię lub nazwa użytkownika widoczna w górnym pasku aplikacji mobilnej */
+  // Imię / Nazwisko użytkownika.
   const userName = mobileSession?.mobileUser?.name || mobileSession?.mobileUser?.full_name || 'Użytkownik';
   
-  /* Rola systemowa użytkownika określająca jego obowiązki (np. 'warehouse_worker') */
+  // Rola systemowa użytkownika.
   const userRole = mobileSession?.mobileUser?.role || 'Pracownik';
 
   return (
@@ -37,7 +37,7 @@ export default function MobileHeader({ title = 'Sklep Mobile', subtitle = '' }) 
         </div>
       </div>
 
-      {/* Informacje o zalogowanym użytkowniku */}
+      // Informacje o zalogowanym użytkowniku
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-heading)' }}>

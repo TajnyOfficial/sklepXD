@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 const EMPTY = { name: '', nip: '', contact: { phone: '', email: '' }, rating: '4.0', address: '', payment_terms: '14' };
 
-/* Baza Kontrahentów (Dostawców B2B) - pozwala śledzić terminy płatności, oceniać współpracę (gwiazdki) oraz zarządzać danymi kontaktowymi */
+// Baza Kontrahentów (Dostawców B2B) - pozwala śledzić terminy płatności, oceniać współpracę (gwiazdki) oraz zarządzać danymi kontaktowymi
 export default function SuppliersPage() {
   const { suppliers, saveSupplier, deleteSupplier } = useStore();
   const [search, setSearch] = useState('');

@@ -4,17 +4,9 @@ import { FiPlay, FiCheck, FiUserPlus, FiInfo, FiLayers } from 'react-icons/fi';
 import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
-/**
- * Zintegrowany moduł Inwentaryzacji.
- * 
- * Widok centralny z perspektywy Managera Magazynu. Pozwala na:
- * - Planowanie nowych inwentaryzacji: Pełnych, Częściowych oraz "Ślepych" (brak widoczności systemu dla liczącego).
- * - Zlecanie wykonania spisu bezpośrednio magazynierom używającym terminali mobilnych.
- * - Zatwierdzanie inwentaryzacji.
- * - Weryfikowanie logów i raportów różnic z wykonanych zliczeń.
- * 
- * @returns {JSX.Element} Widok kontroli spisu z natury
- */
+// Zintegrowany moduł Inwentaryzacji (widok Managera Magazynu).
+// Umożliwia planowanie inwentaryzacji (pełne/częściowe/ślepe), zlecanie ich magazynierom (Mobile),
+// zatwierdzanie spisu z natury oraz weryfikację raportów z różnicami.
 export default function InventoryPage() {
   const { products, categories, employees, inventories, saveInventory } = useStore();
   const [showCreate, setShowCreate] = useState(false);
@@ -278,7 +270,7 @@ export default function InventoryPage() {
         </table>
       </div>
 
-      {/* Modal Tworzenia Zlecenia (bez przypisywania pracownika) */}
+      // Modal tworzenia nowego zlecenia inwentaryzacji.
       <Modal 
         isOpen={showCreate} 
         onClose={() => setShowCreate(false)} 
@@ -310,7 +302,7 @@ export default function InventoryPage() {
         </div>
       </Modal>
 
-      {/* Modal Zlecania (Wyboru Pracownika) */}
+      // Modal wyboru i przypisania pracownika do zlecenia.
       <Modal
         isOpen={showAssign}
         onClose={() => setShowAssign(false)}
@@ -342,7 +334,7 @@ export default function InventoryPage() {
         </div>
       </Modal>
 
-      {/* Modal Podglądu Szczegółów Wyników */}
+      // Modal podglądu szczegółów i wyników inwentaryzacji.
       <Modal
         isOpen={showDetails}
         onClose={() => setShowDetails(false)}
@@ -404,7 +396,7 @@ export default function InventoryPage() {
         </div>
       </Modal>
 
-      {/* Modal Liczenia (Manualny Spis z poziomu Managera) */}
+      // Modal ręcznego wykonywania spisu przez managera.
       <Modal 
         isOpen={showCount} 
         onClose={() => setShowCount(false)} 

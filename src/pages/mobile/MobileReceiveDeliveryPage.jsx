@@ -6,7 +6,7 @@ import { FiArrowLeft, FiCheck, FiSearch, FiPackage, FiCamera, FiTrash2, FiFileTe
 import toast from 'react-hot-toast';
 import MobileHeader from '../../components/mobile/MobileHeader';
 
-/* Interfejs weryfikacji i odbierania dostawy (PZ) na urządzeniu mobilnym. Pozwala wpisać faktyczną odebraną ilość per produkt i zgłosić ewentualną rozbieżność */
+// Interfejs weryfikacji i odbierania dostawy (PZ) na urządzeniu mobilnym. Pozwala wpisać faktyczną odebraną ilość per produkt i zgłosić ewentualną rozbieżność
 export default function MobileReceiveDeliveryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -193,7 +193,7 @@ export default function MobileReceiveDeliveryPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--bg-primary)', fontFamily: 'var(--font-sans)', color: 'var(--text-heading)' }}>
       <MobileHeader title="Sklep Mobile" subtitle="Odbiór Dostawy" />
 
-      {/* Sub-Header */}
+      // Sub-Header
       <div style={{
         padding: '16px 12px', background: 'var(--bg-card)',
         borderBottom: '1px solid var(--border-primary)',
@@ -214,7 +214,7 @@ export default function MobileReceiveDeliveryPage() {
 
       <div style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
 
-        {/* Sekcja: Wyszukiwarka */}
+        // Sekcja: Wyszukiwarka
         <div style={{ position: 'relative', marginBottom: 16 }}>
           <FiSearch style={{ position: 'absolute', left: 12, top: 14, color: 'var(--text-muted)' }} />
           <input
@@ -230,7 +230,7 @@ export default function MobileReceiveDeliveryPage() {
           />
         </div>
 
-        {/* Sekcja: Dane ogólne zniszczeń i dokumentów dostawy */}
+        // Sekcja: Dane ogólne zniszczeń i dokumentów dostawy
         <div style={{ background: 'var(--bg-card)', padding: 14, borderRadius: 12, marginBottom: 16, border: '1px solid var(--border-light)' }}>
           <h4 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: 600 }}>Ogólne uszkodzenia & Dokumentacja</h4>
 
@@ -259,7 +259,7 @@ export default function MobileReceiveDeliveryPage() {
             />
           )}
 
-          {/* Skanowanie / Załączanie dokumentów bez limitu */}
+          // Skanowanie / Załączanie dokumentów bez limitu
           <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: 12 }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: 8 }}>
               DOŁĄCZ DOKUMENTY LUB ZDJĘCIA DOWODU DOSTAWY (BEZ LIMITU)
@@ -318,7 +318,7 @@ export default function MobileReceiveDeliveryPage() {
           </div>
         </div>
 
-        {/* Sekcja: Lista produktów */}
+        // Sekcja: Lista produktów
         <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)' }}>Produkty w dostawie:</h4>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {filteredItems.map((item, idx) => {
@@ -338,7 +338,7 @@ export default function MobileReceiveDeliveryPage() {
                   SKU: {item.sku || '-'} | EAN: {item.ean || '-'}
                 </div>
 
-                {/* 1. PRZYJĘTO NORMALNIE */}
+                // 1. PRZYJĘTO NORMALNIE
                 <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: 10, marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--success)' }}>🟢 Przyjęto normalnie:</span>
@@ -367,7 +367,7 @@ export default function MobileReceiveDeliveryPage() {
                   />
                 </div>
 
-                {/* 2. PRZYJĘTO USZKODZONE (OUTLET) */}
+                // 2. PRZYJĘTO USZKODZONE (OUTLET)
                 <div style={{ borderTop: '1px dashed var(--border-light)', paddingTop: 10, marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--warning, #d97706)' }}>🟡 Przyjęto uszkodzone (Wyprzedaż):</span>
@@ -396,7 +396,7 @@ export default function MobileReceiveDeliveryPage() {
                   />
                 </div>
 
-                {/* 3. NIE PRZYJĘTO (ODRZUCONE ZNISZCZONY) */}
+                // 3. NIE PRZYJĘTO (ODRZUCONE ZNISZCZONY)
                 <div style={{ borderTop: '1px dashed var(--border-light)', paddingTop: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--danger)' }}>🔴 Odrzucono (nie przyjęto):</span>
@@ -431,7 +431,7 @@ export default function MobileReceiveDeliveryPage() {
         </div>
       </div>
 
-      {/* Footer Actions */}
+      // Footer Actions
       <div style={{
         padding: '16px 12px', background: 'var(--bg-card)',
         borderTop: '1px solid var(--border-primary)',

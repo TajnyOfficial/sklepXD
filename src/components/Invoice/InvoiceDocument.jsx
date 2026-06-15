@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-// Rejestracja fontu z obsługą polskich znaków
+// Rejestracja czcionki Roboto (wymagane dla polskich znaków)
 Font.register({
   family: 'Roboto',
   fonts: [
@@ -11,7 +11,7 @@ Font.register({
   ]
 });
 
-// Funkcja zamieniająca liczby na słowa
+// Zamiana kwoty liczbowej na słowną (np. do wartości na fakturze).
 const kwotaSlownie = (kwota) => {
   if (!kwota || isNaN(kwota)) return 'zero PLN';
   const jednosci = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
@@ -107,7 +107,7 @@ export const InvoiceDocument = ({ data }) => {
   const isCorrection = data.documentType === 'correction' || data.type === 'correction';
   const docTitle = isCorrection ? 'Faktura Korygująca nr' : 'Faktura VAT nr';
 
-  // W 100% BEZPIECZNE GENEROWANIE PODSUMOWANIA
+  // Bezpieczne generowanie tabeli stawek VAT.
   const summaryObj = (data.items || []).reduce((acc, item) => {
     const rate = item.vatRate !== undefined && item.vatRate !== null ? String(item.vatRate) : '0';
     const net = parseFloat(item.unitPriceNet || item.price || 0) || 0;
@@ -142,7 +142,7 @@ export const InvoiceDocument = ({ data }) => {
 
         <View style={styles.headerRow}>
           <View style={styles.logoBox}>
-            <Text style={styles.logoText}>[{data.seller?.name || 'SklepXD.pl'}]</Text>
+            <Text style={styles.logoText}>[{data.seller?.name || 'Sklep.pl'}]</Text>
           </View>
           <View style={styles.infoBox}>
             <Text style={styles.infoTitle}>{docTitle} {data.number}</Text>
@@ -277,7 +277,7 @@ export const InvoiceDocument = ({ data }) => {
         </View>
 
         <View style={styles.footer} fixed>
-          <Text>Druk: System SklepXD</Text>
+          <Text>Druk: System Sklep</Text>
           <Text>Dziękujemy za zakupy!</Text>
           <Text render={({ pageNumber, totalPages }) => (`Strona: ${pageNumber} / ${totalPages}`)} />
         </View>

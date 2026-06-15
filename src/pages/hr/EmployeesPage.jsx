@@ -64,12 +64,12 @@ function normalizeEmployee(e) {
   };
 }
 
-/* Zaawansowany moduł zarządzania bazą personelu: role (RBAC), stawki godzinowe, kody PIN (do Kiosku) oraz obsługa cyfrowych "Akt Osobowych" (skany umów z Supabase) */
+// Zaawansowany moduł zarządzania bazą personelu: role (RBAC), stawki godzinowe, kody PIN (do Kiosku) oraz obsługa cyfrowych "Akt Osobowych" (skany umów z Supabase)
 export default function EmployeesPage() {
-  /* Pobranie narzędzi do manipulacji danymi pracownika z globalnego kontekstu */
+  // Pobranie narzędzi do manipulacji danymi pracownika z globalnego kontekstu
   const { employees, saveEmployee, deleteEmployee, toggleEmployeeActive, isSupabase } = useStore();
   
-  /* Rozbudowane stany UI kontrolujące modale (edycja/usuwanie), filtry (np. pokaż zarchiwizowanych) oraz formularze */
+  // Rozbudowane stany UI kontrolujące modale (edycja/usuwanie), filtry (np. pokaż zarchiwizowanych) oraz formularze
   const [showModal, setShowModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
   const [editing, setEditing] = useState(null);
@@ -91,7 +91,7 @@ export default function EmployeesPage() {
     setShowModal(true);
   }
 
-  /* Inicjalizacja modalu edycji - ładuje dane pracownika oraz wykonuje asynchroniczne zapytanie do Supabase w celu pobrania przypisanych do niego plików (Akt) */
+  // Inicjalizacja modalu edycji - ładuje dane pracownika oraz wykonuje asynchroniczne zapytanie do Supabase w celu pobrania przypisanych do niego plików (Akt)
   async function openEdit(emp) {
     setEditing(emp);
     setForm({
@@ -121,7 +121,7 @@ export default function EmployeesPage() {
     }
   }
 
-  /* Główne przesłanie formularza: waliduje PIN, upewnia się że podano nazwisko i zleca zapis/update do bazy */
+  // Główne przesłanie formularza: waliduje PIN, upewnia się że podano nazwisko i zleca zapis/update do bazy
   async function handleSave() {
     if (!form.name.trim()) { toast.error('Podaj imię i nazwisko'); return; }
     if (form.pin && (form.pin.length !== 4 || !/^\d+$/.test(form.pin))) {
@@ -140,7 +140,7 @@ export default function EmployeesPage() {
     setDeleteModal(emp);
   }
 
-  /* Bezpieczna metoda usuwania: nie kasuje rekordu, a jedynie odcina dostęp i chowa z list (tzw. Soft Delete / Archiwizacja) */
+  // Bezpieczna metoda usuwania: nie kasuje rekordu, a jedynie odcina dostęp i chowa z list (tzw. Soft Delete / Archiwizacja)
   async function handleArchive(emp) {
     try {
       if (emp.active) {
@@ -153,7 +153,7 @@ export default function EmployeesPage() {
     }
   }
 
-  /* Trwałe i bezpowrotne usunięcie danych osobowych pracownika z bazy, zgodne z wymogami RODO (jeśli nie chcemy archiwizować) */
+  // Trwałe i bezpowrotne usunięcie danych osobowych pracownika z bazy, zgodne z wymogami RODO (jeśli nie chcemy archiwizować)
   async function handlePermanentDelete(emp) {
     if (!confirm(`Czy na pewno chcesz bezpowrotnie usunąć pracownika "${emp.name}" i wszystkie jego dane? Tej operacji nie można cofnąć.`)) return;
     try {

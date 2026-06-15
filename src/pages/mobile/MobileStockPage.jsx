@@ -4,7 +4,7 @@ import { FiSearch, FiPackage } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import MobileHeader from '../../components/mobile/MobileHeader';
 
-/* Przeglądarka stanów magazynowych na urządzeniach przenośnych. Wyświetla produkty z uwzględnieniem minimalnych zapasów oraz ich fizycznych lokalizacji na regałach */
+// Przeglądarka stanów magazynowych na urządzeniach przenośnych. Wyświetla produkty z uwzględnieniem minimalnych zapasów oraz ich fizycznych lokalizacji na regałach
 export default function MobileStockPage() {
   const { products, warehouseLocations, updateProductStock } = useStore();
   const [search, setSearch] = useState('');
@@ -46,7 +46,7 @@ export default function MobileStockPage() {
       <MobileHeader title="Sklep Mobile" subtitle="Stany Magazynowe" />
       
       <div style={{ padding: '20px' }}>
-        {/* Wyszukiwarka */}
+        // Wyszukiwarka
         <div style={{ position: 'relative', marginBottom: 20 }}>
           <FiSearch style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
           <input 
@@ -105,7 +105,7 @@ export default function MobileStockPage() {
         )}
       </div>
 
-      {/* Bottom Sheet Modal do edycji */}
+      // Bottom Sheet Modal do edycji
       {selectedProduct && (
         <>
           <div 

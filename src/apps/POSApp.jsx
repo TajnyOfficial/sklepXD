@@ -1,9 +1,5 @@
-/**
- * Moduł (Aplikacja) Punktu Sprzedaży (POS).
- * 
- * Izolowane środowisko kasowe zoptymalizowane pod obsługę dotykową i skanery kodów.
- * Funkcjonalności: Wybór kasy, logowanie szybkim kodem PIN, dedykowany pasek górny.
- */
+// Moduł systemu kasowego (POS). 
+// Samodzielne środowisko sprzedażowe obsługiwane dotykiem i skanerem.
 
 import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
@@ -17,11 +13,7 @@ import {
   FiGrid, FiChevronRight, FiUser
 } from 'react-icons/fi';
 
-/**
- * Ekran wyboru stanowiska kasowego.
- * Wymuszany na początku sesji POS, aby przypisać transakcje i logi
- * do odpowiedniej fizycznej kasy (np. "Kasa 1", "Kasa 2").
- */
+// Ekran startowy wymuszający określenie fizycznego stanowiska (np. "Kasa 1").
 function RegisterSelection() {
   const { updatePosSession, shopSettings } = useStore();
 
@@ -61,13 +53,7 @@ function RegisterSelection() {
   );
 }
 
-/**
- * Ekran logowania za pomocą kodu PIN dla kasjerów.
- * Wyświetlany natychmiast po wybraniu konkretnej kasy.
- * 
- * @param {Object} props Właściwości komponentu
- * @param {string} props.selectedRegister - Nazwa aktualnie wybranego stanowiska kasowego
- */
+// Klawiatura numeryczna do autoryzacji kodem PIN kasjera obsługującego sprzedaż.
 function POSPinLogin({ selectedRegister }) {
   const { updatePosSession, clearPosSession, employees, addPosLog, enforceDeviceLogin } = useStore();
   const [pin, setPin] = useState('');
@@ -185,14 +171,7 @@ function POSPinLogin({ selectedRegister }) {
   );
 }
 
-/**
- * Górny pasek nawigacyjny, unikalny dla środowiska POS.
- * Zawiera dane zalogowanego kasjera, informację o stanowisku 
- * oraz szybkie nawigacje do widoku koszyka lub otwierania szuflady na gotówkę.
- * 
- * @param {Object} props Właściwości komponentu
- * @param {Object} props.session - Aktualna sesja zawierająca wybraną kasę i użytkownika
- */
+// Górny pasek środowiska POS – dane kasjera, stanowisko oraz szybka nawigacja.
 function POSTopbar({ session }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -259,7 +238,7 @@ function POSTopbar({ session }) {
   );
 }
 
-// ── 4. POS Inner ─────────────────────────────────────────────────────────────
+// Główne sterowanie stanem POS – upewnia się, że wybrano kasę i zalogowano kasjera.
 function POSInner() {
   const { posSession } = useStore();
 
@@ -289,7 +268,7 @@ function POSInner() {
   );
 }
 
-/* Punkt startowy (Root) stanowiska kasowego POS. Podłącza dostawców stanu, autoryzację PIN i definiuje izolowany router (basename="/pos") */
+// Punkt wejścia (Router) aplikacji kasy fiskalnej, odizolowany pod ścieżką /pos.
 export default function POSApp() {
   return (
     <AuthProvider>

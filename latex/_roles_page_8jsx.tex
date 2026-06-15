@@ -1,0 +1,66 @@
+\doxysection{src/\+pages/\+admin/\+\+Roles\+Page.jsx File Reference}
+\hypertarget{_roles_page_8jsx}{}\label{_roles_page_8jsx}\index{src/pages/admin/RolesPage.jsx@{src/pages/admin/RolesPage.jsx}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+function default \doxymbox{\hyperlink{_roles_page_8jsx_af6de1ed42c8a29bad2db722386a8c65c}{Roles\+Page}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{_roles_page_8jsx_a59be084da8908b7d77ff34b25cd84488}{import}} \{ use\+State \} from \textquotesingle{}react\textquotesingle{}
+\item 
+const \doxymbox{\hyperlink{_roles_page_8jsx_a960b79e98dc0009dd245c15a64b44947}{PERMISSION\+\_\+\+GROUPS}}
+\item 
+const \doxymbox{\hyperlink{_roles_page_8jsx_aaa8da923c9925d31b447dcbc6432ed19}{PERMISSION\+\_\+\+LABELS}}
+\end{DoxyCompactItemize}
+
+
+\label{_roles_page_8jsx_doc-func-members}
+\Hypertarget{_roles_page_8jsx_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_roles_page_8jsx_af6de1ed42c8a29bad2db722386a8c65c}\index{RolesPage.jsx@{RolesPage.jsx}!RolesPage@{RolesPage}}
+\index{RolesPage@{RolesPage}!RolesPage.jsx@{RolesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{RolesPage()}{RolesPage()}}
+{\footnotesize\ttfamily \label{_roles_page_8jsx_af6de1ed42c8a29bad2db722386a8c65c} 
+function default Roles\+Page (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{_roles_page_8jsx_doc-var-members}
+\Hypertarget{_roles_page_8jsx_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{_roles_page_8jsx_a59be084da8908b7d77ff34b25cd84488}\index{RolesPage.jsx@{RolesPage.jsx}!import@{import}}
+\index{import@{import}!RolesPage.jsx@{RolesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{import}{import}}
+{\footnotesize\ttfamily \label{_roles_page_8jsx_a59be084da8908b7d77ff34b25cd84488} 
+import \{ use\+State \} from \textquotesingle{}react\textquotesingle{}}
+
+\Hypertarget{_roles_page_8jsx_a960b79e98dc0009dd245c15a64b44947}\index{RolesPage.jsx@{RolesPage.jsx}!PERMISSION\_GROUPS@{PERMISSION\_GROUPS}}
+\index{PERMISSION\_GROUPS@{PERMISSION\_GROUPS}!RolesPage.jsx@{RolesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{PERMISSION\_GROUPS}{PERMISSION\_GROUPS}}
+{\footnotesize\ttfamily \label{_roles_page_8jsx_a960b79e98dc0009dd245c15a64b44947} 
+const PERMISSION\+\_\+\+GROUPS}
+
+{\bfseries Initial value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \{}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Sprzedaż\ (POS)'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'POS\_'})\ ||\ k\ ===\ \textcolor{stringliteral}{'KIOSK\_ACCESS'}),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Zamówienia'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'ORDERS\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Zwroty'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'RETURNS\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Klienci'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'CUSTOMERS\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Dokumenty'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'DOCS\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Magazyn\ i\ Dostawy'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'PRODUCTS\_'})\ ||\ k.startsWith(\textcolor{stringliteral}{'STOCK\_'})\ ||\ k.startsWith(\textcolor{stringliteral}{'TRANSFERS\_'})\ ||\ k.startsWith(\textcolor{stringliteral}{'LABELS\_'})\ ||\ k.startsWith(\textcolor{stringliteral}{'DELIVERIES\_'})\ ||\ k.startsWith(\textcolor{stringliteral}{'INVENTORY\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Finanse'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'FINANCE\_'})\ ||\ k.startsWith(\textcolor{stringliteral}{'MARGINS\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'HR\ i\ Czas\ pracy'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'HR\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Administracja'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'ADMIN\_'})),}
+\DoxyCodeLine{\ \ \textcolor{stringliteral}{'Komunikacja'}:\ Object.entries(\doxymbox{\hyperlink{rbac_8js_a33319071ef746bef3bc5e916fc3a252b}{PERMISSIONS}}).filter(([k])\ =>\ k.startsWith(\textcolor{stringliteral}{'TASKS\_'})\ ||\ k.startsWith(\textcolor{stringliteral}{'ANNOUNCEMENTS\_'})),}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\Hypertarget{_roles_page_8jsx_aaa8da923c9925d31b447dcbc6432ed19}\index{RolesPage.jsx@{RolesPage.jsx}!PERMISSION\_LABELS@{PERMISSION\_LABELS}}
+\index{PERMISSION\_LABELS@{PERMISSION\_LABELS}!RolesPage.jsx@{RolesPage.jsx}}
+\doxysubsubsection{\texorpdfstring{PERMISSION\_LABELS}{PERMISSION\_LABELS}}
+{\footnotesize\ttfamily \label{_roles_page_8jsx_aaa8da923c9925d31b447dcbc6432ed19} 
+const PERMISSION\+\_\+\+LABELS}
+
